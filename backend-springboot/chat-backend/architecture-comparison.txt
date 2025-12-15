@@ -1,0 +1,203 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        SPRING BOOT ARCHITECTURE                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND                                        │
+│                    (JavaFX - ServerFunctions.java)                          │
+│                                                                              │
+│    HTTPRequest("http://localhost:8080/api/auth/login")                     │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   │ HTTP POST
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           CONTROLLER LAYER                                   │
+│                         (@RestController)                                    │
+│                                                                              │
+│    AuthController.java          FriendController.java                       │
+│    ├─ @PostMapping("/login")    ├─ @GetMapping("/friends")                │
+│    ├─ @PostMapping("/register") ├─ @PostMapping("/accept")                │
+│    └─ Returns: ResponseEntity   └─ Returns: ResponseEntity                 │
+│                                                                              │
+│    Role: Define REST endpoints, handle HTTP requests/responses              │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   │ Calls methods
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            SERVICE LAYER                                     │
+│                          (@Service) [Optional]                               │
+│                                                                              │
+│    AuthService.java             FriendService.java                          │
+│    ├─ validateLogin()           ├─ getFriendsWithDetails()                 │
+│    ├─ hashPassword()            ├─ acceptFriendRequest()                   │
+│    └─ Business Logic            └─ Complex queries & logic                 │
+│                                                                              │
+│    Role: Business logic, replaces stored procedures                         │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   │ Calls data methods
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          REPOSITORY LAYER                                    │
+│                    (extends JpaRepository) - Interface                       │
+│                                                                              │
+│    UserRepository                FriendRepository                           │
+│    ├─ findByUsername()          ├─ findFriendsByUsername()                 │
+│    ├─ save()                    ├─ areFriends()                            │
+│    └─ existsByUsername()        └─ save()                                  │
+│                                                                              │
+│    Role: Database access - Spring auto-generates SQL queries!               │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   │ Generates SQL
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                             MODEL LAYER                                      │
+│                            (@Entity classes)                                 │
+│                                                                              │
+│    User.java                    Friend.java           FriendRequest.java   │
+│    ├─ @Table("users")           ├─ @Table("friends")  ├─ @Table("...")     │
+│    ├─ username                  ├─ person1            ├─ sender            │
+│    ├─ password                  ├─ person2            ├─ receiver          │
+│    └─ photo                     └─ id                 └─ id                │
+│                                                                              │
+│    Role: Java representation of database tables (ORM mapping)               │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   │ Maps to tables
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              DATABASE                                        │
+│                     MySQL (localhost:8889/MAMP)                             │
+│                                                                              │
+│    Tables: users, friends, requeststable, messagetable, etc.               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                      OLD PHP ARCHITECTURE (Your Project)                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND                                        │
+│                    (JavaFX - ServerFunctions.java)                          │
+│                                                                              │
+│    HTTPRequest("http://localhost:8888/Chat-App-Backend/login.php")         │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   │ HTTP POST
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          PHP ENDPOINT FILES                                  │
+│                      (Individual .php files)                                 │
+│                                                                              │
+│    login.php                    getFriends.php                              │
+│    register.php                 getRequests.php                             │
+│    sendMessage.php              becomeFriend.php                            │
+│                                                                              │
+│    Each file does EVERYTHING:                                               │
+│    ✓ Receives request          ✓ Runs queries                              │
+│    ✓ Validates input           ✓ Returns response                          │
+│    ✓ Direct database access    ✓ No separation of concerns                 │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   │ require 'connection.php'
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          HELPER FILES                                        │
+│                                                                              │
+│    connection.php               checklog.php                                │
+│    ├─ mysqli_connect()          └─ session check                           │
+│    └─ Database credentials                                                  │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   │ Direct mysqli_query()
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         STORED PROCEDURES                                    │
+│                          (In MySQL Database)                                 │
+│                                                                              │
+│    CALL getFriends('username')                                              │
+│    CALL addFriend('user1', 'user2')                                         │
+│    CALL sendMessage('sender', 'receiver', 'msg')                            │
+│                                                                              │
+│    Role: All business logic lives HERE in the database                      │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   │ Executes on tables
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              DATABASE                                        │
+│                  MySQL (Heroku ClearDB → Now MAMP)                          │
+│                                                                              │
+│    Tables: users, friends, requeststable, messagetable, etc.               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                            KEY DIFFERENCES
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ASPECT          │ SPRING BOOT                    │ PHP (Your Project)       │
+├─────────────────┼────────────────────────────────┼──────────────────────────┤
+│ Structure       │ Layered (Controller→Service→   │ Flat (1 file per         │
+│                 │ Repository→Model)              │ endpoint)                │
+├─────────────────┼────────────────────────────────┼──────────────────────────┤
+│ Business Logic  │ In Service classes (Java)      │ In stored procedures     │
+│                 │                                │ (SQL)                    │
+├─────────────────┼────────────────────────────────┼──────────────────────────┤
+│ Database Access │ Automatic via JPA/Hibernate    │ Manual mysqli_query()    │
+│                 │ (Spring writes SQL for you)    │ (You write SQL)          │
+├─────────────────┼────────────────────────────────┼──────────────────────────┤
+│ Code Reuse      │ High - Repositories/Services   │ Low - Copy-paste code    │
+│                 │ used across multiple endpoints │ between files            │
+├─────────────────┼────────────────────────────────┼──────────────────────────┤
+│ Type Safety     │ Strong typing, compile-time    │ Weak typing, runtime     │
+│                 │ checking                       │ errors                   │
+├─────────────────┼────────────────────────────────┼──────────────────────────┤
+│ Testing         │ Easy - Mock repositories       │ Hard - Need full DB      │
+├─────────────────┼────────────────────────────────┼──────────────────────────┤
+│ Maintenance     │ Easier - Organized layers      │ Harder - Logic scattered │
+└─────────────────┴────────────────────────────────┴──────────────────────────┘
+
+
+EXAMPLE: "Get Friends" Feature
+
+PHP (login.php):
+  ┌─────────────────────────────────────────────┐
+  │ require 'connection.php';                   │
+  │ require 'checklog.php';                     │
+  │ $username = mysqli_real_escape_string(...); │
+  │ $result = mysqli_query($connection,         │
+  │     "CALL getFriends('$username')");        │
+  │ while($row = ...) { /* format data */ }     │
+  │ echo json_encode($array);                   │
+  └─────────────────────────────────────────────┘
+        Everything mixed together!
+
+Spring Boot:
+  ┌─────────────────────────────────────────────┐
+  │ @RestController                             │
+  │ FriendController {                          │
+  │   @GetMapping("/friends")                   │
+  │   getFriends(@Param user) {                 │
+  │     return friendService.getFriends(user);  │
+  │   }                                         │
+  │ }                                           │
+  └────────────┬────────────────────────────────┘
+               ▼
+  ┌─────────────────────────────────────────────┐
+  │ @Service                                    │
+  │ FriendService {                             │
+  │   getFriends(user) {                        │
+  │     // Business logic here                  │
+  │     return friendRepo.findByUser(user);     │
+  │   }                                         │
+  │ }                                           │
+  └────────────┬────────────────────────────────┘
+               ▼
+  ┌─────────────────────────────────────────────┐
+  │ @Repository                                 │
+  │ FriendRepository {                          │
+  │   List<Friend> findByUser(String user);     │
+  │   // Spring auto-generates SQL!             │
+  │ }                                           │
+  └─────────────────────────────────────────────┘
+        Clean separation of concerns!
