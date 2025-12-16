@@ -8,10 +8,10 @@
 		<version>4.0.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.goksoft</groupId>
-	<artifactId>chat-backend</artifactId>
+	<groupId>com.chatapp</groupId>
+	<artifactId>backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>chat-backend</name>
+	<name>backend</name>
 	<description>Spring Boot for chat application</description>
 	<url/>
 	<licenses>
