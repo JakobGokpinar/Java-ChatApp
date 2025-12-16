@@ -7,7 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ChatBackendApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ChatBackendApplication.class, args);
+
+        SpringApplication.run(ChatBackendApplication.class, args);
 	}
 
 }
