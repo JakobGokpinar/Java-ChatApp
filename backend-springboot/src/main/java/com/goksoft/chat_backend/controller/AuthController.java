@@ -1,47 +1,35 @@
 package com.goksoft.chat_backend.controller;
 
-import com.goksoft.chat_backend.model.User;
-import com.goksoft.chat_backend.repository.UserRepository;
+import com.goksoft.chat_backend.dto.request.LoginRequest;
+import com.goksoft.chat_backend.dto.request.RegisterRequest;
+import com.goksoft.chat_backend.dto.response.ApiResponse;
+import com.goksoft.chat_backend.dto.response.UserResponse;
+import com.goksoft.chat_backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/*
-    POST /api/auth/login
-    POST /api/auth/register
-*/
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*") // Allow frontend to call this
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
-    private UserRepository userRepository;
+    private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String username,
-                                        @RequestParam String password) {
-        var user = userRepository.findByUsernameAndPassword(username, password);
-
-        if (user.isPresent()) {
-            return ResponseEntity.ok("login successful");
-        } else {
-            return ResponseEntity.ok("login unsuccessful");
-        }
+    public ResponseEntity<ApiResponse<UserResponse>> login(@RequestParam String username,
+                                                           @RequestParam String password) {
+        LoginRequest request = new LoginRequest(username, password);
+        ApiResponse<UserResponse> response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestParam String username,
-                                           @RequestParam String password) {
-        // Check if username already exists
-        if (userRepository.existsByUsername(username)) {
-            return ResponseEntity.ok("register unsuccessful");
-        }
-
-        // Create and save new user
-        User newUser = new User(username, password);
-        userRepository.save(newUser);
-
-        return ResponseEntity.ok("register successful");
+    public ResponseEntity<ApiResponse<UserResponse>> register(@RequestParam String username,
+                                                              @RequestParam String password) {
+        RegisterRequest request = new RegisterRequest(username, password);
+        ApiResponse<UserResponse> response = authService.register(request);
+        return ResponseEntity.ok(response);
     }
 }
