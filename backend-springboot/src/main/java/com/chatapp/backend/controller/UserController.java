@@ -32,7 +32,7 @@ public class UserController {
         ApiResponse<byte[]> response = userService.getProfilePhoto(username);
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
-                .body(response.getData());
+                .body(response.data());
     }
 
     // Update profile photo - username from JWT (can only update YOUR OWN photo)

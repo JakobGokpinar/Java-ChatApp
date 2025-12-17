@@ -98,4 +98,15 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
+
+    // Helper method using Java 21 pattern matching
+    private String getErrorCode(Exception ex) {
+        return switch (ex) {
+            case AuthenticationException e -> "AUTHENTICATION_ERROR";
+            case ResourceNotFoundException e -> "RESOURCE_NOT_FOUND";
+            case ValidationException e -> "VALIDATION_ERROR";
+            case DuplicateResourceException e -> "DUPLICATE_RESOURCE";
+            default -> "INTERNAL_SERVER_ERROR";
+        };
+    }
 }

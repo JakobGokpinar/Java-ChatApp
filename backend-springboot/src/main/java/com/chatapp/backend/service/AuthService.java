@@ -25,44 +25,45 @@ public class AuthService {
     private UserRepository userRepository;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private JwtUtil jwtUtil;
 
     public ApiResponse<UserResponse> login(LoginRequest request) {
         // Validate input
-        if (request.getUsername() == null || request.getUsername().isBlank()) {
+        if (request.username() == null || request.username().isBlank()) {
             logger.warn("Login attempt with blank username");
             throw new ValidationException("Username is required");
         }
 
-        if (request.getPassword() == null || request.getPassword().isBlank()) {
-            logger.warn("Login attempt with blank password for user: {}", request.getUsername());
+        if (request.password() == null || request.password().isBlank()) {
+            logger.warn("Login attempt with blank password for user: {}", request.username());
             throw new ValidationException("Password is required");
         }
 
-        logger.info("Login attempt for user: {}", request.getUsername());
+        logger.info("Login attempt for user: {}", request.username());
 
         // Find user by username
-        var userOptional = userRepository.findById(request.getUsername());
+        var userOptional = userRepository.findById(request.username());
 
         if (userOptional.isEmpty()) {
-            logger.warn("Login failed - user not found: {}", request.getUsername());
+            logger.warn("Login failed - user not found: {}", request.username());
             throw new AuthenticationException("Invalid username or password");
         }
 
         User user = userOptional.get();
 
         // Verify password using BCrypt
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            logger.warn("Login failed - invalid password for user: {}", request.getUsername());
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            logger.warn("Login failed - invalid password for user: {}", request.username());
             throw new AuthenticationException("Invalid username or password");
         }
 
+        // Generate JWT token
         String token = jwtUtil.generateToken(user.getUsername());
 
-        logger.info("Login successful for user: {}", request.getUsername());
+        logger.info("Login successful for user: {}", request.username());
 
         UserResponse userResponse = new UserResponse(user.getUsername(), token);
         return ApiResponse.success("Login successful", userResponse);
@@ -70,42 +71,42 @@ public class AuthService {
 
     public ApiResponse<UserResponse> register(RegisterRequest request) {
         // Validate input
-        if (request.getUsername() == null || request.getUsername().isBlank()) {
+        if (request.username() == null || request.username().isBlank()) {
             logger.warn("Registration attempt with blank username");
             throw new ValidationException("Username is required");
         }
 
-        if (request.getPassword() == null || request.getPassword().isBlank()) {
+        if (request.password() == null || request.password().isBlank()) {
             logger.warn("Registration attempt with blank password");
             throw new ValidationException("Password is required");
         }
 
-        if (request.getUsername().length() < 3) {
-            logger.warn("Registration attempt with username too short: {}", request.getUsername());
+        if (request.username().length() < 3) {
+            logger.warn("Registration attempt with username too short: {}", request.username());
             throw new ValidationException("Username must be at least 3 characters");
         }
 
-        if (request.getPassword().length() < 4) {
-            logger.warn("Registration attempt with password too short for user: {}", request.getUsername());
+        if (request.password().length() < 4) {
+            logger.warn("Registration attempt with password too short for user: {}", request.username());
             throw new ValidationException("Password must be at least 4 characters");
         }
 
-        logger.info("Registration attempt for username: {}", request.getUsername());
+        logger.info("Registration attempt for username: {}", request.username());
 
         // Check if username already exists
-        if (userRepository.existsByUsername(request.getUsername())) {
-            logger.warn("Registration failed - username already exists: {}", request.getUsername());
+        if (userRepository.existsByUsername(request.username())) {
+            logger.warn("Registration failed - username already exists: {}", request.username());
             throw new DuplicateResourceException("Username already exists");
         }
 
         // Hash the password using BCrypt
-        String hashedPassword = passwordEncoder.encode(request.getPassword());
+        String hashedPassword = passwordEncoder.encode(request.password());
 
         // Create new user with hashed password
-        User newUser = new User(request.getUsername(), hashedPassword);
+        User newUser = new User(request.username(), hashedPassword);
         userRepository.save(newUser);
 
-        logger.info("User registered successfully: {}", request.getUsername());
+        logger.info("User registered successfully: {}", request.username());
 
         UserResponse userResponse = new UserResponse(newUser.getUsername());
         return ApiResponse.success("Registration successful", userResponse);

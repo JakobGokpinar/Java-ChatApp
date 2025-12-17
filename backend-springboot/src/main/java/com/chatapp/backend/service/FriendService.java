@@ -146,4 +146,13 @@ public class FriendService {
         logger.info("Friend request rejected: {} rejected {}", rejecter, requester);
         return ApiResponse.success("Friend request rejected", null);
     }
+
+    // Helper method using Java 21 switch expression
+    private String getFriendshipStatusMessage(FriendshipStatus status) {
+        return switch (status) {
+            case PENDING -> "Friend request pending";
+            case ACCEPTED -> "You are friends";
+            case REJECTED -> "Friend request was rejected";
+        };
+    }
 }

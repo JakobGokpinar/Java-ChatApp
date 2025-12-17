@@ -1,31 +1,9 @@
 package com.chatapp.backend.dto.response;
 
-public class UserResponse {
-    private String username;
-    private String token;
+public record UserResponse(String username, String token) {
 
+    // Custom constructor for cases without token
     public UserResponse(String username) {
-        this.username = username;
-    }
-
-    public UserResponse(String username, String token) {
-        this.username = username;
-        this.token = token;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
+        this(username, null);
     }
 }
