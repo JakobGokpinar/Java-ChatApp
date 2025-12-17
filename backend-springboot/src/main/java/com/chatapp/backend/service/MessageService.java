@@ -2,10 +2,11 @@ package com.chatapp.backend.service;
 
 import com.chatapp.backend.dto.response.ApiResponse;
 import com.chatapp.backend.dto.response.MessageResponse;
+import com.chatapp.backend.exception.ValidationException;
 import com.chatapp.backend.model.Message;
-import com.chatapp.backend.model.Notification;
 import com.chatapp.backend.repository.MessageRepository;
-import com.chatapp.backend.repository.NotificationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,80 +17,62 @@ import java.util.List;
 @Service
 public class MessageService {
 
+    private static final Logger logger = LoggerFactory.getLogger(MessageService.class);
+
     @Autowired
     private MessageRepository messageRepository;
 
-    @Autowired
-    private NotificationRepository notificationRepository;
-
-    // Send a message
     @Transactional
     public ApiResponse<String> sendMessage(String sender, String receiver, String messageText) {
+        // Validation
+        if (sender == null || sender.isBlank()) {
+            throw new ValidationException("Sender is required");
+        }
+        if (receiver == null || receiver.isBlank()) {
+            throw new ValidationException("Receiver is required");
+        }
+        if (messageText == null || messageText.isBlank()) {
+            throw new ValidationException("Message cannot be empty");
+        }
+
+        logger.info("Sending message: {} → {}", sender, receiver);
+
         try {
-            // Save message
             Message msg = new Message(sender, receiver, messageText);
             messageRepository.save(msg);
 
-            // Update notification count
-            updateNotificationCount(sender, receiver, 1);
-
-            return ApiResponse.success("message sent", null);
+            logger.info("Message sent successfully: {} → {}", sender, receiver);
+            return ApiResponse.success("Message sent", null);
         } catch (Exception e) {
-            return ApiResponse.error("message failed");
+            logger.error("Failed to send message: {} → {}", sender, receiver, e);
+            throw new RuntimeException("Failed to send message");
         }
     }
 
-    // Get messages between two users
     @Transactional
     public ApiResponse<List<MessageResponse>> getMessages(String user1, String receiver) {
+        logger.info("Fetching messages between: {} and {}", user1, receiver);
+
         List<Message> messages = messageRepository.findMessagesBetweenUsers(user1, receiver);
         List<MessageResponse> messageResponses = new ArrayList<>();
 
         for (Message msg : messages) {
-            messageResponses.add(new MessageResponse(msg.getSender(), msg.getMsg()));
+            messageResponses.add(new MessageResponse(msg.getSender(), msg.getContent()));
         }
 
-        // Reset notification count to 0
-        resetNotificationCount(user1, receiver);
+        // Mark all messages from receiver to user1 as read
+        messageRepository.markMessagesAsRead(user1, receiver);
 
+        logger.info("Retrieved {} messages between {} and {}", messages.size(), user1, receiver);
         return ApiResponse.success("Messages retrieved", messageResponses);
     }
 
-    // Check notification count
-    public ApiResponse<Integer> checkNotification(String receiver, String chatter) {
-        var notification = notificationRepository.findBySenderAndReceiver(chatter, receiver);
+    public ApiResponse<Integer> checkNotification(String receiver, String sender) {
+        logger.debug("Checking unread count: {} ← {}", receiver, sender);
 
-        if (notification.isPresent()) {
-            return ApiResponse.success("Notification count", notification.get().getCounts());
-        } else {
-            return ApiResponse.success("Notification count", 0);
-        }
-    }
+        int unreadCount = messageRepository.countUnreadMessages(receiver, sender);
 
-    // Helper: Update notification count
-    private void updateNotificationCount(String sender, String receiver, int increment) {
-        var existingNotif = notificationRepository.findBySenderAndReceiver(sender, receiver);
-
-        if (existingNotif.isPresent()) {
-            // Update existing
-            Notification notif = existingNotif.get();
-            notif.setCounts(notif.getCounts() + increment);
-            notificationRepository.save(notif);
-        } else {
-            // Create new
-            Notification notif = new Notification(sender, receiver, increment);
-            notificationRepository.save(notif);
-        }
-    }
-
-    // Helper: Reset notification count
-    private void resetNotificationCount(String receiver, String sender) {
-        var existingNotif = notificationRepository.findBySenderAndReceiver(sender, receiver);
-
-        if (existingNotif.isPresent()) {
-            Notification notif = existingNotif.get();
-            notif.setCounts(0);
-            notificationRepository.save(notif);
-        }
+        logger.debug("Unread messages for {}: {}", receiver, unreadCount);
+        return ApiResponse.success("Notification count", unreadCount);
     }
 }

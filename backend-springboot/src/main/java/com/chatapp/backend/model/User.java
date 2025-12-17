@@ -2,6 +2,8 @@ package com.chatapp.backend.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -17,12 +19,24 @@ public class User {
     @Column(name = "photo", columnDefinition = "LONGBLOB")
     private byte[] photo;
 
-    // Constructors
-    public User() {}
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    // Constructors
+    public User() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // Constructor with username and password
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     // Getters and Setters
@@ -49,4 +63,8 @@ public class User {
     public void setPhoto(byte[] photo) {
         this.photo = photo;
     }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
 }

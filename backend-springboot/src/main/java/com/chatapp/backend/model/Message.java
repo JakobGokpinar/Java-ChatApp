@@ -4,36 +4,41 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "messagetable")
+@Table(name = "messages")
 public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "sender", length = 25)
+    @Column(nullable = false, length = 50)
     private String sender;
 
-    @Column(name = "receiver", length = 25)
+    @Column(nullable = false, length = 50)
     private String receiver;
 
-    @Column(name = "msg", length = 255)
-    private String msg;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String content;
 
-    @Column(name = "history")
-    private LocalDateTime history;
+    @Column(name = "is_read", nullable = false)
+    private Boolean isRead;
 
-    // Constructors
-    public Message() {}
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-    public Message(String sender, String receiver, String msg) {
-        this.sender = sender;
-        this.receiver = receiver;
-        this.msg = msg;
-        this.history = LocalDateTime.now();
+    public Message() {
+        this.isRead = false;
+        this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
+    public Message(String sender, String receiver, String content) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.content = content;
+        this.isRead = false;
+        this.createdAt = LocalDateTime.now();
+    }
+
     public Integer getId() {
         return id;
     }
@@ -58,19 +63,23 @@ public class Message {
         this.receiver = receiver;
     }
 
-    public String getMsg() {
-        return msg;
+    public String getContent() {
+        return content;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public LocalDateTime getHistory() {
-        return history;
+    public Boolean getIsRead() {
+        return isRead;
     }
 
-    public void setHistory(LocalDateTime history) {
-        this.history = history;
+    public void setIsRead(Boolean isRead) {
+        this.isRead = isRead;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }

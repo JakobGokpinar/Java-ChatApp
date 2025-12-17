@@ -1,10 +1,14 @@
 package com.chatapp.backend.service;
 
 import com.chatapp.backend.dto.response.ApiResponse;
-import com.chatapp.backend.model.Friend;
-import com.chatapp.backend.model.FriendRequest;
-import com.chatapp.backend.repository.FriendRepository;
-import com.chatapp.backend.repository.FriendRequestRepository;
+import com.chatapp.backend.exception.DuplicateResourceException;
+import com.chatapp.backend.exception.ResourceNotFoundException;
+import com.chatapp.backend.exception.ValidationException;
+import com.chatapp.backend.model.Friendship;
+import com.chatapp.backend.model.Friendship.FriendshipStatus;
+import com.chatapp.backend.repository.FriendshipRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,80 +19,131 @@ import java.util.List;
 @Service
 public class FriendService {
 
-    @Autowired
-    private FriendRepository friendRepository;
+    private static final Logger logger = LoggerFactory.getLogger(FriendService.class);
 
     @Autowired
-    private FriendRequestRepository friendRequestRepository;
+    private FriendshipRepository friendshipRepository;
 
-    // Get list of friends
     public ApiResponse<List<String>> getFriends(String username) {
-        List<Friend> friendships = friendRepository.findFriendsByUsername(username);
+        logger.info("Fetching friends for user: {}", username);
+
+        List<Friendship> friendships = friendshipRepository.findAcceptedFriendships(username);
         List<String> friendNames = new ArrayList<>();
 
-        for (Friend friendship : friendships) {
-            // Add the friend's name (the one that's NOT the current user)
-            if (friendship.getPerson1().equals(username)) {
-                friendNames.add(friendship.getPerson2());
+        for (Friendship friendship : friendships) {
+            if (friendship.getUser1().equals(username)) {
+                friendNames.add(friendship.getUser2());
             } else {
-                friendNames.add(friendship.getPerson1());
+                friendNames.add(friendship.getUser1());
             }
         }
 
+        logger.info("Found {} friends for user: {}", friendNames.size(), username);
         return ApiResponse.success("Friends retrieved", friendNames);
     }
 
-    // Get friend requests
     public ApiResponse<List<String>> getFriendRequests(String username) {
-        List<FriendRequest> requests = friendRequestRepository.findByReceiver(username);
+        logger.info("Fetching friend requests for user: {}", username);
+
+        List<Friendship> requests = friendshipRepository.findPendingRequests(username);
         List<String> senderNames = new ArrayList<>();
 
-        for (FriendRequest request : requests) {
-            senderNames.add(request.getSender());
+        for (Friendship request : requests) {
+            senderNames.add(request.getInitiatedBy());
         }
 
+        logger.info("Found {} friend requests for user: {}", senderNames.size(), username);
         return ApiResponse.success("Friend requests retrieved", senderNames);
     }
 
-    // Send friend request
     @Transactional
     public ApiResponse<String> sendFriendRequest(String sender, String receiver) {
+        // Validation
+        if (sender == null || sender.isBlank()) {
+            throw new ValidationException("Sender username is required");
+        }
+        if (receiver == null || receiver.isBlank()) {
+            throw new ValidationException("Receiver username is required");
+        }
+        if (sender.equals(receiver)) {
+            throw new ValidationException("Cannot send friend request to yourself");
+        }
+
+        logger.info("Friend request: {} → {}", sender, receiver);
+
         // Check if already friends
-        if (friendRepository.areFriends(sender, receiver)) {
-            return ApiResponse.error("already friends");
+        if (friendshipRepository.areFriends(sender, receiver)) {
+            logger.warn("Friend request failed - already friends: {} and {}", sender, receiver);
+            throw new DuplicateResourceException("You are already friends");
         }
 
-        // Check if request already exists
-        if (friendRequestRepository.existsBySenderAndReceiver(sender, receiver)) {
-            return ApiResponse.error("request already exists");
+        // Check if pending request already exists
+        if (friendshipRepository.existsByUsersAndStatus(sender, receiver, FriendshipStatus.PENDING)) {
+            logger.warn("Friend request failed - request already exists: {} → {}", sender, receiver);
+            throw new DuplicateResourceException("Friend request already sent");
         }
 
-        // Create and save request
-        FriendRequest request = new FriendRequest(sender, receiver);
-        friendRequestRepository.save(request);
+        // Create new friendship request
+        Friendship friendship = new Friendship(sender, receiver, sender);
+        friendshipRepository.save(friendship);
 
-        return ApiResponse.success("request sent", null);
+        logger.info("Friend request sent successfully: {} → {}", sender, receiver);
+        return ApiResponse.success("Friend request sent", null);
     }
 
-    // Accept friend request
     @Transactional
-    public ApiResponse<String> acceptFriendRequest(String adder, String added) {
-        // Delete the friend request
-        friendRequestRepository.deleteBySenderAndReceiver(added, adder);
+    public ApiResponse<String> acceptFriendRequest(String accepter, String requester) {
+        logger.info("Accepting friend request: {} accepting {}", accepter, requester);
 
-        // Create friendship
-        Friend friendship = new Friend(adder, added);
-        friendRepository.save(friendship);
+        // Find the friendship
+        var friendshipOpt = friendshipRepository.findByUsers(accepter, requester);
 
-        return ApiResponse.success("addfriend successful", null);
+        if (friendshipOpt.isEmpty()) {
+            logger.warn("Accept failed - friend request not found: {} ← {}", accepter, requester);
+            throw new ResourceNotFoundException("Friend request not found");
+        }
+
+        Friendship friendship = friendshipOpt.get();
+
+        // Verify it's pending
+        if (friendship.getStatus() != FriendshipStatus.PENDING) {
+            logger.warn("Accept failed - request already processed: {} ← {}", accepter, requester);
+            throw new ValidationException("Friend request already processed");
+        }
+
+        // Verify the accepter is not the one who initiated it
+        if (friendship.getInitiatedBy().equals(accepter)) {
+            logger.warn("Accept failed - cannot accept own request: {}", accepter);
+            throw new ValidationException("Cannot accept your own friend request");
+        }
+
+        // Update status to accepted
+        friendship.setStatus(FriendshipStatus.ACCEPTED);
+        friendshipRepository.save(friendship);
+
+        logger.info("Friend request accepted: {} and {} are now friends", accepter, requester);
+        return ApiResponse.success("Friend request accepted", null);
     }
 
-    // Reject friend request
     @Transactional
-    public ApiResponse<String> rejectFriendRequest(String blocker, String blockedUser) {
-        // Delete the friend request
-        friendRequestRepository.deleteBySenderAndReceiver(blockedUser, blocker);
+    public ApiResponse<String> rejectFriendRequest(String rejecter, String requester) {
+        logger.info("Rejecting friend request: {} rejecting {}", rejecter, requester);
 
-        return ApiResponse.success("rejection successful", null);
+        // Find the friendship
+        var friendshipOpt = friendshipRepository.findByUsers(rejecter, requester);
+
+        if (friendshipOpt.isEmpty()) {
+            logger.warn("Reject failed - friend request not found: {} ← {}", rejecter, requester);
+            throw new ResourceNotFoundException("Friend request not found");
+        }
+
+        Friendship friendship = friendshipOpt.get();
+
+        // Update status to rejected
+        friendship.setStatus(FriendshipStatus.REJECTED);
+        friendshipRepository.save(friendship);
+
+        logger.info("Friend request rejected: {} rejected {}", rejecter, requester);
+        return ApiResponse.success("Friend request rejected", null);
     }
 }
