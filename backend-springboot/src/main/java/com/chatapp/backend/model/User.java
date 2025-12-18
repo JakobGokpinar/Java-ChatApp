@@ -15,8 +15,7 @@ public class User {
     @Column(name = "password", length = 255)
     private String password;
 
-    @Lob
-    @Column(name = "photo", columnDefinition = "LONGBLOB")
+    @Column(name = "photo", columnDefinition = "BYTEA")
     private byte[] photo;
 
     @Column(name = "created_at")
