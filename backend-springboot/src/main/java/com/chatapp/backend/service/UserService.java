@@ -13,6 +13,10 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Manages user-related operations.
+ * Handles user search and profile photo management.
+ */
 @Service
 public class UserService {
 

@@ -14,6 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles messaging operations between users.
+ * Messages are marked as read when retrieved by the receiver.
+ */
 @Service
 public class MessageService {
 

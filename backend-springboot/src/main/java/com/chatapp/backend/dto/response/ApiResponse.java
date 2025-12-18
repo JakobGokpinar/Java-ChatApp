@@ -2,6 +2,12 @@ package com.chatapp.backend.dto.response;
 
 import java.time.LocalDateTime;
 
+/**
+ * Standard API response wrapper for all endpoints.
+ * Contains success flag, message, data payload, and timestamp.
+ *
+ * @param <T> Type of data being returned
+ */
 public record ApiResponse<T>(
         boolean success,
         String message,

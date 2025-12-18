@@ -16,6 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Handles user authentication and registration.
+ * - Passwords are hashed with BCrypt
+ * - Login returns JWT token (24h validity)
+ * - Validates credentials and enforces business rules
+ */
 @Service
 public class AuthService {
 

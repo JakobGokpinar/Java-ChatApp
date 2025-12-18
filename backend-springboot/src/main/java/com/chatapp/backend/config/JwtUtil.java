@@ -10,6 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * Utility class for JWT token operations.
+ * Handles token generation, validation, and username extraction.
+ * Tokens are valid for 24 hours.
+ */
 @Component
 public class JwtUtil {
 

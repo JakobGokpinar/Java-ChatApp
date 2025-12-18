@@ -9,6 +9,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+/**
+ * Global exception handler for all REST controllers.
+ * Catches exceptions and returns structured error responses with appropriate HTTP status codes.
+ * - 400: Validation errors
+ * - 401: Authentication failures
+ * - 404: Resource not found
+ * - 409: Duplicate resources
+ * - 500: Internal server errors
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

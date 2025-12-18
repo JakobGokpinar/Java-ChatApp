@@ -10,6 +10,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Spring Security configuration for JWT-based authentication.
+ * Disables session management (stateless) and protects all endpoints except login/register.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

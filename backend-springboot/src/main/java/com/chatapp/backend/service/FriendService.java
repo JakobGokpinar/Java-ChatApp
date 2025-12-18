@@ -16,6 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Manages friendship relationships and requests.
+ * Uses unified Friendship model with status: PENDING → ACCEPTED/REJECTED
+ */
 @Service
 public class FriendService {
 
