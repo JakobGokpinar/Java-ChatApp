@@ -12,7 +12,7 @@ public class User {
     @Column(name = "username", length = 25)
     private String username;
 
-    @Column(name = "password", length = 25)
+    @Column(name = "password", length = 255)
     private String password;
 
     @Lob
