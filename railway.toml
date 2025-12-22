@@ -1,8 +1,6 @@
 [build]
-nixpacksVersion = "1.21.0"
-
-[[build.env]]
-NIXPACKS_PATH = "backend-springboot"
+builder = "nixpacks"
+buildCommand = "cd backend-springboot && ./mvnw clean package -DskipTests"
 
 [deploy]
 startCommand = "java -Dserver.port=$PORT -jar backend-springboot/target/backend-0.0.1-SNAPSHOT.jar"
