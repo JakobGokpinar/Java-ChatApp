@@ -1,6 +1,12 @@
 [build]
 builder = "nixpacks"
-buildCommand = "cd backend-springboot && ./mvnw clean package -DskipTests"
+nixpacksPlan = """
+[phases.setup]
+nixPkgs = ['jdk21']
 
-[deploy]
-startCommand = "java -Dserver.port=$PORT -jar backend-springboot/target/backend-0.0.1-SNAPSHOT.jar"
+[phases.build]
+cmds = ['cd backend-springboot && ./mvnw clean package -DskipTests']
+
+[start]
+cmd = 'java -Dserver.port=$PORT -jar backend-springboot/target/backend-0.0.1-SNAPSHOT.jar'
+"""
