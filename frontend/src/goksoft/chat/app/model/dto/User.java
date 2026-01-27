@@ -1,8 +1,5 @@
 package goksoft.chat.app.model.dto;
 
-/**
- * User data transfer object
- */
 public class User {
     private Long id;
     private String username;

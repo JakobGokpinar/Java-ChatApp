@@ -3,6 +3,8 @@ package goksoft.chat.app;
 import goksoft.chat.app.ErrorClass.ErrorResult;
 import goksoft.chat.app.ErrorClass.Result;
 import goksoft.chat.app.ErrorClass.SuccessResult;
+import goksoft.chat.app.service.ServiceManager;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,6 +16,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,7 +25,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class LoginController{
+public class LoginController {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
@@ -31,14 +37,13 @@ public class LoginController{
     @FXML private Button signinbutton;
 
     public static String loggedUser;
+    private final ServiceManager serviceManager = ServiceManager.getInstance();
 
     @FXML
     public void initialize() throws FileNotFoundException {
-        //default login user
         usernameField.setText("jakob");
         passwordField.setText("1234");
 
-        //Login by pressing enter
         usernameField.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.ENTER) signIn();
         });
@@ -51,72 +56,73 @@ public class LoginController{
         rememberMeFill();
     }
 
-    //Switch to register scene from login scene
-    public void changeSceneToRegister(MouseEvent event){
-        Function.switchBetweenRegisterAndLogin(event,"register");
+    public void changeSceneToRegister(MouseEvent event) {
+        Function.switchBetweenRegisterAndLogin(event, "register");
     }
 
-    public  void setUsernameField(String text){ usernameField.setText(text); }
+    public void setUsernameField(String text) {
+        usernameField.setText(text);
+    }
 
-    public  void setPasswordField(String text){
+    public void setPasswordField(String text) {
         passwordField.setText(text);
     }
 
-    //Save the user's username and password in settings.txt file if remember me checkbox is selected.
-    public void rememberMeListener(MouseEvent event){
+    public void rememberMeListener(MouseEvent event) {
         try {
             File file = new File(System.getProperty("user.home") + "/settings.txt");
             FileWriter writer = new FileWriter(file);
-            if(rememberMeButton.isSelected()){
-                writer.write("rememberme:true\n" + "username:"+usernameField.getText() + "\n" + "pass:"+passwordField.getText());
-                writer.close();
+            if (rememberMeButton.isSelected()) {
+                writer.write("rememberme:true\n" + "username:" + usernameField.getText() + "\n" + "pass:" + passwordField.getText());
             } else {
                 writer.write("rememberme:false");
-                writer.close();
             }
+            writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Failed to save remember me preference", e);
         }
     }
 
-    public  void rememberMeFill() throws FileNotFoundException {
+    public void rememberMeFill() throws FileNotFoundException {
         File file = new File(System.getProperty("user.home") + "/settings.txt");
-        if (file.exists()){
+        if (file.exists()) {
             Scanner scanner = new Scanner(file);
-            while (scanner.hasNextLine()){
+            while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                if(line.equals("rememberme:true")){
+                if (line.equals("rememberme:true")) {
                     line = scanner.nextLine();
-                    if (line.contains("username:")){
+                    if (line.contains("username:")) {
                         String[] user = line.split(":");
-                        if (user.length > 2){
+                        if (user.length > 1) {
                             setUsernameField(user[1]);
                         }
-                        line = scanner.nextLine();
-                        if (line.contains("pass:")){
-                            user = line.split(":");
-                            if (user.length > 2){
-                                setPasswordField(user[1]);
-                                rememberMeButton.setSelected(true);
+                        if (scanner.hasNextLine()) {
+                            line = scanner.nextLine();
+                            if (line.contains("pass:")) {
+                                user = line.split(":");
+                                if (user.length > 1) {
+                                    setPasswordField(user[1]);
+                                    rememberMeButton.setSelected(true);
+                                }
                             }
                         }
                     }
                 }
             }
+            scanner.close();
         }
     }
 
-    //Show text field instead of password field so that user can see the password uncensored.
-    public void showPassword(MouseEvent event){
+    public void showPassword(MouseEvent event) {
         String pass = passwordField.getText();
-        if(showPasswordButton.isSelected()) {
+        if (showPasswordButton.isSelected()) {
             passwordField.setVisible(false);
             textField.setText(pass);
             textField.setVisible(true);
             return;
         }
         textField.setVisible(false);
-        textField.setText(pass);
+        passwordField.setText(textField.getText());
         passwordField.setVisible(true);
     }
 
@@ -124,40 +130,54 @@ public class LoginController{
         signIn();
     }
 
-    public Result signIn(){
-        //Get username and password and encode them.
-        String name = ServerFunctions.encodeURL(usernameField.getText());
-        String pass = ServerFunctions.encodeURL(passwordField.getText());
+    public Result signIn() {
+        String username = usernameField.getText();
+        String password = passwordField.getText();
 
-        String loginUrl = "/auth/login"; // /login.php
-        String url = ServerFunctions.serverURL + loginUrl;
-        //Send request to server with parameters.
-        String cevap = ServerFunctions.HTMLRequest(url, "username=" + name + "&password=" + pass);
-        System.out.println(cevap);
+        signinbutton.setDisable(true);
 
-        //Check the response if it is successful
-        if(!cevap.equals("login successful")){
-            String warningMessage = "Wrong password or username!";
-            return new ErrorResult(warningMessage);
-        }
-        else {
-            try {
-                loggedUser = usernameField.getText();
-                GlobalVariables.setLoggedUser(loggedUser);
-                Parent mainPanel = FXMLLoader.load(LoginController.class.getResource("userinterfaces/MainPanel.fxml")); //Load main panel
-                Scene scene = new Scene(mainPanel); //Create a scene with main panel
-                Stage stage = (Stage) textField.getScene().getWindow();
-                stage.close(); //Hide current stage with login panel
-                Stage newStage = new Stage(); //Create new stage
-                newStage.setScene(scene); //Set new stage's scene with main panel
-                newStage.setTitle("Chat"); //Set the stage's title
-                newStage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return new ErrorResult("An Error Occurred");
-            }
-        }
+        serviceManager.getAuthService().login(username, password)
+                .thenAccept(response -> {
+                    Platform.runLater(() -> {
+                        if (response.isSuccess() && response.getData() != null) {
+                            loggedUser = username;
+                            GlobalVariables.setLoggedUser(loggedUser);
+                            loadMainPanel();
+                        } else {
+                            signinbutton.setDisable(false);
+                            new ErrorResult(response.getMessage() != null ? response.getMessage() : "Wrong username or password!");
+                        }
+                    });
+                })
+                .exceptionally(ex -> {
+                    Platform.runLater(() -> {
+                        signinbutton.setDisable(false);
+                        new ErrorResult("Connection error. Please check your internet connection.");
+                    });
+                    return null;
+                });
+
         return new SuccessResult();
     }
 
+    private void loadMainPanel() {
+        try {
+            var fxmlUrl = LoginController.class.getResource("userinterfaces/MainPanel.fxml");
+            if (fxmlUrl == null) {
+                throw new IOException("MainPanel.fxml not found");
+            }
+
+            Parent mainPanel = FXMLLoader.load(fxmlUrl);
+            Scene scene = new Scene(mainPanel);
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.close();
+            Stage newStage = new Stage();
+            newStage.setScene(scene);
+            newStage.setTitle("Chat");
+            newStage.show();
+        } catch (IOException e) {
+            logger.error("Failed to load main panel", e);
+            new ErrorResult("An error occurred while loading main panel");
+        }
+    }
 }

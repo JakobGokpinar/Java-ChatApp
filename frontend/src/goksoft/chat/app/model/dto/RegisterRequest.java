@@ -1,8 +1,5 @@
 package goksoft.chat.app.model.dto;
 
-/**
- * Registration request DTO
- */
 public class RegisterRequest {
     private String username;
     private String email;

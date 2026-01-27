@@ -1,8 +1,5 @@
 package goksoft.chat.app.model.dto;
 
-/**
- * Login response DTO
- */
 public class LoginResponse {
     private String token;
     private User user;

@@ -1,8 +1,5 @@
 package goksoft.chat.app.model.dto;
 
-/**
- * Generic API response wrapper matching backend format
- */
 public class ApiResponse<T> {
     private boolean success;
     private String message;
@@ -16,6 +13,7 @@ public class ApiResponse<T> {
         this.data = data;
     }
 
+    // Getters and setters
     public boolean isSuccess() {
         return success;
     }
