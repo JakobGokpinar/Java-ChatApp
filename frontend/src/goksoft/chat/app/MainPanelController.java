@@ -164,11 +164,23 @@ public class MainPanelController extends HBox {
                                 String passedTime = friendData.get(3);
 
                                 // Create friend box with callback
+                                // We need to capture these as final for the lambda
+                                final String finalUsername = username;
+
                                 BorderPane friendBox = GUIComponents.friendBox(
                                         username, lastMsg, notifCount, passedTime,
                                         () -> {
-                                            Image photo = GUIComponents.returnPhoto(username);
-                                            onFriendClicked(photo, username, friendBox);
+                                            Image photo = GUIComponents.returnPhoto(finalUsername);
+                                            // Find the actual pane after it's added to UI
+                                            BorderPane actualPane = null;
+                                            for (int k = 0; k < friendsVBox.getChildren().size(); k++) {
+                                                Node child = friendsVBox.getChildren().get(k);
+                                                if (child.getId() != null && child.getId().equals(finalUsername)) {
+                                                    actualPane = (BorderPane) child;
+                                                    break;
+                                                }
+                                            }
+                                            onFriendClicked(photo, finalUsername, actualPane);
                                         }
                                 );
 
@@ -189,7 +201,7 @@ public class MainPanelController extends HBox {
     }
 
     /**
-     * Load friend requests from server
+     * Load friend requests from the server
      */
     private void loadFriendRequests() {
         serviceManager.getFriendService().getFriendRequests()
@@ -493,9 +505,6 @@ public class MainPanelController extends HBox {
         });
     }
 
-    /**
-     * Change profile photo
-     */
     public void changeProfilePhoto(MouseEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Profile Photo");
@@ -507,16 +516,20 @@ public class MainPanelController extends HBox {
         File file = fileChooser.showOpenDialog(stage);
 
         if (file != null) {
-            // TODO: Implement photo upload with modern service
+            // TODO: Implement proper file upload with modern service
+            // For now, just log and show message
             logger.info("Selected file: {}", file.getAbsolutePath());
-            // For now, use old ServerFunctions
-            String response = ServerFunctions.FILERequest(
-                    ServerFunctions.serverURL + "/users/photo?username=",
-                    file,
-                    "photo"
-            );
-            logger.info("Photo upload response: {}", response);
-            loadProfilePhoto(false);
+            WarningWindowController.warningMessage("Photo upload feature coming soon!");
+
+            // Uncomment when file upload service is implemented:
+            // serviceManager.getUserService().uploadProfilePhoto(file)
+            //     .thenAccept(response -> {
+            //         Platform.runLater(() -> {
+            //             if (response.isSuccess()) {
+            //                 loadProfilePhoto(false);
+            //             }
+            //         });
+            //     });
         }
     }
 
@@ -543,7 +556,7 @@ public class MainPanelController extends HBox {
     }
 
     /**
-     * Polls friend requests from server and updates UI
+     * Polls friend requests from the server and updates UI
      */
     private void startFriendRequestsPolling() {
         scheduler.scheduleAtFixedRate(() -> {
@@ -563,7 +576,7 @@ public class MainPanelController extends HBox {
     }
 
     /**
-     * Update friends UI during polling
+     * Updates the friends list UI with latest data
      */
     private void updateFriendsUI(List<List<String>> friendsList) {
         int index = 0;
@@ -575,23 +588,41 @@ public class MainPanelController extends HBox {
                 String lastMsg = friendData.get(2);
                 String passedTime = friendData.get(3);
 
+                // Create new friend box with callback
                 BorderPane friendBox = GUIComponents.friendBox(
                         username, lastMsg, notifCount, passedTime,
                         () -> {
                             Image photo = GUIComponents.returnPhoto(username);
-                            onFriendClicked(photo, username, friendBox);
+                            // Find the actual friendBox pane to pass
+                            BorderPane actualPane = null;
+                            for (int k = 0; k < friendsVBox.getChildren().size(); k++) {
+                                if (friendsVBox.getChildren().get(k).getId() != null &&
+                                        friendsVBox.getChildren().get(k).getId().equals(username)) {
+                                    actualPane = (BorderPane) friendsVBox.getChildren().get(k);
+                                    break;
+                                }
+                            }
+                            onFriendClicked(photo, username, actualPane);
                         }
                 );
 
                 // Find and update existing friend box
+                boolean found = false;
                 for (int j = 0; j < friendsVBox.getChildren().size(); j++) {
-                    if (friendsVBox.getChildren().get(j).getId() != null &&
-                            friendsVBox.getChildren().get(j).getId().equals(username)) {
+                    Node child = friendsVBox.getChildren().get(j);
+                    if (child.getId() != null && child.getId().equals(username)) {
                         friendsVBox.getChildren().remove(j);
                         friendsVBox.getChildren().add(index, friendBox);
                         index++;
+                        found = true;
                         break;
                     }
+                }
+
+                // If not found, it's a new friend - add it
+                if (!found) {
+                    friendsVBox.getChildren().add(index, friendBox);
+                    index++;
                 }
             }
         }

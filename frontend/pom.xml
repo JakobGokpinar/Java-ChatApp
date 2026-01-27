@@ -50,13 +50,6 @@
             <version>${gson.version}</version>
         </dependency>
 
-        <!-- JSON Simple (TEMPORARY - for legacy code compatibility) -->
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
