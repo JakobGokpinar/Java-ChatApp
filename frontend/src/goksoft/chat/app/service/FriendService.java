@@ -1,13 +1,12 @@
 package goksoft.chat.app.service;
 
+import com.google.gson.reflect.TypeToken;
 import goksoft.chat.app.api.ApiClient;
 import goksoft.chat.app.model.dto.ApiResponse;
 import goksoft.chat.app.util.JsonUtil;
-import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -20,77 +19,71 @@ public class FriendService {
         this.apiClient = apiClient;
     }
 
-    // Get friends list (JWT token provides username automatically)
-    public CompletableFuture<ApiResponse<List<String>>> getFriends() {
-        return apiClient.post("/friends/get", "")  // Changed from GET to POST, changed endpoint
-                .thenApply(responseJson -> {
-                    return JsonUtil.fromJson(
-                            responseJson,
-                            new TypeToken<ApiResponse<List<String>>>(){}
-                    );
+    /**
+     * Get list of accepted friends with their last message info
+     * Backend returns: [[username, notifCount, lastMsg, passedTime], ...]
+     */
+    public CompletableFuture<List<List<String>>> getFriendsWithDetails() {
+        return apiClient.post("/friends/get", "")
+                .thenApply(json -> {
+                    return JsonUtil.fromJson(json, new TypeToken<List<List<String>>>(){});
                 })
                 .exceptionally(ex -> {
-                    logger.error("Failed to get friends: {}", ex.getMessage());
-                    return new ApiResponse<>(false, "Connection error", Collections.emptyList());
+                    logger.error("Error fetching friends", ex);
+                    return List.of();
                 });
     }
 
-    // Get friend requests (JWT token provides username automatically)
-    public CompletableFuture<ApiResponse<List<String>>> getFriendRequests() {
-        return apiClient.post("/friends/requests", "")  // POST, no params needed
-                .thenApply(responseJson -> {
-                    return JsonUtil.fromJson(
-                            responseJson,
-                            new TypeToken<ApiResponse<List<String>>>(){}
-                    );
+    /**
+     * Get list of friend requests
+     * Backend returns: ["username1", "username2", ...]
+     */
+    public CompletableFuture<List<String>> getFriendRequests() {
+        return apiClient.post("/friends/requests", "")
+                .thenApply(json -> {
+                    return JsonUtil.fromJson(json, new TypeToken<List<String>>(){});
                 })
                 .exceptionally(ex -> {
-                    logger.error("Failed to get friend requests: {}", ex.getMessage());
-                    return new ApiResponse<>(false, "Connection error", Collections.emptyList());
+                    logger.error("Error fetching friend requests", ex);
+                    return List.of();
                 });
     }
 
-    // Send friend request (sender from JWT, receiver from param)
+    /**
+     * Send friend request to another user
+     */
     public CompletableFuture<ApiResponse<String>> sendFriendRequest(String receiver) {
-        return apiClient.post("/friends/send-request?receiver=" + receiver, "")
-                .thenApply(responseJson -> {
-                    return JsonUtil.fromJson(
-                            responseJson,
-                            new TypeToken<ApiResponse<String>>(){}
-                    );
-                })
+        String url = "/friends/send-request?receiver=" + receiver;
+        return apiClient.post(url, "")
+                .thenApply(json -> JsonUtil.fromJson(json, new TypeToken<ApiResponse<String>>(){}))
                 .exceptionally(ex -> {
-                    logger.error("Failed to send friend request: {}", ex.getMessage());
+                    logger.error("Error sending friend request", ex);
                     return new ApiResponse<>(false, "Connection error", null);
                 });
     }
 
-    // Accept friend request (accepter from JWT, requester from param)
-    public CompletableFuture<ApiResponse<String>> acceptFriendRequest(String requester) {  // Changed param name
-        return apiClient.post("/friends/accept?requester=" + requester, "")  // Fixed param name
-                .thenApply(responseJson -> {
-                    return JsonUtil.fromJson(
-                            responseJson,
-                            new TypeToken<ApiResponse<String>>(){}
-                    );
-                })
+    /**
+     * Accept a friend request
+     */
+    public CompletableFuture<ApiResponse<String>> acceptFriendRequest(String requester) {
+        String url = "/friends/accept?requester=" + requester;
+        return apiClient.post(url, "")
+                .thenApply(json -> JsonUtil.fromJson(json, new TypeToken<ApiResponse<String>>(){}))
                 .exceptionally(ex -> {
-                    logger.error("Failed to accept friend request: {}", ex.getMessage());
+                    logger.error("Error accepting friend request", ex);
                     return new ApiResponse<>(false, "Connection error", null);
                 });
     }
 
-    // Reject friend request (rejecter from JWT, requester from param)
-    public CompletableFuture<ApiResponse<String>> rejectFriendRequest(String requester) {  // Changed param name
-        return apiClient.post("/friends/reject?requester=" + requester, "")  // Fixed param name
-                .thenApply(responseJson -> {
-                    return JsonUtil.fromJson(
-                            responseJson,
-                            new TypeToken<ApiResponse<String>>(){}
-                    );
-                })
+    /**
+     * Reject a friend request
+     */
+    public CompletableFuture<ApiResponse<String>> rejectFriendRequest(String requester) {
+        String url = "/friends/reject?requester=" + requester;
+        return apiClient.post(url, "")
+                .thenApply(json -> JsonUtil.fromJson(json, new TypeToken<ApiResponse<String>>(){}))
                 .exceptionally(ex -> {
-                    logger.error("Failed to reject friend request: {}", ex.getMessage());
+                    logger.error("Error rejecting friend request", ex);
                     return new ApiResponse<>(false, "Connection error", null);
                 });
     }

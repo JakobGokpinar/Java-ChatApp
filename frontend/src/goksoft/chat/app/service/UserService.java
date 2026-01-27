@@ -1,13 +1,12 @@
 package goksoft.chat.app.service;
 
-import goksoft.chat.app.api.ApiClient;
-import goksoft.chat.app.model.dto.ApiResponse;
-import goksoft.chat.app.util.JsonUtil;
 import com.google.gson.reflect.TypeToken;
+import goksoft.chat.app.api.ApiClient;
+import goksoft.chat.app.config.Environment;
+import goksoft.chat.app.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -20,25 +19,26 @@ public class UserService {
         this.apiClient = apiClient;
     }
 
-    // Search users by username
-    public CompletableFuture<ApiResponse<List<String>>> searchUsers(String searchQuery) {
-        return apiClient.post("/users/search?username=" + searchQuery, "")  // Changed to POST
-                .thenApply(responseJson -> {
-                    return JsonUtil.fromJson(
-                            responseJson,
-                            new TypeToken<ApiResponse<List<String>>>(){}
-                    );
+    /**
+     * Search users by username
+     * Backend returns: ["username1", "username2", ...]
+     */
+    public CompletableFuture<List<String>> searchUsers(String username) {
+        String url = "/users/search?username=" + username;
+        return apiClient.post(url, "")
+                .thenApply(json -> {
+                    return JsonUtil.fromJson(json, new TypeToken<List<String>>(){});
                 })
                 .exceptionally(ex -> {
-                    logger.error("Failed to search users: {}", ex.getMessage());
-                    return new ApiResponse<>(false, "Connection error", Collections.emptyList());
+                    logger.error("Error searching users", ex);
+                    return List.of();
                 });
     }
 
-    // Get profile photo (public endpoint, no auth required)
-    public CompletableFuture<byte[]> getProfilePhoto(String username) {
-        // Note: This returns raw bytes, not JSON
-        // Will handle differently when integrate with UI
-        return CompletableFuture.completedFuture(new byte[0]); // Placeholder for now
+    /**
+     * Get profile photo URL for a username
+     */
+    public String getProfilePhotoUrl(String username) {
+        return Environment.getBaseUrl() + "/users/photo/" + username;
     }
 }

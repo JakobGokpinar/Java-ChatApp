@@ -1,14 +1,14 @@
 package goksoft.chat.app.model.dto;
 
-public class MessageDto {
+public class Message {
     private String sender;
     private String receiver;
     private String content;
     private String timestamp;
 
-    public MessageDto() {}
+    public Message() {}
 
-    public MessageDto(String sender, String receiver, String content, String timestamp) {
+    public Message(String sender, String receiver, String content, String timestamp) {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
@@ -49,7 +49,7 @@ public class MessageDto {
 
     @Override
     public String toString() {
-        return "MessageDto{" +
+        return "Message{" +
                 "sender='" + sender + '\'' +
                 ", receiver='" + receiver + '\'' +
                 ", content='" + content + '\'' +

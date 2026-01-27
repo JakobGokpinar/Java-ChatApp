@@ -54,7 +54,7 @@ public class ApiClient {
     // Build request with JWT token if available
     private HttpRequest.Builder buildRequest(String endpoint) {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(Environment.getApiBaseUrl() + endpoint))
+                .uri(URI.create(Environment.getBaseUrl() + endpoint))
                 .timeout(Duration.ofSeconds(Environment.REQUEST_TIMEOUT_SECONDS));
 
         if (hasToken()) {
