@@ -1,5 +1,16 @@
 package goksoft.chat.app.controller;
 
+import com.google.gson.reflect.TypeToken;
+import goksoft.chat.app.ErrorClass.SuccessResult;
+import goksoft.chat.app.GlobalVariables;
+import goksoft.chat.app.api.ApiClient;
+import goksoft.chat.app.model.dto.ApiResponse;
+import goksoft.chat.app.model.dto.LoginRequest;
+import goksoft.chat.app.model.dto.LoginResponse;
+import goksoft.chat.app.model.dto.Result;
+import goksoft.chat.app.util.JsonUtil;
+import javafx.application.Platform;
+
 public class LoginController {
     
     private final ApiClient apiClient = new ApiClient();

@@ -1,101 +1,81 @@
 package goksoft.chat.app.service;
 
-import goksoft.chat.app.api.AuthApi;
-import goksoft.chat.app.config.AppConfig;
-import goksoft.chat.app.model.dto.*;
+import goksoft.chat.app.api.ApiClient;
+import goksoft.chat.app.model.dto.ApiResponse;
+import goksoft.chat.app.model.dto.LoginRequest;
+import goksoft.chat.app.model.dto.LoginResponse;
+import goksoft.chat.app.model.dto.RegisterRequest;
+import goksoft.chat.app.model.dto.User;
+import goksoft.chat.app.util.JsonUtil;
+import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import retrofit2.Call;
-import retrofit2.Response;
 
-import java.io.IOException;
-
+import java.util.concurrent.CompletableFuture;
 
 public class AuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
-    private final AuthApi authApi;
-    private String currentToken;
-    private User currentUser;
+    private final ApiClient apiClient;
 
-    public AuthService() {
-        this.authApi = AppConfig.getInstance().createService(AuthApi.class);
+    public AuthService(ApiClient apiClient) {
+        this.apiClient = apiClient;
     }
 
-    /**
-     * Login user
-     */
-    public ApiResponse<LoginResponse> login(String username, String password) {
-        try {
-            LoginRequest request = new LoginRequest(username, password);
-            Call<ApiResponse<LoginResponse>> call = authApi.login(request);
-            Response<ApiResponse<LoginResponse>> response = call.execute();
+    public CompletableFuture<ApiResponse<LoginResponse>> login(String username, String password) {
+        LoginRequest request = new LoginRequest(username, password);
+        String jsonBody = JsonUtil.toJson(request);
 
-            if (response.isSuccessful() && response.body() != null) {
-                ApiResponse<LoginResponse> apiResponse = response.body();
+        return apiClient.post("/auth/login", jsonBody)
+                .thenApply(responseJson -> {
+                    ApiResponse<LoginResponse> response = JsonUtil.fromJson(
+                            responseJson,
+                            new TypeToken<ApiResponse<LoginResponse>>(){}
+                    );
 
-                if (apiResponse.isSuccess() && apiResponse.getData() != null) {
-                    // Store token and user
-                    this.currentToken = apiResponse.getData().getToken();
-                    this.currentUser = apiResponse.getData().getUser();
-                    logger.info("Login successful for user: {}", username);
-                }
+                    if (response.isSuccess() && response.getData() != null) {
+                        String token = response.getData().getToken();
+                        apiClient.setToken(token);
+                        logger.info("Login successful: {}", username);
+                    } else {
+                        logger.error("Login failed for user: {}", username);
+                    }
 
-                return apiResponse;
-            } else {
-                logger.error("Login failed with status: {}", response.code());
-                return new ApiResponse<>(false, "Login failed: " + response.message(), null);
-            }
-
-        } catch (IOException e) {
-            logger.error("Login error", e);
-            return new ApiResponse<>(false, "Network error: " + e.getMessage(), null);
-        }
+                    return response;
+                })
+                .exceptionally(ex -> {
+                    logger.error("Login error: {}", ex.getMessage());
+                    return new ApiResponse<>(false, "Connection error: " + ex.getMessage(), null);
+                });
     }
 
-    /**
-     * Register new user
-     */
-    public ApiResponse<User> register(String username, String email, String password) {
-        try {
-            RegisterRequest request = new RegisterRequest(username, email, password);
-            Call<ApiResponse<User>> call = authApi.register(request);
-            Response<ApiResponse<User>> response = call.execute();
+    public CompletableFuture<ApiResponse<User>> register(String username, String password) {
+        RegisterRequest request = new RegisterRequest(username, null, password);
+        String jsonBody = JsonUtil.toJson(request);
 
-            if (response.isSuccessful() && response.body() != null) {
-                ApiResponse<User> apiResponse = response.body();
-                logger.info("Registration successful for user: {}", username);
-                return apiResponse;
-            } else {
-                logger.error("Registration failed with status: {}", response.code());
-                return new ApiResponse<>(false, "Registration failed: " + response.message(), null);
-            }
+        return apiClient.post("/auth/register", jsonBody)
+                .thenApply(responseJson -> {
+                    ApiResponse<User> response = JsonUtil.fromJson(
+                            responseJson,
+                            new TypeToken<ApiResponse<User>>(){}
+                    );
 
-        } catch (IOException e) {
-            logger.error("Registration error", e);
-            return new ApiResponse<>(false, "Network error: " + e.getMessage(), null);
-        }
+                    if (response.isSuccess()) {
+                        logger.info("Registration successful: {}", username);
+                    } else {
+                        logger.error("Registration failed for user: {}", username);
+                    }
+
+                    return response;
+                })
+                .exceptionally(ex -> {
+                    logger.error("Registration error: {}", ex.getMessage());
+                    return new ApiResponse<>(false, "Connection error: " + ex.getMessage(), null);
+                });
     }
 
     public void logout() {
-        this.currentToken = null;
-        this.currentUser = null;
+        apiClient.clearToken();
         logger.info("User logged out");
-    }
-
-    public String getToken() {
-        return currentToken;
-    }
-
-    public User getCurrentUser() {
-        return currentUser;
-    }
-
-    public boolean isLoggedIn() {
-        return currentToken != null && currentUser != null;
-    }
-
-    public String getAuthHeader() {
-        return currentToken != null ? "Bearer " + currentToken : null;
     }
 }
