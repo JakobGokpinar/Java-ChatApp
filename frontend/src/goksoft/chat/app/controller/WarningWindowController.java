@@ -1,4 +1,4 @@
-package goksoft.chat.app;
+package goksoft.chat.app.controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

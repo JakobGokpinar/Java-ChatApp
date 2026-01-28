@@ -17,7 +17,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" style="-fx-background-color: #1c1b1b;" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="goksoft.chat.app.MainPanelController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" style="-fx-background-color: #1c1b1b;" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="goksoft.chat.app.controller.MainPanelController">
    <children>
       <SplitPane fx:id="splitPane" dividerPositions="0.3" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="507.0" prefWidth="806.0" style="-fx-background-color: transparent;" AnchorPane.bottomAnchor="-7.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-6.0" AnchorPane.topAnchor="0.0">
         <items>
@@ -66,54 +66,11 @@
                                           <Insets top="30.0" />
                                        </VBox.margin>
                                     </Label>
-                                    <ScrollPane fx:id="friendScrollPane" fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
-                                       <content>
-                                          <VBox fx:id="friendsVBox" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #1c1b1b;">
-                                             <children>
-                                                <BorderPane prefHeight="86.0" prefWidth="237.0">
-                                                   <left>
-                                                      <Circle fill="DODGERBLUE" radius="21.0" stroke="BLACK" strokeType="INSIDE" BorderPane.alignment="CENTER">
-                                                         <BorderPane.margin>
-                                                            <Insets bottom="20.0" left="10.0" />
-                                                         </BorderPane.margin>
-                                                      </Circle>
-                                                   </left>
-                                                   <top>
-                                                      <Label prefHeight="30.0" prefWidth="246.0" text="Ahmet Hakan Candar" textFill="WHITE" BorderPane.alignment="CENTER_LEFT">
-                                                         <font>
-                                                            <Font size="14.0" />
-                                                         </font>
-                                                         <padding>
-                                                            <Insets left="70.0" top="10.0" />
-                                                         </padding>
-                                                      </Label>
-                                                   </top>
-                                                   <center>
-                                                      <Label maxWidth="1.7976931348623157E308" prefHeight="18.0" prefWidth="49.0" text="Ayn knk gel inşallah." textFill="#949494" BorderPane.alignment="CENTER_LEFT">
-                                                         <BorderPane.margin>
-                                                            <Insets bottom="10.0" left="15.0" />
-                                                         </BorderPane.margin>
-                                                      </Label>
-                                                   </center>
-                                                   <right>
-                                                      <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="42.0" prefWidth="87.0" BorderPane.alignment="CENTER_LEFT">
-                                                         <children>
-                                                            <Circle fill="#ff6f00" radius="9.0" stroke="#ff6f00" strokeType="INSIDE" HBox.hgrow="ALWAYS" />
-                                                            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefHeight="18.0" prefWidth="71.0" text="Cuma" textFill="#949494">
-                                                               <HBox.margin>
-                                                                  <Insets right="10.0" />
-                                                               </HBox.margin>
-                                                            </Label>
-                                                         </children>
-                                                         <padding>
-                                                            <Insets bottom="10.0" />
-                                                         </padding>
-                                                      </HBox>
-                                                   </right>
-                                                </BorderPane>
-                                             </children></VBox>
-                                       </content>
-                                    </ScrollPane>
+                                     <ScrollPane fx:id="friendScrollPane" fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                                         <content>
+                                             <VBox fx:id="friendsVBox" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #1c1b1b;" />
+                                         </content>
+                                     </ScrollPane>
                                  </children>
                               </VBox>
                               <VBox fx:id="mailboxSection" managed="false" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #1c1b1b;" visible="false" VBox.vgrow="ALWAYS">
@@ -138,52 +95,14 @@
                                           <Font name="Gadugi" size="12.0" />
                                        </font>
                                     </Label>
-                                    <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
-                                       <VBox.margin>
-                                          <Insets top="10.0" />
-                                       </VBox.margin>
-                                       <content>
-                                          <VBox fx:id="notificationVBox" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #1c1b1b;">
-                                             <children>
-                                                <BorderPane prefHeight="75.0" prefWidth="237.0" style="-fx-background-color: #ff6f00;">
-                                                   <left>
-                                                      <Circle radius="21.0" stroke="BLACK" strokeType="INSIDE" BorderPane.alignment="CENTER">
-                                                         <BorderPane.margin>
-                                                            <Insets left="10.0" top="10.0" />
-                                                         </BorderPane.margin>
-                                                      </Circle>
-                                                   </left>
-                                                   <center>
-                                                      <Label prefHeight="24.0" prefWidth="158.0" text="Ahmet Ha" BorderPane.alignment="CENTER_LEFT">
-                                                         <BorderPane.margin>
-                                                            <Insets left="20.0" />
-                                                         </BorderPane.margin>
-                                                         <font>
-                                                            <Font size="14.0" />
-                                                         </font>
-                                                         <padding>
-                                                            <Insets top="10.0" />
-                                                         </padding>
-                                                      </Label>
-                                                   </center>
-                                                   <bottom>
-                                                      <HBox alignment="CENTER_LEFT" prefHeight="38.0" prefWidth="166.0" spacing="15.0" BorderPane.alignment="CENTER">
-                                                         <children>
-                                                            <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="65.0" style="-fx-background-color: #ff5800;" text="Accept" textFill="WHITE" />
-                                                            <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="59.0" style="-fx-background-color: #1c1b1b;" text="Reject" textFill="WHITE" />
-                                                         </children>
-                                                         <BorderPane.margin>
-                                                            <Insets left="55.0" />
-                                                         </BorderPane.margin>
-                                                         <padding>
-                                                            <Insets bottom="5.0" />
-                                                         </padding>
-                                                      </HBox>
-                                                   </bottom>
-                                                </BorderPane>
-                                             </children></VBox>
-                                       </content>
-                                    </ScrollPane>
+                                     <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                                         <VBox.margin>
+                                             <Insets top="10.0" />
+                                         </VBox.margin>
+                                         <content>
+                                             <VBox fx:id="notificationVBox" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #1c1b1b;" />
+                                         </content>
+                                     </ScrollPane>
                                  </children>
                               </VBox>
                               <VBox fx:id="addFriendSection" managed="false" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #1c1b1b;" visible="false" VBox.vgrow="ALWAYS">
@@ -320,56 +239,6 @@
                      <center>
                         <VBox prefHeight="289.0" prefWidth="561.0" BorderPane.alignment="CENTER">
                            <children>
-                              <HBox alignment="CENTER" prefHeight="70.0" prefWidth="561.0">
-                                 <children>
-                                    <Label prefHeight="26.0" prefWidth="170.0" text="Change Username: " textFill="#1c1b1b">
-                                       <font>
-                                          <Font size="16.0" />
-                                       </font>
-                                       <HBox.margin>
-                                          <Insets left="25.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                    <TextField fx:id="newNameField" prefHeight="26.0" prefWidth="221.0" promptText="New username..." style="-fx-background-color: #1c1b1b; -fx-text-fill: white;" HBox.hgrow="ALWAYS">
-                                       <HBox.margin>
-                                          <Insets right="30.0" />
-                                       </HBox.margin>
-                                    </TextField>
-                                    <Button fx:id="changeNameButton" mnemonicParsing="false" onMouseClicked="#changeUsername" prefHeight="26.0" prefWidth="70.0" style="-fx-background-color: #1c1b1b;" text="Done" textFill="WHITE">
-                                       <HBox.margin>
-                                          <Insets right="30.0" />
-                                       </HBox.margin>
-                                    </Button>
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets top="30.0" />
-                                 </VBox.margin>
-                              </HBox>
-                              <HBox alignment="CENTER" prefHeight="70.0" prefWidth="561.0">
-                                 <children>
-                                    <Label prefHeight="26.0" prefWidth="170.0" text="Change Password: " textFill="#1c1b1b">
-                                       <font>
-                                          <Font size="16.0" />
-                                       </font>
-                                       <HBox.margin>
-                                          <Insets left="25.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                    <TextField fx:id="newPassField" promptText="New password..." style="-fx-background-color: #1c1b1b; -fx-text-fill: white;" HBox.hgrow="ALWAYS">
-                                       <HBox.margin>
-                                          <Insets right="30.0" />
-                                       </HBox.margin>
-                                    </TextField>
-                                    <Button fx:id="changePassButton" mnemonicParsing="false" onMouseClicked="#changePassword" prefHeight="26.0" prefWidth="70.0" style="-fx-background-color: #1c1b1b;" text="Done" textFill="WHITE">
-                                       <HBox.margin>
-                                          <Insets right="30.0" />
-                                       </HBox.margin>
-                                    </Button>
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets top="10.0" />
-                                 </VBox.margin>
-                              </HBox>
                               <HBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="200.0">
                                  <children>
                                     <Label prefHeight="26.0" prefWidth="84.0" text="Language:" textFill="#1c1b1b">
@@ -401,11 +270,6 @@
                                     <Insets bottom="5.0" left="10.0" />
                                  </HBox.margin>
                               </Label>
-                              <Button fx:id="contactButton" mnemonicParsing="false" onMouseClicked="#contactUs" prefHeight="26.0" prefWidth="83.0" style="-fx-background-color: #1c1b1b;" text="Contact Us" textFill="WHITE" HBox.hgrow="ALWAYS">
-                                 <HBox.margin>
-                                    <Insets bottom="20.0" left="30.0" right="25.0" />
-                                 </HBox.margin>
-                              </Button>
                               <Button fx:id="logoffButton" mnemonicParsing="false" onMouseClicked="#logOff" prefHeight="26.0" style="-fx-background-color: #1c1b1b;" text="Log Off" textFill="WHITE" HBox.hgrow="ALWAYS">
                                  <HBox.margin>
                                     <Insets bottom="20.0" right="40.0" />

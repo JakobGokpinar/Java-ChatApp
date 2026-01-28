@@ -1,14 +1,21 @@
-package goksoft.chat.app;
+package goksoft.chat.app.controller;
 
 import goksoft.chat.app.config.Environment;
 import goksoft.chat.app.service.ServiceManager;
+import goksoft.chat.app.ui.components.FriendBoxComponent;
+import goksoft.chat.app.ui.components.ProfilePhotoLoader;
+import goksoft.chat.app.ui.components.RequestBoxComponent;
+import goksoft.chat.app.ui.components.UserBoxComponent;
 import goksoft.chat.app.util.UIUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -26,13 +33,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.prefs.Preferences;
 
-public class MainPanelController extends HBox {
+public class MainPanelController {
 
     private static final Logger logger = LoggerFactory.getLogger(MainPanelController.class);
 
@@ -63,10 +72,6 @@ public class MainPanelController extends HBox {
     @FXML private Label noFriendLabel;
     @FXML private Label noNotifLabel;
     @FXML private Label noUserLabel;
-    @FXML private TextField newPassField;
-    @FXML private TextField newNameField;
-    @FXML private Label changeLabel;
-    @FXML private RadioButton darkThemeButton;
 
     // Instance fields (no longer static!)
     private String currentFriend;
@@ -91,7 +96,7 @@ public class MainPanelController extends HBox {
         loadFriendRequests();
         setupLanguages();
 
-        settingsUsername.setText(LoginController.loggedUser);
+        settingsUsername.setText(serviceManager.getCurrentUser());
 
         // Bind Enter key to send messages
         messageField.setOnKeyReleased(event -> {
@@ -166,11 +171,12 @@ public class MainPanelController extends HBox {
                                 // Create friend box with callback
                                 // We need to capture these as final for the lambda
                                 final String finalUsername = username;
+                                Image photo = ProfilePhotoLoader.loadPhoto(username);
 
-                                BorderPane friendBox = GUIComponents.friendBox(
-                                        username, lastMsg, notifCount, passedTime,
+                                BorderPane friendBox = FriendBoxComponent.create(
+                                        username, lastMsg, notifCount, passedTime, photo,
                                         () -> {
-                                            Image photo = GUIComponents.returnPhoto(finalUsername);
+                                            Image friendPhoto = ProfilePhotoLoader.loadPhoto(finalUsername);
                                             // Find the actual pane after it's added to UI
                                             BorderPane actualPane = null;
                                             for (int k = 0; k < friendsVBox.getChildren().size(); k++) {
@@ -212,8 +218,9 @@ public class MainPanelController extends HBox {
 
                         for (String username : requests) {
                             // Create request box with modern callbacks
-                            BorderPane requestBox = GUIComponents.requestBox(
-                                    username,
+                            Image photo = ProfilePhotoLoader.loadPhoto(username);
+                            BorderPane requestBox = RequestBoxComponent.create(
+                                    username, photo,
                                     event -> acceptFriendRequest(username),
                                     event -> rejectFriendRequest(username)
                             );
@@ -365,7 +372,7 @@ public class MainPanelController extends HBox {
         }
 
         String message = messageField.getText();
-        String loggedUser = LoginController.loggedUser;
+        String loggedUser = serviceManager.getCurrentUser();
 
         // Add message to UI immediately (optimistic update)
         listView.getItems().add(loggedUser + ": " + message);
@@ -442,8 +449,9 @@ public class MainPanelController extends HBox {
 
                         for (String username : users) {
                             // Create user box with modern callback
-                            HBox userBox = GUIComponents.userBox(
-                                    username,
+                            Image photo = ProfilePhotoLoader.loadPhoto(username);
+                            HBox userBox = UserBoxComponent.create(
+                                    username, photo,
                                     event2 -> sendFriendRequest(username)
                             );
                             usersVBox.getChildren().add(0, userBox);
@@ -488,7 +496,7 @@ public class MainPanelController extends HBox {
      * Load and display profile photo
      */
     private void loadProfilePhoto(boolean showBlackOverlay) {
-        Image image = GUIComponents.returnPhoto(LoginController.loggedUser);
+        Image image = ProfilePhotoLoader.loadPhoto(serviceManager.getCurrentUser());
 
         Platform.runLater(() -> {
             if (image == null || image.isError()) {
@@ -587,12 +595,12 @@ public class MainPanelController extends HBox {
                 String notifCount = friendData.get(1);
                 String lastMsg = friendData.get(2);
                 String passedTime = friendData.get(3);
-
+                Image photo = ProfilePhotoLoader.loadPhoto(username);
                 // Create new friend box with callback
-                BorderPane friendBox = GUIComponents.friendBox(
-                        username, lastMsg, notifCount, passedTime,
+                BorderPane friendBox = FriendBoxComponent.create(
+                        username, lastMsg, notifCount, passedTime, photo,
                         () -> {
-                            Image photo = GUIComponents.returnPhoto(username);
+                            Image friendPhoto = ProfilePhotoLoader.loadPhoto(username);
                             // Find the actual friendBox pane to pass
                             BorderPane actualPane = null;
                             for (int k = 0; k < friendsVBox.getChildren().size(); k++) {
@@ -634,8 +642,9 @@ public class MainPanelController extends HBox {
     private void updateFriendRequestsUI(List<String> requests) {
         for (String username : requests) {
             if (!friendRequestsNameList.contains(username)) {
-                BorderPane requestBox = GUIComponents.requestBox(
-                        username,
+                Image photo = ProfilePhotoLoader.loadPhoto(username);
+                BorderPane requestBox = RequestBoxComponent.create(
+                        username, photo,
                         event -> acceptFriendRequest(username),
                         event -> rejectFriendRequest(username)
                 );
@@ -703,11 +712,31 @@ public class MainPanelController extends HBox {
 
     public void logOff(MouseEvent event) {
         cleanup();
-        Function.logOff(event);
-    }
+        serviceManager.clearCurrentUser();
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    MainPanelController.class.getResource("userinterfaces/login.fxml")
+            );
+            Parent loginPanel = loader.load();
+            Scene scene = new Scene(loginPanel);
+            Stage window = (Stage) chatBorderPane.getScene().getWindow();
+            window.close();
+            Stage newWindow = new Stage();
+            newWindow.setScene(scene);
+            newWindow.setResizable(false);
+            newWindow.setFullScreen(false);
+            newWindow.setTitle("Login");
+            newWindow.show();
 
-    public void contactUs(MouseEvent event) {
-        Function.contactUs(event);
+            // Clear stored credentials from Java Preferences
+            Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
+            prefs.putBoolean("rememberMe", false);
+            prefs.remove("username");
+
+            newWindow.setOnCloseRequest(windowEvent -> System.exit(0));
+        } catch (IOException e) {
+            logger.error("Failed to load login panel", e);
+        }
     }
 
     // ===== CLEANUP =====
@@ -716,7 +745,6 @@ public class MainPanelController extends HBox {
      * Cleanup method to properly shutdown scheduled tasks
      */
     public void cleanup() {
-        GlobalVariables.setIsThread(false);
 
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdown();

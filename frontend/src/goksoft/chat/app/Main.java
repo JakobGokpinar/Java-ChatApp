@@ -6,6 +6,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 
 public class Main extends Application {
 
@@ -13,7 +15,10 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         System.out.println("Chat app is active");
 
-        primaryStage.setScene(GlobalVariables.loginScene);
+        Parent loginRoot = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("userinterfaces/login.fxml")));
+        Scene loginScene = new Scene(loginRoot);
+
+        primaryStage.setScene(loginScene);
         primaryStage.setTitle("Login");
         primaryStage.setResizable(false);
         primaryStage.setX(455);

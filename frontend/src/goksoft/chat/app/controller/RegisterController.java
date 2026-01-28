@@ -1,9 +1,7 @@
-package goksoft.chat.app;
+package goksoft.chat.app.controller;
 
-import goksoft.chat.app.ErrorClass.ErrorResult;
-import goksoft.chat.app.ErrorClass.Result;
-import goksoft.chat.app.ErrorClass.SuccessResult;
 import goksoft.chat.app.service.ServiceManager;
+import goksoft.chat.app.util.SceneUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,7 +26,7 @@ public class RegisterController {
     private final ServiceManager serviceManager = ServiceManager.getInstance();
 
     public void changeSceneToLogin(ActionEvent event) {
-        Function.switchBetweenRegisterAndLogin(event, "login");
+        SceneUtil.switchScene(usernameField, "../userinterfaces/login.fxml", "Login", getClass());
     }
 
     public void showPasswords() {
@@ -52,70 +50,69 @@ public class RegisterController {
         password2Field.setVisible(true);
     }
 
-    public Result registerButton(MouseEvent event) {
+    public void registerButton(MouseEvent event) {
         if (showPasswordsButton.isSelected()) {
             showPasswordsButton.setSelected(false);
             showPasswords();
         }
 
         // Validation
-        var result = ControllerRules.Run(
-                checkPlaceEmpty(),
-                checkLength(),
-                checkIfNotMatch()
-        );
-        if (result != null) {
-            return result;
+        if (!validateInputs()) {
+            return;
         }
 
         String username = usernameField.getText();
         String password = password1Field.getText();
 
-        // Use new AuthService
+        // Use AuthService
         serviceManager.getAuthService().register(username, password)
                 .thenAccept(response -> {
                     Platform.runLater(() -> {
                         if (response.isSuccess()) {
-                            new SuccessResult("Registration successful! Please login.");
+                            WarningWindowController.warningMessage("Registration successful! Please login.");
                         } else {
-                            new ErrorResult(response.getMessage() != null ?
+                            String message = response.getMessage() != null ?
                                     response.getMessage() :
-                                    "Registration failed. Username might be taken.");
+                                    "Registration failed. Username might be taken.";
+                            WarningWindowController.warningMessage(message);
                         }
                     });
                 })
                 .exceptionally(ex -> {
                     Platform.runLater(() -> {
                         logger.error("Registration error", ex);
-                        new ErrorResult("Connection error. Please check your internet connection.");
+                        WarningWindowController.warningMessage("Connection error. Please check your internet connection.");
                     });
                     return null;
                 });
-
-        return new SuccessResult();
     }
 
-    private Result checkPlaceEmpty() {
+    /**
+     * Validate all input fields
+     * @return true if valid, false otherwise (shows error message)
+     */
+    private boolean validateInputs() {
+        // Check if fields are empty
         if (usernameField.getText().isBlank() ||
                 password1Field.getText().isBlank() ||
                 password2Field.getText().isBlank()) {
-            return new ErrorResult("Please fill out all places!");
+            WarningWindowController.warningMessage("Please fill out all places!");
+            return false;
         }
-        return new SuccessResult();
-    }
 
-    private Result checkLength() {
+        // Check password length
         if (password1Field.getText().length() < 4 ||
                 password2Field.getText().length() < 4) {
-            return new ErrorResult("Password must be at least 4 characters length!");
+            WarningWindowController.warningMessage("Password must be at least 4 characters length!");
+            return false;
         }
-        return new SuccessResult();
-    }
 
-    private Result checkIfNotMatch() {
+        // Check if passwords match
         if (!password1Field.getText().equals(password2Field.getText())) {
-            return new ErrorResult("Passwords are not matching!");
+            WarningWindowController.warningMessage("Passwords are not matching!");
+            return false;
         }
-        return new SuccessResult();
+
+        return true;
     }
 }

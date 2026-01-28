@@ -12,6 +12,9 @@ public class ServiceManager {
     private final MessageService messageService;
     private final UserService userService;
 
+    // User state management
+    private String currentUser;
+
     private ServiceManager() {
         this.apiClient = new ApiClient();
         this.authService = new AuthService(apiClient);
@@ -45,5 +48,18 @@ public class ServiceManager {
 
     public UserService getUserService() {
         return userService;
+    }
+
+    // User state management
+    public void setCurrentUser(String username) {
+        this.currentUser = username;
+    }
+
+    public String getCurrentUser() {
+        return currentUser;
+    }
+
+    public void clearCurrentUser() {
+        this.currentUser = null;
     }
 }
