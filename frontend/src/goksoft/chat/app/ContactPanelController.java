@@ -8,8 +8,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 
+@Deprecated
 public class ContactPanelController {
-
+/*
     @FXML
     private TextField emailText;
     @FXML
@@ -43,7 +44,7 @@ public class ContactPanelController {
             }
         }
         return new SuccessResult();
-    }
+    }*/
 }
 
 

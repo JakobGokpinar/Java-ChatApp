@@ -1,5 +1,6 @@
 package goksoft.chat.app;
 
+import goksoft.chat.app.config.Environment;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 
 /**
@@ -35,22 +37,21 @@ public class GUIComponents {
 
     private static final Logger logger = LoggerFactory.getLogger(GUIComponents.class);
 
-    /**
-     * Fetch and return profile photo for a user
-     * @param username Username to fetch photo for
-     * @return Image or null if not found
-     */
     public static Image returnPhoto(String username) {
-        String imageName = ServerFunctions.encodeURL(username);
         Image imagefx = null;
         try {
-            BufferedImage image = ImageIO.read(
-                    new URL(ServerFunctions.serverURL + "/users/photo/" + imageName)
+            String encodedUsername = java.net.URLEncoder.encode(
+                    username,
+                    java.nio.charset.StandardCharsets.UTF_8
             );
+            String photoUrl = Environment.getServerUrl() + "/users/photo/" + encodedUsername;
+
+            // Use URI instead of deprecated URL constructor
+            BufferedImage image = ImageIO.read(new URI(photoUrl).toURL());
             if (image != null) {
                 imagefx = SwingFXUtils.toFXImage(image, null);
             }
-        } catch (IOException e) {
+        } catch (IOException | java.net.URISyntaxException e) {
             logger.warn("Failed to load photo for user: {}", username);
         }
         return imagefx;
@@ -192,20 +193,6 @@ public class GUIComponents {
     }
 
     /**
-     * Legacy version for backward compatibility
-     * TODO: Remove after MainPanelController is fully updated
-     */
-    @Deprecated
-    public static BorderPane friendBox(String friendName, String lastMessage,
-                                       String notifCount, String lastDate) {
-        return friendBox(friendName, lastMessage, notifCount, lastDate, () -> {
-            Image friendPhoto = returnPhoto(friendName);
-            // This uses old Function.getClickedFriend - will be removed
-            Function.getClickedFriend(friendPhoto, friendName, null);
-        });
-    }
-
-    /**
      * Create a friend request box UI component
      * @param requesterName Username of person who sent request
      * @param onAccept Callback when accept button clicked
@@ -248,48 +235,7 @@ public class GUIComponents {
         return requestPane;
     }
 
-    /**
-     * Legacy version for backward compatibility
-     * TODO: Remove after MainPanelController is fully modernized
-     */
-    @Deprecated
-    public static BorderPane requestBox(String requesterName) {
-        // Create default handlers that use old ServerFunctions
-        EventHandler<MouseEvent> acceptHandler = event -> {
-            String addedName = ServerFunctions.encodeURL(requesterName);
-            String response = ServerFunctions.HTMLRequest(
-                    ServerFunctions.serverURL + "/friends/accept",
-                    "adder=" + ServerFunctions.encodeURL(GlobalVariables.getLoggedUser()) +
-                            "&added=" + addedName
-            );
 
-            if (response.equals("addfriend successful")) {
-                WarningWindowController.warningMessage("Friend added!");
-            } else {
-                WarningWindowController.warningMessage("Friend could not be added!");
-            }
-            Function.getFriendRequests();
-            Function.getFriends();
-        };
-
-        EventHandler<MouseEvent> rejectHandler = event -> {
-            String blockedName = ServerFunctions.encodeURL(requesterName);
-            String response = ServerFunctions.HTMLRequest(
-                    ServerFunctions.serverURL + "/friends/reject",
-                    "blocker=" + ServerFunctions.encodeURL(GlobalVariables.getLoggedUser()) +
-                            "&blockedUser=" + blockedName
-            );
-
-            if (response.equals("rejection successful")) {
-                WarningWindowController.warningMessage("Request rejected!");
-            } else {
-                WarningWindowController.warningMessage("Request could not be rejected!");
-            }
-            Function.getFriendRequests();
-        };
-
-        return requestBox(requesterName, acceptHandler, rejectHandler);
-    }
 
     /**
      * Create a user search result box
@@ -319,29 +265,4 @@ public class GUIComponents {
         return hBox;
     }
 
-    /**
-     * Legacy version for backward compatibility
-     * TODO: Remove after search functionality is modernized
-     */
-    @Deprecated
-    public static HBox userBox(String userName) {
-        EventHandler<MouseEvent> addHandler = event -> {
-            String receiverUser = ServerFunctions.encodeURL(userName);
-            String response = ServerFunctions.HTMLRequest(
-                    ServerFunctions.serverURL + "/friends/send-request",
-                    "sender=" + ServerFunctions.encodeURL(GlobalVariables.getLoggedUser()) +
-                            "&receiver=" + receiverUser
-            );
-
-            if (response.equals("already friends")) {
-                WarningWindowController.warningMessage("You're already friends!");
-            } else if (response.equals("request sent")) {
-                WarningWindowController.warningMessage("New request sent");
-            } else if (response.equals("already sent")) {
-                WarningWindowController.warningMessage("You already sent request!");
-            }
-        };
-
-        return userBox(userName, addHandler);
-    }
 }
