@@ -49,44 +49,44 @@ public class UIUtil {
      * Open or close sections with animation
      * @param isOpen Current open state
      * @param targetSection Section to toggle
-     * @param mixedVBox Container VBox
-     * @param friendSection Friend list section
+     * @param contentContainer Container VBox
+     * @param friendListPanel Friend list section
      * @param otherSection Other section to manage
      * @param stage Current stage
      */
     public static void openAndCloseSections(boolean isOpen, VBox targetSection,
-                                            VBox mixedVBox, VBox friendSection,
+                                            VBox contentContainer, VBox friendListPanel,
                                             VBox otherSection, Stage stage) {
         if (!isOpen) {
             Timeline timeline = new Timeline();
 
             // Determine which section we're opening
             boolean isMailbox = targetSection.getId() != null &&
-                    targetSection.getId().equals("mailboxSection");
+                    targetSection.getId().equals("notificationsPanel");
             boolean isAddFriend = targetSection.getId() != null &&
-                    targetSection.getId().equals("addFriendSection");
+                    targetSection.getId().equals("addfriendListPanel");
 
             // Reorganize sections
-            if (isMailbox && !mixedVBox.getChildren().get(1).getId().equals("addFriendSection")) {
-                mixedVBox.getChildren().remove(otherSection);
-                mixedVBox.getChildren().add(1, otherSection);
+            if (isMailbox && !contentContainer.getChildren().get(1).getId().equals("addfriendListPanel")) {
+                contentContainer.getChildren().remove(otherSection);
+                contentContainer.getChildren().add(1, otherSection);
                 timeline.setOnFinished(actionEvent -> {
                     stage.setTitle("Mailbox");
                     otherSection.setVisible(false);
-                    friendSection.setVisible(false);
+                    friendListPanel.setVisible(false);
                 });
-            } else if (isAddFriend && !mixedVBox.getChildren().get(1).getId().equals("mailboxSection")) {
-                mixedVBox.getChildren().remove(otherSection);
-                mixedVBox.getChildren().add(1, otherSection);
+            } else if (isAddFriend && !contentContainer.getChildren().get(1).getId().equals("notificationsPanel")) {
+                contentContainer.getChildren().remove(otherSection);
+                contentContainer.getChildren().add(1, otherSection);
                 timeline.setOnFinished(actionEvent -> {
                     stage.setTitle("Add Friend");
                     otherSection.setVisible(false);
-                    friendSection.setVisible(false);
+                    friendListPanel.setVisible(false);
                 });
             }
 
             // Animate opening
-            friendSection.setManaged(false);
+            friendListPanel.setManaged(false);
             otherSection.setManaged(false);
             targetSection.setManaged(true);
             targetSection.setVisible(true);
@@ -101,8 +101,8 @@ public class UIUtil {
             stage.setTitle("Chat");
             targetSection.setVisible(false);
             targetSection.setManaged(false);
-            friendSection.setVisible(true);
-            friendSection.setManaged(true);
+            friendListPanel.setVisible(true);
+            friendListPanel.setManaged(true);
         }
     }
 }

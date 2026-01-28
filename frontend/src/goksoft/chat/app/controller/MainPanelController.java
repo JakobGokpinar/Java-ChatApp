@@ -51,10 +51,10 @@ public class MainPanelController {
     @FXML private ScrollPane friendScrollPane;
     @FXML public BorderPane settingsBorderPane;
     @FXML public HBox operationsHBox;
-    @FXML public VBox mixedVBox;
-    @FXML public VBox friendSection;
-    @FXML public VBox mailboxSection;
-    @FXML public VBox addFriendSection;
+    @FXML public VBox contentContainer;
+    @FXML public VBox friendListPanel;
+    @FXML public VBox notificationsPanel;
+    @FXML public VBox addfriendListPanel;
     @FXML private VBox friendsVBox;
     @FXML private VBox notificationVBox;
     @FXML private VBox usersVBox;
@@ -682,17 +682,17 @@ public class MainPanelController {
         return (Stage) chatBorderPane.getScene().getWindow();
     }
 
-    public void openAddFriend(MouseEvent event) {
-        UIUtil.openAndCloseSections(addFriendSection.isManaged(), addFriendSection,
-                mixedVBox, friendSection, mailboxSection, getStage());
+    public void showUserSearchPanel(MouseEvent event) {
+        UIUtil.openAndCloseSections(addfriendListPanel.isManaged(), addfriendListPanel,
+                contentContainer, friendListPanel, notificationsPanel, getStage());
     }
 
-    public void openMailbox(MouseEvent event) {
-        UIUtil.openAndCloseSections(mailboxSection.isManaged(), mailboxSection,
-                mixedVBox, friendSection, addFriendSection, getStage());
+    public void showNotificationsPanel(MouseEvent event) {
+        UIUtil.openAndCloseSections(notificationsPanel.isManaged(), notificationsPanel,
+                contentContainer, friendListPanel, addfriendListPanel, getStage());
     }
 
-    public void openSettings(MouseEvent event) {
+    public void toggleSettingsPanel(MouseEvent event) {
         if (!settingsBorderPane.isVisible()) {
             settingsBorderPane.setVisible(true);
             getStage().setTitle("Settings");

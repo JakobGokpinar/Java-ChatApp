@@ -1,0 +1,287 @@
+/*
+ * Chat Application - Main Stylesheet
+ * Modern color palette and reusable styles
+ */
+
+/* ===== ROOT VARIABLES ===== */
+* {
+    /* Primary Colors */
+    -primary-color: #ff6f00;
+    -primary-dark: #ff5800;
+    -primary-light: #ffaa00;
+    -primary-variant: #ff7d1a;
+    -primary-lighter: #ffb700;
+
+    /* Background Colors */
+    -bg-dark: #1c1b1b;
+    -bg-gray: #474646;
+
+    /* Text Colors */
+    -text-primary: white;
+    -text-secondary: #949494;
+    -text-dark: black;
+
+    /* Semantic Colors */
+    -color-error: #ff0000;
+    -color-success: #00ff00;
+    -color-info: dodgerblue;
+}
+
+/* ===== BACKGROUNDS ===== */
+.bg-dark {
+    -fx-background-color: -bg-dark;
+}
+
+.bg-gray {
+    -fx-background-color: -bg-gray;
+}
+
+.bg-primary {
+    -fx-background-color: -primary-color;
+}
+
+.bg-primary-dark {
+    -fx-background-color: -primary-dark;
+}
+
+.bg-primary-light {
+    -fx-background-color: -primary-light;
+}
+
+.bg-primary-variant {
+    -fx-background-color: -primary-variant;
+}
+
+.bg-primary-lighter {
+    -fx-background-color: -primary-lighter;
+}
+
+.bg-transparent {
+    -fx-background-color: transparent;
+}
+
+/* ===== TEXT COLORS ===== */
+.text-primary {
+    -fx-text-fill: -text-primary;
+}
+
+.text-secondary {
+    -fx-text-fill: -text-secondary;
+}
+
+.text-dark {
+    -fx-text-fill: -text-dark;
+}
+
+.text-white {
+    -fx-text-fill: white;
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.btn-primary:hover {
+    -fx-background-color: -primary-dark;
+}
+
+.btn-primary-dark {
+    -fx-background-color: -primary-dark;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.btn-dark {
+    -fx-background-color: -bg-dark;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.btn-dark:hover {
+    -fx-background-color: derive(-bg-dark, 20%);
+}
+
+/* ===== BORDERS ===== */
+.border-primary {
+    -fx-border-color: -primary-color;
+}
+
+.border-primary-light {
+    -fx-border-color: -primary-light;
+}
+
+.border-primary-lighter {
+    -fx-border-color: -primary-lighter;
+}
+
+.border-gray {
+    -fx-border-color: -text-secondary;
+}
+
+/* ===== TEXT FIELDS ===== */
+.text-field-primary {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+}
+
+.text-field-primary-variant {
+    -fx-background-color: -primary-variant;
+    -fx-text-fill: white;
+}
+
+.text-field-dark {
+    -fx-background-color: -bg-dark;
+    -fx-text-fill: white;
+}
+
+/* ===== SPECIFIC COMPONENTS ===== */
+
+/* Friend Box */
+.friend-box {
+    -fx-background-color: transparent;
+    -fx-border-color: -text-secondary;
+    -fx-border-width: 0.5px 0px 0.5px 0px;
+    -fx-cursor: hand;
+}
+
+/* Request Box */
+.request-box {
+    -fx-background-color: -primary-lighter;
+    -fx-border-color: -primary-light;
+    -fx-border-width: 1.5px;
+}
+
+/* User Box */
+.user-box {
+    -fx-background-color: -primary-variant;
+    -fx-border-color: -primary-color;
+    -fx-border-width: 1.5px;
+}
+
+/* Notification Badge */
+.notification-badge {
+    -fx-fill: -primary-color;
+    -fx-stroke: -primary-color;
+}
+
+/* Profile Circle */
+.profile-circle {
+    -fx-stroke-width: 0;
+}
+
+.profile-circle-fallback {
+    -fx-fill: dodgerblue;
+}
+
+/* Split Pane */
+.split-pane {
+    -fx-background-color: transparent;
+}
+
+.split-pane .split-pane-divider {
+    -fx-padding: 0 1 0 1;
+}
+
+/* Top Bars */
+.top-bar {
+    -fx-background-color: -bg-gray;
+}
+
+/* Operations Bar */
+.operations-bar {
+    -fx-background-color: -bg-gray;
+}
+
+/* Settings Panel */
+.settings-panel {
+    -fx-background-color: -primary-color;
+}
+
+/* Chat Panel */
+.chat-panel {
+    -fx-background-color: transparent;
+}
+
+/* Mailbox Section Header */
+.mailbox-header {
+    -fx-background-color: -primary-light;
+}
+
+/* Add Friend Section Header */
+.add-friend-header {
+    -fx-background-color: -primary-color;
+}
+
+/* Scroll Pane */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+/* ===== LOGIN/REGISTER SCREENS ===== */
+.login-background {
+    -fx-background-image: url("../images/background.jpg");
+    -fx-background-size: 600 450;
+    -fx-background-position: center center;
+}
+
+.auth-panel {
+    -fx-background-color: white;
+    -fx-opacity: 0.95;
+}
+
+.signin-button {
+    -fx-background-color: purple;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.signup-button {
+    -fx-background-color: #35bcd4;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.back-button {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+/* ===== WARNING WINDOW ===== */
+.warning-window {
+    -fx-background: linear-gradient(-primary-light, -primary-color);
+}
+
+/* ===== UTILITY CLASSES ===== */
+.cursor-hand {
+    -fx-cursor: hand;
+}
+
+.no-padding {
+    -fx-padding: 0;
+}
+
+.no-border {
+    -fx-border-width: 0;
+}
+
+/* ===== HOVER EFFECTS ===== */
+.hoverable:hover {
+    -fx-opacity: 0.8;
+}
+
+/* ===== RESPONSIVE TEXT ===== */
+.text-large {
+    -fx-font-size: 18px;
+}
+
+.text-medium {
+    -fx-font-size: 14px;
+}
+
+.text-small {
+    -fx-font-size: 12px;
+}
