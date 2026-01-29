@@ -33,8 +33,6 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-        usernameField.setText("jakob");
-        passwordField.setText("1234");
 
         usernameField.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.ENTER) signIn();
