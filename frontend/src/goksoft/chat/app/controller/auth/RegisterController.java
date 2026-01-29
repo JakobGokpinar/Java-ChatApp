@@ -1,5 +1,6 @@
-package goksoft.chat.app.controller;
+package goksoft.chat.app.controller.auth;
 
+import goksoft.chat.app.controller.dialog.WarningWindowController;
 import goksoft.chat.app.service.ServiceManager;
 import goksoft.chat.app.util.SceneUtil;
 import javafx.application.Platform;
@@ -26,7 +27,7 @@ public class RegisterController {
     private final ServiceManager serviceManager = ServiceManager.getInstance();
 
     public void changeSceneToLogin(ActionEvent event) {
-        SceneUtil.switchScene(usernameField, "../userinterfaces/login.fxml", "Login", getClass());
+        SceneUtil.switchScene(usernameField, "goksoft/chat/app/view/main/login.fxml", "Login", getClass());
     }
 
     public void showPasswords() {

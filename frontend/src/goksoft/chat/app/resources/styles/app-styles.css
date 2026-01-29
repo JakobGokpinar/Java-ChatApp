@@ -222,7 +222,7 @@
 
 /* ===== LOGIN/REGISTER SCREENS ===== */
 .login-background {
-    -fx-background-image: url("../images/background.jpg");
+    -fx-background-image: url("../images/backgrounds/login-bg.jpg");
     -fx-background-size: 600 450;
     -fx-background-position: center center;
 }

@@ -1,5 +1,6 @@
-package goksoft.chat.app.controller;
+package goksoft.chat.app.controller.auth;
 
+import goksoft.chat.app.controller.dialog.WarningWindowController;
 import goksoft.chat.app.service.ServiceManager;
 import goksoft.chat.app.util.SceneUtil;
 import javafx.application.Platform;
@@ -47,7 +48,7 @@ public class LoginController {
     }
 
     public void changeSceneToRegister(MouseEvent event) {
-        SceneUtil.switchScene(usernameField, "../userinterfaces/register.fxml", "Register", getClass());
+        SceneUtil.switchScene(usernameField, "goksoft/chat/app/view/main/register.fxml", "Register", getClass());
     }
 
     public void rememberMeListener(MouseEvent event) {
@@ -105,7 +106,7 @@ public class LoginController {
                     Platform.runLater(() -> {
                         if (response.isSuccess() && response.getData() != null) {
                             serviceManager.setCurrentUser(username);
-                            SceneUtil.closeAndOpenNew(usernameField, "../userinterfaces/MainPanel.fxml",
+                            SceneUtil.closeAndOpenNew(usernameField, "goksoft/chat/app/view/main/MainPanel.fxml",
                                     "Chat", getClass(), false, false);
                         } else {
                             signinbutton.setDisable(false);

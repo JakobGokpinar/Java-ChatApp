@@ -19,13 +19,13 @@ This is a messaging application built with Java and JavaFX. Users can register t
 ## Screenshots
 
 ### Login Screen
-![Login Screen](src/goksoft/chat/app/images/ss/login-screen.png)
+![Login Screen](src/goksoft/chat/app/resources/images/screenshots/login-screen.png)
 
 ### Main Chat Interface
-![Main Chat](src/goksoft/chat/app/images/ss/main-chat.png)
+![Main Chat](src/goksoft/chat/app/resources/images/screenshots/main-chat.png)
 
 ### Settings
-![Settings](src/goksoft/chat/app/images/ss/settings.png)
+![Settings](src/goksoft/chat/app/resources/images/screenshots/settings.png)
 
 ## Table of Contents
 - [Features](#features)

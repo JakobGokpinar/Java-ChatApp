@@ -15,7 +15,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         System.out.println("Chat app is active");
 
-        Parent loginRoot = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("userinterfaces/login.fxml")));
+        Parent loginRoot = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("view/auth/login.fxml")));
         Scene loginScene = new Scene(loginRoot);
 
         primaryStage.setScene(loginScene);

@@ -1,6 +1,8 @@
-package goksoft.chat.app.controller;
+package goksoft.chat.app.controller.main;
 
 import goksoft.chat.app.config.Environment;
+import goksoft.chat.app.controller.dialog.WarningWindowController;
+import goksoft.chat.app.controller.auth.LoginController;
 import goksoft.chat.app.service.ServiceManager;
 import goksoft.chat.app.ui.components.FriendBoxComponent;
 import goksoft.chat.app.ui.components.ProfilePhotoLoader;
@@ -715,7 +717,7 @@ public class MainPanelController {
         serviceManager.clearCurrentUser();
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainPanelController.class.getResource("userinterfaces/login.fxml")
+                    MainPanelController.class.getResource("goksoft/chat/app/view/main/login.fxml")
             );
             Parent loginPanel = loader.load();
             Scene scene = new Scene(loginPanel);

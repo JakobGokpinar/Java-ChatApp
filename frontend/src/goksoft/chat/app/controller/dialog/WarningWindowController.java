@@ -1,4 +1,4 @@
-package goksoft.chat.app.controller;
+package goksoft.chat.app.controller.dialog;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,7 +21,7 @@ public class WarningWindowController{
 
     public static void warningMessage(String text){
         try {
-            FXMLLoader loader = new FXMLLoader(WarningWindowController.class.getResource("userinterfaces/warningWindow.fxml"));
+            FXMLLoader loader = new FXMLLoader(WarningWindowController.class.getResource("goksoft/chat/app/view/main/warningWindow.fxml"));
             Parent root = loader.load();
             WarningWindowController windowController = loader.getController();
             windowController.setLabelText(text);

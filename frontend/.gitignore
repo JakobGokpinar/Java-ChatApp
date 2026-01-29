@@ -1,1 +1,14 @@
+# Compiled
+target/
+*.class
+
+# IDE
+.idea/workspace.xml
+.idea/tasks.xml
+
+# OS
 .DS_Store
+
+# Temporary test files (if any)
+test-data/
+temp/
