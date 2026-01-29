@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Utility class for scene switching operations
@@ -26,7 +27,7 @@ public class SceneUtil {
      */
     public static void switchScene(Node currentNode, String fxmlPath, String title, Class<?> contextClass) {
         try {
-            Parent root = FXMLLoader.load(contextClass.getResource(fxmlPath));
+            Parent root = FXMLLoader.load(Objects.requireNonNull(contextClass.getResource(fxmlPath)));
             Scene scene = new Scene(root);
             Stage window = (Stage) currentNode.getScene().getWindow();
             window.setScene(scene);
@@ -49,7 +50,7 @@ public class SceneUtil {
     public static Stage openNewWindow(String fxmlPath, String title, Class<?> contextClass,
                                       boolean resizable, boolean fullScreen) {
         try {
-            Parent root = FXMLLoader.load(contextClass.getResource(fxmlPath));
+            Parent root = FXMLLoader.load(Objects.requireNonNull(contextClass.getResource(fxmlPath)));
             Scene scene = new Scene(root);
             Stage stage = new Stage();
             stage.setScene(scene);

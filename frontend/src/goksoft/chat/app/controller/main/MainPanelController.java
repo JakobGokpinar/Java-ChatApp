@@ -717,7 +717,7 @@ public class MainPanelController {
         serviceManager.clearCurrentUser();
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainPanelController.class.getResource("goksoft/chat/app/view/main/login.fxml")
+                    MainPanelController.class.getResource("../../view/auth/login.fxml")
             );
             Parent loginPanel = loader.load();
             Scene scene = new Scene(loginPanel);

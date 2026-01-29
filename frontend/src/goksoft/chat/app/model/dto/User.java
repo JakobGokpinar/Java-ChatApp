@@ -3,14 +3,12 @@ package goksoft.chat.app.model.dto;
 public class User {
     private Long id;
     private String username;
-    private String email;
 
     public User() {}
 
-    public User(Long id, String username, String email) {
+    public User(Long id, String username) {
         this.id = id;
         this.username = username;
-        this.email = email;
     }
 
     public Long getId() {
@@ -29,20 +27,11 @@ public class User {
         this.username = username;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
                 '}';
     }
 }

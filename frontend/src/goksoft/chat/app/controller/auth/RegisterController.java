@@ -27,7 +27,7 @@ public class RegisterController {
     private final ServiceManager serviceManager = ServiceManager.getInstance();
 
     public void changeSceneToLogin(ActionEvent event) {
-        SceneUtil.switchScene(usernameField, "goksoft/chat/app/view/main/login.fxml", "Login", getClass());
+        SceneUtil.switchScene(usernameField, "../../view/auth/login.fxml", "Login", getClass());
     }
 
     public void showPasswords() {

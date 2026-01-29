@@ -48,7 +48,7 @@ public class LoginController {
     }
 
     public void changeSceneToRegister(MouseEvent event) {
-        SceneUtil.switchScene(usernameField, "goksoft/chat/app/view/main/register.fxml", "Register", getClass());
+        SceneUtil.switchScene(usernameField, "../../view/auth/register.fxml", "Register", getClass());
     }
 
     public void rememberMeListener(MouseEvent event) {
@@ -106,7 +106,7 @@ public class LoginController {
                     Platform.runLater(() -> {
                         if (response.isSuccess() && response.getData() != null) {
                             serviceManager.setCurrentUser(username);
-                            SceneUtil.closeAndOpenNew(usernameField, "goksoft/chat/app/view/main/MainPanel.fxml",
+                            SceneUtil.closeAndOpenNew(usernameField, "../../view/main/MainPanel.fxml",
                                     "Chat", getClass(), false, false);
                         } else {
                             signinbutton.setDisable(false);
