@@ -1,6 +1,7 @@
 package com.chatapp.backend.model;
 
 import jakarta.persistence.*;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -8,13 +9,16 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 public class User {
 
+    @Setter
     @Id
     @Column(name = "username", length = 25)
     private String username;
 
+    @Setter
     @Column(name = "password", length = 255)
     private String password;
 
+    @Setter
     @Column(name = "photo", columnDefinition = "BYTEA")
     private byte[] photo;
 
@@ -43,24 +47,12 @@ public class User {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public byte[] getPhoto() {
         return photo;
-    }
-
-    public void setPhoto(byte[] photo) {
-        this.photo = photo;
     }
 
     public LocalDateTime getCreatedAt() { return createdAt; }

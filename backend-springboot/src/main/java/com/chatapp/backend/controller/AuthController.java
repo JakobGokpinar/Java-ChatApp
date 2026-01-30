@@ -18,17 +18,13 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<UserResponse>> login(@RequestParam String username,
-                                                           @RequestParam String password) {
-        LoginRequest request = new LoginRequest(username, password);
+    public ResponseEntity<ApiResponse<UserResponse>> login(@RequestBody LoginRequest request) {
         ApiResponse<UserResponse> response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<UserResponse>> register(@RequestParam String username,
-                                                              @RequestParam String password) {
-        RegisterRequest request = new RegisterRequest(username, password);
+    public ResponseEntity<ApiResponse<UserResponse>> register(@RequestBody RegisterRequest request) {
         ApiResponse<UserResponse> response = authService.register(request);
         return ResponseEntity.ok(response);
     }
