@@ -2,6 +2,7 @@ package com.chatapp.backend.controller;
 
 import com.chatapp.backend.config.SecurityUtils;
 import com.chatapp.backend.dto.response.ApiResponse;
+import com.chatapp.backend.dto.response.FriendDetailsResponse;
 import com.chatapp.backend.service.FriendService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,14 @@ public class FriendController {
     public ResponseEntity<ApiResponse<List<String>>> getFriends() {
         String username = SecurityUtils.getCurrentUsername();
         ApiResponse<List<String>> response = friendService.getFriends(username);
+        return ResponseEntity.ok(response);
+    }
+
+    // NEW ENDPOINT - Returns friends with full details
+    @PostMapping("/get-details")
+    public ResponseEntity<ApiResponse<List<FriendDetailsResponse>>> getFriendsWithDetails() {
+        String username = SecurityUtils.getCurrentUsername();
+        ApiResponse<List<FriendDetailsResponse>> response = friendService.getFriendsWithDetails(username);
         return ResponseEntity.ok(response);
     }
 

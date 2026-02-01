@@ -12,6 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.chatapp.backend.dto.response.FriendDetailsResponse;
+import com.chatapp.backend.model.Message;
+import com.chatapp.backend.repository.MessageRepository;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +32,8 @@ public class FriendService {
 
     @Autowired
     private FriendshipRepository friendshipRepository;
+    @Autowired
+    private MessageRepository messageRepository;
 
     public ApiResponse<List<String>> getFriends(String username) {
         logger.info("Fetching friends for user: {}", username);
@@ -44,6 +51,54 @@ public class FriendService {
 
         logger.info("Found {} friends for user: {}", friendNames.size(), username);
         return ApiResponse.success("Friends retrieved", friendNames);
+    }
+
+    /**
+     * Get friends with detailed information including:
+     * - Last message
+     * - Unread message count
+     * - Time since last message
+     */
+    public ApiResponse<List<FriendDetailsResponse>> getFriendsWithDetails(String username) {
+        logger.info("Fetching friends with details for user: {}", username);
+
+        List<Friendship> friendships = friendshipRepository.findAcceptedFriendships(username);
+        List<FriendDetailsResponse> friendDetails = new ArrayList<>();
+
+        for (Friendship friendship : friendships) {
+            // Get friend's username (the other person in the friendship)
+            String friendUsername = friendship.getUser1().equals(username)
+                    ? friendship.getUser2()
+                    : friendship.getUser1();
+
+            // Get last message between user and friend
+            List<Message> messages = messageRepository.findMessagesBetweenUsers(username, friendUsername);
+
+            String lastMessage = "";
+            String timeSinceLastMessage = "";
+
+            if (!messages.isEmpty()) {
+                Message lastMsg = messages.get(messages.size() - 1);
+                lastMessage = truncateMessage(lastMsg.getContent(), 30);
+                timeSinceLastMessage = getTimeSince(lastMsg.getCreatedAt());
+            }
+
+            // Get unread message count
+            int unreadCount = messageRepository.countUnreadMessages(username, friendUsername);
+            String notificationCount = String.valueOf(unreadCount);
+
+            FriendDetailsResponse detail = new FriendDetailsResponse(
+                    friendUsername,
+                    notificationCount,
+                    lastMessage,
+                    timeSinceLastMessage
+            );
+
+            friendDetails.add(detail);
+        }
+
+        logger.info("Found {} friends with details for user: {}", friendDetails.size(), username);
+        return ApiResponse.success("Friends with details retrieved", friendDetails);
     }
 
     public ApiResponse<List<String>> getFriendRequests(String username) {
@@ -149,6 +204,56 @@ public class FriendService {
 
         logger.info("Friend request rejected: {} rejected {}", rejecter, requester);
         return ApiResponse.success("Friend request rejected", null);
+    }
+
+    /**
+     * Truncate message to specified length
+     */
+    private String truncateMessage(String message, int maxLength) {
+        if (message == null || message.isEmpty()) {
+            return "";
+        }
+        if (message.length() <= maxLength) {
+            return message;
+        }
+        return message.substring(0, maxLength) + "...";
+    }
+
+    /**
+     * Get human-readable time since a timestamp
+     */
+    private String getTimeSince(LocalDateTime timestamp) {
+        if (timestamp == null) {
+            return "";
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        long minutes = ChronoUnit.MINUTES.between(timestamp, now);
+        if (minutes < 1) {
+            return "Just now";
+        }
+        if (minutes < 60) {
+            return minutes + " min" + (minutes == 1 ? "" : "s") + " ago";
+        }
+
+        long hours = ChronoUnit.HOURS.between(timestamp, now);
+        if (hours < 24) {
+            return hours + " hour" + (hours == 1 ? "" : "s") + " ago";
+        }
+
+        long days = ChronoUnit.DAYS.between(timestamp, now);
+        if (days < 7) {
+            return days + " day" + (days == 1 ? "" : "s") + " ago";
+        }
+
+        long weeks = days / 7;
+        if (weeks < 4) {
+            return weeks + " week" + (weeks == 1 ? "" : "s") + " ago";
+        }
+
+        long months = days / 30;
+        return months + " month" + (months == 1 ? "" : "s") + " ago";
     }
 
     // Helper method using Java 21 switch expression
