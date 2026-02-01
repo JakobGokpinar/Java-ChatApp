@@ -4,9 +4,7 @@ import goksoft.chat.app.config.Environment;
 import goksoft.chat.app.controller.auth.LoginController;
 import goksoft.chat.app.controller.dialog.WarningWindowController;
 import goksoft.chat.app.service.ServiceManager;
-import goksoft.chat.app.ui.components.FriendBoxComponent;
-import goksoft.chat.app.ui.components.RequestBoxComponent;
-import goksoft.chat.app.ui.components.UserBoxComponent;
+import goksoft.chat.app.ui.components.*;
 import goksoft.chat.app.util.UIUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -33,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -71,7 +70,7 @@ public class MainPanelController {
     @FXML
     public TextField messageField;
     @FXML
-    public ListView<String> listView;
+    public ListView<MessageBubble> listView;
     @FXML
     private SplitPane splitPane;
     @FXML
@@ -100,7 +99,6 @@ public class MainPanelController {
     private Label noUserLabel;
     // Instance fields (no longer static!)
     private String currentFriend;
-    private BorderPane currentPane;
     private final ArrayList<String> friendsNameList = new ArrayList<>();
     private final ArrayList<String> friendRequestsNameList = new ArrayList<>();
     private final List<Object> friendArray = new ArrayList<>();
@@ -193,26 +191,25 @@ public class MainPanelController {
                                 String lastMsg = friendData.get(2);
                                 String passedTime = friendData.get(3);
 
-                                final String finalUsername = username;
+                                Image photo = ProfilePhotoLoader.loadPhoto(username);
 
-                                BorderPane friendBox = FriendBoxComponent.create(
-                                        username, lastMsg, notifCount, passedTime,
+                                // Create modern friend list item
+                                FriendListItem friendItem = new FriendListItem(
+                                        username,
+                                        lastMsg,
+                                        notifCount,
+                                        passedTime,
+                                        photo,
                                         () -> {
-                                            BorderPane actualPane = null;
-                                            for (int k = 0; k < friendsVBox.getChildren().size(); k++) {
-                                                Node child = friendsVBox.getChildren().get(k);
-                                                if (child.getId() != null && child.getId().equals(finalUsername)) {
-                                                    actualPane = (BorderPane) child;
-                                                    break;
-                                                }
-                                            }
-                                            onFriendClicked(finalUsername, actualPane);
+                                            final String finalUsername = username;
+                                            Image friendPhoto = ProfilePhotoLoader.loadPhoto(finalUsername);
+                                            onFriendClicked(friendPhoto, finalUsername, null);
                                         }
                                 );
 
-                                friendArray.add(friendBox);
+                                friendArray.add(friendItem);
                                 friendsNameList.add(username);
-                                friendsVBox.getChildren().add(friendBox);
+                                friendsVBox.getChildren().add(friendItem);
                             }
                         }
 
@@ -335,28 +332,25 @@ public class MainPanelController {
     /**
      * Handle clicking on a friend to start chatting
      */
-    public void onFriendClicked(String friendName, BorderPane pane) {
+    public void onFriendClicked(Image friendPhoto, String friendName, FriendListItem item) {
         chatFriendName.setText(friendName);
-
-        // ⭐ Use default icon
-        Image defaultUserIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/goksoft/chat/app/resources/images/icons/user-icon.png")));
-        chatFriendProfilePhoto.setFill(new ImagePattern(defaultUserIcon));
+        chatFriendProfilePhoto.setFill(new ImagePattern(friendPhoto));
         chatFriendProfilePhoto.setStrokeWidth(0);
-
         chatBorderPane.setVisible(true);
         settingsBorderPane.setVisible(false);
         currentFriend = friendName;
-        currentPane = pane;
 
+        // Load messages for this friend
         loadMessages();
+
+        // Start polling for new messages
         startMessagePollingForCurrentFriend();
     }
 
-    /**
-     * Load messages with current friend
-     */
     private void loadMessages() {
         if (currentFriend == null) return;
+
+        String currentUser = serviceManager.getCurrentUser();
 
         serviceManager.getMessageService().getMessages(currentFriend)
                 .thenAccept(messages -> {
@@ -366,8 +360,19 @@ public class MainPanelController {
                         for (List<String> msgData : messages) {
                             if (msgData.size() >= 2) {
                                 String sender = msgData.get(0);
-                                String message = msgData.get(1);
-                                listView.getItems().add(sender + ": " + message);
+                                String content = msgData.get(1);
+
+                                // Determine if message was sent by current user
+                                boolean isSent = sender.equals(currentUser);
+
+                                // Create message bubble
+                                MessageBubble bubble = new MessageBubble(
+                                        sender,
+                                        content,
+                                        isSent
+                                );
+
+                                listView.getItems().add(bubble);
                             }
                         }
 
@@ -395,8 +400,14 @@ public class MainPanelController {
         String loggedUser = serviceManager.getCurrentUser();
 
         // Add message to UI immediately (optimistic update)
-        listView.getItems().add(loggedUser + ": " + message);
+        MessageBubble sentBubble = new MessageBubble(loggedUser, message, true);
+        listView.getItems().add(sentBubble);
         messageField.clear();
+
+        // Scroll to bottom
+        if (!listView.getItems().isEmpty()) {
+            listView.scrollTo(listView.getItems().size() - 1);
+        }
 
         // Send to server
         serviceManager.getMessageService().sendMessage(currentFriend, message)
@@ -415,6 +426,7 @@ public class MainPanelController {
 
         friendScrollPane.setVvalue(friendScrollPane.getHmin());
     }
+
 
     /**
      * Start polling for new messages with current friend
@@ -563,39 +575,37 @@ public class MainPanelController {
                 String notifCount = friendData.get(1);
                 String lastMsg = friendData.get(2);
                 String passedTime = friendData.get(3);
-                // Create new friend box with callback
-                BorderPane friendBox = FriendBoxComponent.create(
-                        username, lastMsg, notifCount, passedTime,
+                Image photo = ProfilePhotoLoader.loadPhoto(username);
+
+                // Create friend list item
+                FriendListItem friendItem = new FriendListItem(
+                        username,
+                        lastMsg,
+                        notifCount,
+                        passedTime,
+                        photo,
                         () -> {
-                            // Find the actual friendBox pane to pass
-                            BorderPane actualPane = null;
-                            for (int k = 0; k < friendsVBox.getChildren().size(); k++) {
-                                if (friendsVBox.getChildren().get(k).getId() != null &&
-                                        friendsVBox.getChildren().get(k).getId().equals(username)) {
-                                    actualPane = (BorderPane) friendsVBox.getChildren().get(k);
-                                    break;
-                                }
-                            }
-                            onFriendClicked(username, actualPane);
+                            Image friendPhoto = ProfilePhotoLoader.loadPhoto(username);
+                            onFriendClicked(friendPhoto, username, null);
                         }
                 );
 
-                // Find and update existing friend box
+                // Find and update existing friend item
                 boolean found = false;
                 for (int j = 0; j < friendsVBox.getChildren().size(); j++) {
-                    Node child = friendsVBox.getChildren().get(j);
-                    if (child.getId() != null && child.getId().equals(username)) {
+                    if (friendsVBox.getChildren().get(j).getId() != null &&
+                            friendsVBox.getChildren().get(j).getId().equals(username)) {
                         friendsVBox.getChildren().remove(j);
-                        friendsVBox.getChildren().add(index, friendBox);
+                        friendsVBox.getChildren().add(index, friendItem);
                         index++;
                         found = true;
                         break;
                     }
                 }
 
-                // If not found, it's a new friend - add it
+                // If not found, add new friend
                 if (!found) {
-                    friendsVBox.getChildren().add(index, friendBox);
+                    friendsVBox.getChildren().add(index, friendItem);
                     index++;
                 }
             }
@@ -665,7 +675,7 @@ public class MainPanelController {
 
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainPanelController.class.getResource("/goksoft/chat/app/view/auth/login.fxml")
+                    MainPanelController.class.getResource("/goksoft/chat/app/view/auth/login2.fxml")
             );
             Parent loginPanel = loader.load();
             Scene scene = new Scene(loginPanel);

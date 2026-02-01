@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
@@ -7,52 +8,116 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="447.0" prefWidth="600.0" styleClass="login-background"
-            stylesheets="@../../resources/styles/modern-blue-design.css" xmlns="http://javafx.com/javafx/15.0.1"
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" 
+            prefHeight="600.0" prefWidth="900.0" 
+            stylesheets="@../../resources/styles/modern-design.css" 
+            xmlns="http://javafx.com/javafx/21" 
+            xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="goksoft.chat.app.controller.auth.RegisterController">
-    <children>
-        <AnchorPane layoutX="138.0" layoutY="40.0" prefHeight="370.0" prefWidth="323.0" styleClass="auth-panel"
-                    AnchorPane.bottomAnchor="39.60000000000002" AnchorPane.leftAnchor="138.0"
-                    AnchorPane.rightAnchor="138.8" AnchorPane.topAnchor="40.0">
-            <children>
-                <Label layoutX="83.0" layoutY="32.0" text="New Account" textFill="#dd0d0d">
-                    <font>
-                        <Font name="Franklin Gothic Book" size="26.0"/>
-                    </font>
+    
+    <!-- Background Image Layer -->
+    <AnchorPane prefHeight="600.0" prefWidth="900.0" 
+                style="-fx-background-image: url('/goksoft/chat/app/resources/images/backgrounds/login-bg.jpg'); 
+                       -fx-background-size: cover; 
+                       -fx-background-position: center;" 
+                AnchorPane.bottomAnchor="0.0" 
+                AnchorPane.leftAnchor="0.0" 
+                AnchorPane.rightAnchor="0.0" 
+                AnchorPane.topAnchor="0.0">
+        
+        <!-- Semi-transparent overlay -->
+        <AnchorPane prefHeight="600.0" prefWidth="900.0" 
+                    style="-fx-background-color: rgba(0, 0, 0, 0.3);" 
+                    AnchorPane.bottomAnchor="0.0" 
+                    AnchorPane.leftAnchor="0.0" 
+                    AnchorPane.rightAnchor="0.0" 
+                    AnchorPane.topAnchor="0.0">
+            
+            <!-- Register Card -->
+            <VBox alignment="CENTER" spacing="24.0" styleClass="auth-card" 
+                  AnchorPane.leftAnchor="240.0" AnchorPane.rightAnchor="240.0" 
+                  AnchorPane.topAnchor="100.0">
+                
+                <!-- Header -->
+                <VBox alignment="CENTER" spacing="8.0">
+                    <Label text="Opprett konto" styleClass="auth-header" />
+                    <Label text="Bli med i chat-samfunnet" styleClass="auth-subtitle" />
+                </VBox>
+                
+                <!-- Form -->
+                <VBox spacing="16.0">
+                    <VBox.margin>
+                        <Insets top="8.0" />
+                    </VBox.margin>
+                    
+                    <!-- Username -->
+                    <VBox spacing="6.0">
+                        <Label text="Brukernavn" styleClass="label-secondary text-sm" />
+                        <TextField fx:id="usernameField" 
+                                   promptText="Velg et brukernavn" 
+                                   prefHeight="44.0" />
+                    </VBox>
+                    
+                    <!-- Password -->
+                    <VBox spacing="6.0">
+                        <Label text="Passord" styleClass="label-secondary text-sm" />
+                        <PasswordField fx:id="password1Field" 
+                                       promptText="6-24 tegn, må inneholde bokstav og tall" 
+                                       prefHeight="44.0" />
+                        <TextField fx:id="textField1" 
+                                   prefHeight="44.0"
+                                   visible="false" 
+                                   managed="false" />
+                    </VBox>
+                    
+                    <!-- Show Password -->
+                    <HBox spacing="16.0" alignment="CENTER_LEFT">
+                        <CheckBox fx:id="showPasswordsButton" 
+                                  text="Vis passord" 
+                                  onMouseClicked="#showPasswords" />
+                    </HBox>
+                    
+                    <!-- Submit Button -->
+                    <Button text="Registrer" 
+                            styleClass="btn-primary"
+                            prefHeight="44.0"
+                            maxWidth="Infinity"
+                            onMouseClicked="#registerButton"
+                            defaultButton="true">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                        <VBox.margin>
+                            <Insets top="8.0" />
+                        </VBox.margin>
+                    </Button>
+                    
+                    <!-- Back Button -->
+                    <Button text="Tilbake til innlogging" 
+                            styleClass="btn-secondary"
+                            prefHeight="40.0"
+                            maxWidth="Infinity"
+                            onAction="#changeSceneToLogin">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Button>
+                </VBox>
+                
+                <!-- Terms Notice -->
+                <Label text="Ved å registrere godtar du våre vilkår for bruk" 
+                       styleClass="label-tertiary text-xs"
+                       wrapText="true"
+                       maxWidth="360.0"
+                       alignment="CENTER">
+                    <VBox.margin>
+                        <Insets top="8.0" />
+                    </VBox.margin>
                 </Label>
-                <TextField fx:id="usernameField" layoutX="50.0" layoutY="91.0" prefHeight="26.0" prefWidth="208.0"
-                           promptText="Username"/>
-                <PasswordField fx:id="passwordField" layoutX="50.0" layoutY="134.0" prefHeight="26.0" prefWidth="208.0"
-                               promptText="Password"/>
-                <TextField fx:id="textField" focusTraversable="false" layoutX="50.0" layoutY="134.0" prefHeight="26.0"
-                           prefWidth="208.0" visible="false"/>
-                <CheckBox fx:id="showPasswordsButton" layoutX="50.0" layoutY="208.0" mnemonicParsing="false"
-                          onMouseClicked="#showPasswords" text="See Passwords" textFill="#140d31">
-                    <font>
-                        <Font name="Myanmar Text" size="12.0"/>
-                    </font>
-                </CheckBox>
-                <Button focusTraversable="false" layoutX="59.0" layoutY="262.0" mnemonicParsing="false"
-                        onMouseClicked="#registerButton" prefHeight="38.0" prefWidth="190.0" styleClass="signup-button"
-                        text="Sign Up">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                    <cursor>
-                        <Cursor fx:constant="HAND"/>
-                    </cursor>
-                </Button>
-                <Button focusTraversable="false" layoutX="59.0" layoutY="320.0" mnemonicParsing="false"
-                        onAction="#changeSceneToLogin" prefHeight="26.0" prefWidth="190.0" styleClass="back-button"
-                        text="Back">
-                    <cursor>
-                        <Cursor fx:constant="HAND"/>
-                    </cursor>
-                </Button>
-            </children>
+            </VBox>
         </AnchorPane>
-    </children>
+    </AnchorPane>
 </AnchorPane>

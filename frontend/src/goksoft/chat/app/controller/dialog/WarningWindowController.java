@@ -17,7 +17,7 @@ public class WarningWindowController {
 
     public static void warningMessage(String text) {
         try {
-            FXMLLoader loader = new FXMLLoader(WarningWindowController.class.getResource("/goksoft/chat/app/view/dialog/warningWindow.fxml"));
+            FXMLLoader loader = new FXMLLoader(WarningWindowController.class.getResource("/goksoft/chat/app/view/dialog/warningWindow2.fxml"));
             Parent root = loader.load();
             WarningWindowController windowController = loader.getController();
             windowController.setLabelText(text);

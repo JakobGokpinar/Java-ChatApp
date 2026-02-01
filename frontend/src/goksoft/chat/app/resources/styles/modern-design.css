@@ -8,20 +8,20 @@
 .root {
     -fx-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     -fx-font-size: 14px;
-    -fx-background-color: #ffffff;
+    -fx-background-color: #f8f9fa;
 }
 
 /* ===== BACKGROUNDS ===== */
 .bg-main {
-    -fx-background-color: #ffffff;
+    -fx-background-color: #f8f9fa;  /* Soft off-white */
 }
 
 .bg-sidebar {
-    -fx-background-color: #f2f3f5;
+    -fx-background-color: #f2f3f5;  /* Light gray sidebar */
 }
 
 .bg-chat {
-    -fx-background-color: #ffffff;
+    -fx-background-color: #ffffff;  /* Pure white for chat area */
 }
 
 .bg-secondary {
@@ -302,21 +302,27 @@
 }
 
 /* ===== SPLIT PANE ===== */
+/* ===== SPLIT PANE - Enhanced for better UX ===== */
 .split-pane {
     -fx-background-color: #ffffff;
 }
 
 .split-pane .split-pane-divider {
-    -fx-background-color: #e3e5e8;
-    -fx-padding: 0 2px 0 2px;
+    -fx-background-color: #d4d7dc;
+    -fx-padding: 0 3px 0 3px;
 }
 
 .split-pane:horizontal .split-pane-divider {
     -fx-cursor: h-resize;
+    -fx-padding: 0 3px 0 3px;
 }
 
 .split-pane:horizontal .split-pane-divider:hover {
     -fx-background-color: #5865f2;
+}
+
+.split-pane:horizontal .split-pane-divider:pressed {
+    -fx-background-color: #4752c4;
 }
 
 /* ===== CHECKBOXES ===== */
@@ -437,3 +443,28 @@
 .m-2 { -fx-spacing: 8px; }
 .m-4 { -fx-spacing: 16px; }
 .m-6 { -fx-spacing: 24px; }
+
+
+/* ===== MESSAGE LIST ===== */
+.message-list {
+    -fx-background-color: #ffffff;
+    -fx-border-width: 0;
+}
+
+.message-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}
+
+.message-list .list-cell:filled {
+    -fx-background-color: transparent;
+}
+
+.message-list .list-cell:filled:hover {
+    -fx-background-color: transparent;
+}
+
+.message-list .list-cell:filled:selected {
+    -fx-background-color: transparent;
+}

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
@@ -7,66 +8,115 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="447.0" prefWidth="600.0" styleClass="login-background"
-            stylesheets="@../../resources/styles/modern-blue-design.css" xmlns="http://javafx.com/javafx/15.0.1"
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" 
+            prefHeight="600.0" prefWidth="900.0" 
+            stylesheets="@../../resources/styles/modern-design.css" 
+            xmlns="http://javafx.com/javafx/21" 
+            xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="goksoft.chat.app.controller.auth.LoginController">
-    <children>
-        <AnchorPane layoutX="138.0" layoutY="40.0" prefHeight="370.0" prefWidth="323.0" styleClass="auth-panel"
-                    AnchorPane.bottomAnchor="39.60000000000002" AnchorPane.leftAnchor="138.0"
-                    AnchorPane.rightAnchor="138.8" AnchorPane.topAnchor="40.0">
-            <children>
-                <Label focusTraversable="false" layoutX="119.0" layoutY="31.0" text="Login" textFill="#dd0d0d">
-                    <font>
-                        <Font name="Franklin Gothic Book" size="26.0"/>
-                    </font>
-                </Label>
-                <TextField fx:id="usernameField" layoutX="50.0" layoutY="91.0" prefHeight="26.0" prefWidth="208.0"
-                           promptText="Username"/>
-                <PasswordField fx:id="passwordField" layoutX="50.0" layoutY="140.0" prefHeight="26.0" prefWidth="208.0"
-                               promptText="Password"/>
-                <TextField fx:id="textField" layoutX="50.0" layoutY="140.0" prefHeight="26.0" prefWidth="208.0"
-                           visible="false"/>
-                <CheckBox fx:id="rememberMeButton" focusTraversable="false" layoutX="50.0" layoutY="184.0"
-                          mnemonicParsing="false" onMouseClicked="#rememberMeListener" text="Remember Me!"
-                          textFill="#200ebd">
-                    <font>
-                        <Font name="Myanmar Text" size="12.0"/>
-                    </font>
-                </CheckBox>
-                <CheckBox fx:id="showPasswordButton" contentDisplay="RIGHT" layoutX="171.0" layoutY="184.0"
-                          mnemonicParsing="false" onMouseClicked="#showPassword" text="See Password" textFill="#054ffa">
-                    <font>
-                        <Font name="Myanmar Text" size="12.0"/>
-                    </font>
-                </CheckBox>
-                <Button fx:id="signinbutton" layoutX="66.0" layoutY="238.0" mnemonicParsing="false"
-                        onMouseClicked="#signInButton" prefHeight="38.0" prefWidth="190.0" styleClass="signin-button"
-                        text="Sign In">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                    <cursor>
-                        <Cursor fx:constant="HAND"/>
-                    </cursor>
-                </Button>
-                <Label focusTraversable="false" layoutX="66.0" layoutY="312.0" text="Not a Member?" textFill="#0aaa30">
-                    <font>
-                        <Font name="MV Boli" size="14.0"/>
-                    </font>
-                </Label>
-                <Label focusTraversable="false" layoutX="180.0" layoutY="315.0" onMouseClicked="#changeSceneToRegister"
-                       text="Register Now" underline="true">
-                    <font>
-                        <Font name="Microsoft PhagsPa" size="13.0"/>
-                    </font>
-                    <cursor>
-                        <Cursor fx:constant="HAND"/>
-                    </cursor>
-                </Label>
-            </children>
+    
+    <!-- Background Image Layer -->
+    <AnchorPane prefHeight="600.0" prefWidth="900.0" 
+                style="-fx-background-image: url('/goksoft/chat/app/resources/images/backgrounds/login-bg.jpg'); 
+                       -fx-background-size: cover; 
+                       -fx-background-position: center;" 
+                AnchorPane.bottomAnchor="0.0" 
+                AnchorPane.leftAnchor="0.0" 
+                AnchorPane.rightAnchor="0.0" 
+                AnchorPane.topAnchor="0.0">
+        
+        <!-- Semi-transparent overlay -->
+        <AnchorPane prefHeight="600.0" prefWidth="900.0" 
+                    style="-fx-background-color: rgba(0, 0, 0, 0.3);" 
+                    AnchorPane.bottomAnchor="0.0" 
+                    AnchorPane.leftAnchor="0.0" 
+                    AnchorPane.rightAnchor="0.0" 
+                    AnchorPane.topAnchor="0.0">
+            
+            <!-- Login Card -->
+            <VBox alignment="CENTER" spacing="24.0" styleClass="auth-card" 
+                  AnchorPane.leftAnchor="240.0" AnchorPane.rightAnchor="240.0" 
+                  AnchorPane.topAnchor="120.0">
+                
+                <!-- Header -->
+                <VBox alignment="CENTER" spacing="8.0">
+                    <Label text="Velkommen tilbake" styleClass="auth-header" />
+                    <Label text="Logg inn for å fortsette" styleClass="auth-subtitle" />
+                </VBox>
+                
+                <!-- Form -->
+                <VBox spacing="16.0">
+                    <VBox.margin>
+                        <Insets top="8.0" />
+                    </VBox.margin>
+                    
+                    <!-- Username -->
+                    <VBox spacing="6.0">
+                        <Label text="Brukernavn" styleClass="label-secondary text-sm" />
+                        <TextField fx:id="usernameField" 
+                                   promptText="Skriv inn brukernavn" 
+                                   prefHeight="44.0" />
+                    </VBox>
+                    
+                    <!-- Password -->
+                    <VBox spacing="6.0">
+                        <Label text="Passord" styleClass="label-secondary text-sm" />
+                        <PasswordField fx:id="passwordField" 
+                                       promptText="Skriv inn passord" 
+                                       prefHeight="44.0" />
+                        <TextField fx:id="textField" 
+                                   prefHeight="44.0"
+                                   visible="false" 
+                                   managed="false" />
+                    </VBox>
+                    
+                    <!-- Options -->
+                    <HBox spacing="16.0" alignment="CENTER_LEFT">
+                        <CheckBox fx:id="rememberMeButton" 
+                                  text="Husk meg" 
+                                  onMouseClicked="#rememberMeListener" />
+                        <CheckBox fx:id="showPasswordButton" 
+                                  text="Vis passord" 
+                                  onMouseClicked="#showPassword" />
+                    </HBox>
+                    
+                    <!-- Submit Button -->
+                    <Button fx:id="signinbutton" 
+                            text="Logg inn" 
+                            styleClass="btn-primary"
+                            prefHeight="44.0"
+                            maxWidth="Infinity"
+                            onMouseClicked="#signInButton"
+                            defaultButton="true">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                        <VBox.margin>
+                            <Insets top="8.0" />
+                        </VBox.margin>
+                    </Button>
+                </VBox>
+                
+                <!-- Register Link -->
+                <HBox alignment="CENTER" spacing="6.0">
+                    <VBox.margin>
+                        <Insets top="8.0" />
+                    </VBox.margin>
+                    <Label text="Ikke medlem?" styleClass="label-secondary text-sm" />
+                    <Label text="Registrer deg nå" 
+                           styleClass="label-primary text-sm font-semibold"
+                           onMouseClicked="#changeSceneToRegister" 
+                           underline="true">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Label>
+                </HBox>
+            </VBox>
         </AnchorPane>
-    </children>
+    </AnchorPane>
 </AnchorPane>
