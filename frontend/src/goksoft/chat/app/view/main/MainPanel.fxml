@@ -19,7 +19,7 @@
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
             prefHeight="500.0" prefWidth="800.0" styleClass="bg-dark"
-            stylesheets="@../../resources/styles/app-styles.css" xmlns="http://javafx.com/javafx/15.0.1"
+            stylesheets="@../../resources/styles/modern-blue-design.css" xmlns="http://javafx.com/javafx/15.0.1"
             fx:controller="goksoft.chat.app.controller.main.MainPanelController">
     <children>
         <SplitPane fx:id="splitPane" dividerPositions="0.3" maxHeight="1.7976931348623157E308"
