@@ -21,10 +21,6 @@ public class User {
     @Column(name = "password", length = 255)
     private String password;
 
-    @Setter
-    @Column(name = "photo", columnDefinition = "BYTEA")
-    private byte[] photo;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -52,10 +48,6 @@ public class User {
 
     public String getPassword() {
         return password;
-    }
-
-    public byte[] getPhoto() {
-        return photo;
     }
 
     public LocalDateTime getCreatedAt() { return createdAt; }

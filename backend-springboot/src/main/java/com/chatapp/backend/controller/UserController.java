@@ -26,25 +26,4 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // Get profile photo - can get anyone's photo (public)
-    @GetMapping("/photo/{username}")
-    public ResponseEntity<byte[]> getProfilePhoto(@PathVariable String username) {
-        ApiResponse<byte[]> response = userService.getProfilePhoto(username);
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)
-                .body(response.data());
-    }
-
-    // Update profile photo - username from JWT (can only update YOUR OWN photo)
-    @PostMapping("/photo")
-    public ResponseEntity<ApiResponse<String>> updateProfilePhoto(@RequestParam("photo") MultipartFile photo) {
-        String username = SecurityUtils.getCurrentUsername();
-        try {
-            byte[] photoBytes = photo.getBytes();
-            ApiResponse<String> response = userService.updateProfilePhoto(username, photoBytes);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.ok(ApiResponse.error("Photo upload failed"));
-        }
-    }
 }
