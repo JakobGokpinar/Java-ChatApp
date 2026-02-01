@@ -5,7 +5,6 @@ import goksoft.chat.app.controller.auth.LoginController;
 import goksoft.chat.app.controller.dialog.WarningWindowController;
 import goksoft.chat.app.service.ServiceManager;
 import goksoft.chat.app.ui.components.FriendBoxComponent;
-import goksoft.chat.app.ui.components.ProfilePhotoLoader;
 import goksoft.chat.app.ui.components.RequestBoxComponent;
 import goksoft.chat.app.ui.components.UserBoxComponent;
 import goksoft.chat.app.util.UIUtil;
@@ -29,15 +28,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -74,8 +72,6 @@ public class MainPanelController {
     public TextField messageField;
     @FXML
     public ListView<String> listView;
-    @FXML
-    public ChoiceBox<String> languageChoiceBox;
     @FXML
     private SplitPane splitPane;
     @FXML
@@ -116,11 +112,14 @@ public class MainPanelController {
     public void initialize() {
         noUserLabel.setPadding(new Insets(25, 0, 0, 0));
 
+        // ⭐ Set default user icons
+        Image defaultUserIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/goksoft/chat/app/resources/images/icons/user-icon.png")));
+        profilePhoto.setFill(new ImagePattern(defaultUserIcon));
+        settingsButton.setFill(new ImagePattern(defaultUserIcon));
+
         // Load initial data
         loadFriends();
-        loadProfilePhoto(false);
         loadFriendRequests();
-        setupLanguages();
 
         settingsUsername.setText(serviceManager.getCurrentUser());
 
@@ -194,16 +193,11 @@ public class MainPanelController {
                                 String lastMsg = friendData.get(2);
                                 String passedTime = friendData.get(3);
 
-                                // Create friend box with callback
-                                // We need to capture these as final for the lambda
                                 final String finalUsername = username;
-                                Image photo = ProfilePhotoLoader.loadPhoto(username);
 
                                 BorderPane friendBox = FriendBoxComponent.create(
-                                        username, lastMsg, notifCount, passedTime, photo,
+                                        username, lastMsg, notifCount, passedTime,
                                         () -> {
-                                            Image friendPhoto = ProfilePhotoLoader.loadPhoto(finalUsername);
-                                            // Find the actual pane after it's added to UI
                                             BorderPane actualPane = null;
                                             for (int k = 0; k < friendsVBox.getChildren().size(); k++) {
                                                 Node child = friendsVBox.getChildren().get(k);
@@ -212,7 +206,7 @@ public class MainPanelController {
                                                     break;
                                                 }
                                             }
-                                            onFriendClicked(photo, finalUsername, actualPane);
+                                            onFriendClicked(finalUsername, actualPane);
                                         }
                                 );
 
@@ -244,9 +238,8 @@ public class MainPanelController {
 
                         for (String username : requests) {
                             // Create request box with modern callbacks
-                            Image photo = ProfilePhotoLoader.loadPhoto(username);
                             BorderPane requestBox = RequestBoxComponent.create(
-                                    username, photo,
+                                    username,
                                     event -> acceptFriendRequest(username),
                                     event -> rejectFriendRequest(username)
                             );
@@ -342,19 +335,20 @@ public class MainPanelController {
     /**
      * Handle clicking on a friend to start chatting
      */
-    public void onFriendClicked(Image friendPhoto, String friendName, BorderPane pane) {
+    public void onFriendClicked(String friendName, BorderPane pane) {
         chatFriendName.setText(friendName);
-        chatFriendProfilePhoto.setFill(new ImagePattern(friendPhoto));
+
+        // ⭐ Use default icon
+        Image defaultUserIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/goksoft/chat/app/resources/images/icons/user-icon.png")));
+        chatFriendProfilePhoto.setFill(new ImagePattern(defaultUserIcon));
         chatFriendProfilePhoto.setStrokeWidth(0);
+
         chatBorderPane.setVisible(true);
         settingsBorderPane.setVisible(false);
         currentFriend = friendName;
         currentPane = pane;
 
-        // Load messages for this friend
         loadMessages();
-
-        // Start polling for new messages
         startMessagePollingForCurrentFriend();
     }
 
@@ -475,9 +469,8 @@ public class MainPanelController {
 
                         for (String username : users) {
                             // Create user box with modern callback
-                            Image photo = ProfilePhotoLoader.loadPhoto(username);
                             HBox userBox = UserBoxComponent.create(
-                                    username, photo,
+                                    username,
                                     event2 -> sendFriendRequest(username)
                             );
                             usersVBox.getChildren().add(0, userBox);
@@ -514,57 +507,6 @@ public class MainPanelController {
                     );
                     return null;
                 });
-    }
-
-    // ===== PROFILE PHOTO =====
-
-    /**
-     * Load and display profile photo
-     */
-    private void loadProfilePhoto(boolean showBlackOverlay) {
-        Image image = ProfilePhotoLoader.loadPhoto(serviceManager.getCurrentUser());
-
-        Platform.runLater(() -> {
-            if (image == null || image.isError()) {
-                profilePhoto.setFill(Color.DODGERBLUE);
-            } else {
-                profilePhoto.setFill(new ImagePattern(image));
-                settingsButton.setFill(new ImagePattern(image));
-            }
-
-            if (showBlackOverlay) {
-                profilePhoto.setFill(Color.BLACK);
-                Tooltip.install(profilePhoto, new Tooltip("Change Profile Photo"));
-            }
-        });
-    }
-
-    public void changeProfilePhoto(MouseEvent event) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Profile Photo");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
-        );
-
-        Stage stage = (Stage) profilePhoto.getScene().getWindow();
-        File file = fileChooser.showOpenDialog(stage);
-
-        if (file != null) {
-            // TODO: Implement proper file upload with modern service
-            // For now, just log and show message
-            logger.info("Selected file: {}", file.getAbsolutePath());
-            WarningWindowController.warningMessage("Photo upload feature coming soon!");
-
-            // Uncomment when file upload service is implemented:
-            // serviceManager.getUserService().uploadProfilePhoto(file)
-            //     .thenAccept(response -> {
-            //         Platform.runLater(() -> {
-            //             if (response.isSuccess()) {
-            //                 loadProfilePhoto(false);
-            //             }
-            //         });
-            //     });
-        }
     }
 
     // ===== POLLING =====
@@ -621,12 +563,10 @@ public class MainPanelController {
                 String notifCount = friendData.get(1);
                 String lastMsg = friendData.get(2);
                 String passedTime = friendData.get(3);
-                Image photo = ProfilePhotoLoader.loadPhoto(username);
                 // Create new friend box with callback
                 BorderPane friendBox = FriendBoxComponent.create(
-                        username, lastMsg, notifCount, passedTime, photo,
+                        username, lastMsg, notifCount, passedTime,
                         () -> {
-                            Image friendPhoto = ProfilePhotoLoader.loadPhoto(username);
                             // Find the actual friendBox pane to pass
                             BorderPane actualPane = null;
                             for (int k = 0; k < friendsVBox.getChildren().size(); k++) {
@@ -636,7 +576,7 @@ public class MainPanelController {
                                     break;
                                 }
                             }
-                            onFriendClicked(photo, username, actualPane);
+                            onFriendClicked(username, actualPane);
                         }
                 );
 
@@ -668,14 +608,13 @@ public class MainPanelController {
     private void updateFriendRequestsUI(List<String> requests) {
         for (String username : requests) {
             if (!friendRequestsNameList.contains(username)) {
-                Image photo = ProfilePhotoLoader.loadPhoto(username);
                 BorderPane requestBox = RequestBoxComponent.create(
-                        username, photo,
+                        username,
                         event -> acceptFriendRequest(username),
                         event -> rejectFriendRequest(username)
                 );
 
-                notificationVBox.getChildren().add(0, requestBox);
+                notificationVBox.getChildren().addFirst(requestBox);
                 friendRequestsNameList.add(username);
                 UIUtil.dropShadowEffect(Color.RED, 0.60, 1, 1, 15, mailboxButton);
                 logger.info("New friend request from: {}", username);
@@ -691,15 +630,6 @@ public class MainPanelController {
     private void checkNoResult(boolean isEmpty, Label label) {
         label.setManaged(isEmpty);
         label.setVisible(isEmpty);
-    }
-
-    /**
-     * Setup language choices
-     */
-    private void setupLanguages() {
-        languageChoiceBox.getItems().removeAll(languageChoiceBox.getItems());
-        languageChoiceBox.getItems().addAll("Turkish-Türkçe", "English", "Norwegian-Norsk");
-        languageChoiceBox.getSelectionModel().select("English");
     }
 
     // ===== UI EVENT HANDLERS =====
@@ -726,14 +656,6 @@ public class MainPanelController {
             settingsBorderPane.setVisible(false);
             getStage().setTitle("Chat");
         }
-    }
-
-    public void onMouseEnterProfilePhoto(MouseEvent event) {
-        loadProfilePhoto(true);
-    }
-
-    public void onMouseExitProfilePhoto(MouseEvent event) {
-        loadProfilePhoto(false);
     }
 
     public void logOff(MouseEvent event) {

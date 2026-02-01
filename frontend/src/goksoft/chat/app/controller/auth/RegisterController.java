@@ -20,13 +20,9 @@ public class RegisterController {
     @FXML
     private TextField usernameField;
     @FXML
-    private PasswordField password1Field;
+    private PasswordField passwordField;
     @FXML
-    private PasswordField password2Field;
-    @FXML
-    private TextField textField1;
-    @FXML
-    private TextField textField2;
+    private TextField textField;
     @FXML
     private CheckBox showPasswordsButton;
 
@@ -35,24 +31,17 @@ public class RegisterController {
     }
 
     public void showPasswords() {
-        String pass1 = password1Field.getText();
-        String pass2 = password2Field.getText();
+        String pass = passwordField.getText();
 
         if (showPasswordsButton.isSelected()) {
-            password1Field.setVisible(false);
-            textField1.setText(pass1);
-            textField1.setVisible(true);
-            password2Field.setVisible(false);
-            textField2.setText(pass2);
-            textField2.setVisible(true);
+            passwordField.setVisible(false);
+            textField.setText(pass);
+            textField.setVisible(true);
             return;
         }
-        password1Field.setText(textField1.getText());
-        password2Field.setText(textField2.getText());
-        textField1.setVisible(false);
-        password1Field.setVisible(true);
-        textField2.setVisible(false);
-        password2Field.setVisible(true);
+        passwordField.setText(textField.getText());
+        textField.setVisible(false);
+        passwordField.setVisible(true);
     }
 
     public void registerButton(MouseEvent event) {
@@ -67,7 +56,7 @@ public class RegisterController {
         }
 
         String username = usernameField.getText();
-        String password = password1Field.getText();
+        String password = passwordField.getText();
 
         // Use AuthService
         serviceManager.getAuthService().register(username, password)
@@ -98,24 +87,32 @@ public class RegisterController {
      * @return true if valid, false otherwise (shows error message)
      */
     private boolean validateInputs() {
-        // Check if fields are empty
-        if (usernameField.getText().isBlank() ||
-                password1Field.getText().isBlank() ||
-                password2Field.getText().isBlank()) {
+        String username = usernameField.getText();
+        String password = passwordField.getText();
+
+        if (username.isBlank() || passwordField.getText().isBlank()) {
             WarningWindowController.warningMessage("Please fill out all places!");
             return false;
         }
 
         // Check password length
-        if (password1Field.getText().length() < 4 ||
-                password2Field.getText().length() < 4) {
-            WarningWindowController.warningMessage("Password must be at least 4 characters length!");
+        if (password.length() < 6) {
+            WarningWindowController.warningMessage("Password must be at least 6 characters length!");
             return false;
         }
 
-        // Check if passwords match
-        if (!password1Field.getText().equals(password2Field.getText())) {
-            WarningWindowController.warningMessage("Passwords are not matching!");
+        if (password.length() > 24) {
+            WarningWindowController.warningMessage("Password must be maximum 24 characters!");
+            return false;
+        }
+
+        if (!password.matches(".*[a-zA-Z].*")) {
+            WarningWindowController.warningMessage("Password must contain at least one letter!");
+            return false;
+        }
+
+        if (!password.matches(".*\\d.*")) {
+            WarningWindowController.warningMessage("Password must contain at least one number!");
             return false;
         }
 

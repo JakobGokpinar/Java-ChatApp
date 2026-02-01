@@ -25,13 +25,9 @@
                 </Label>
                 <TextField fx:id="usernameField" layoutX="50.0" layoutY="91.0" prefHeight="26.0" prefWidth="208.0"
                            promptText="Username"/>
-                <PasswordField fx:id="password1Field" layoutX="50.0" layoutY="134.0" prefHeight="26.0" prefWidth="208.0"
+                <PasswordField fx:id="passwordField" layoutX="50.0" layoutY="134.0" prefHeight="26.0" prefWidth="208.0"
                                promptText="Password"/>
-                <TextField fx:id="textField1" focusTraversable="false" layoutX="50.0" layoutY="134.0" prefHeight="26.0"
-                           prefWidth="208.0" visible="false"/>
-                <PasswordField fx:id="password2Field" layoutX="50.0" layoutY="174.0" prefHeight="26.0" prefWidth="208.0"
-                               promptText="Password"/>
-                <TextField fx:id="textField2" focusTraversable="false" layoutX="50.0" layoutY="174.0" prefHeight="26.0"
+                <TextField fx:id="textField" focusTraversable="false" layoutX="50.0" layoutY="134.0" prefHeight="26.0"
                            prefWidth="208.0" visible="false"/>
                 <CheckBox fx:id="showPasswordsButton" layoutX="50.0" layoutY="208.0" mnemonicParsing="false"
                           onMouseClicked="#showPasswords" text="See Passwords" textFill="#140d31">

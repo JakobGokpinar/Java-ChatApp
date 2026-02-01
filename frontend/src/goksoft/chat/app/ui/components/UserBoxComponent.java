@@ -13,6 +13,8 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 
+import java.util.Objects;
+
 /**
  * Component for rendering a user search result box
  */
@@ -27,11 +29,10 @@ public class UserBoxComponent {
      * Create a user search result box UI component
      *
      * @param userName   Username of found user
-     * @param photo      Profile photo (nullable)
      * @param onAddClick Callback when the add button clicked
      * @return HBox containing user info
      */
-    public static HBox create(String userName, Image photo, EventHandler<MouseEvent> onAddClick) {
+    public static HBox create(String userName, EventHandler<MouseEvent> onAddClick) {
 
         // Main container
         HBox container = new HBox();
@@ -45,10 +46,13 @@ public class UserBoxComponent {
         // Profile photo circle
         Circle profileCircle = new Circle(21);
         profileCircle.setStrokeWidth(0);
-        if (photo == null || photo.isError()) {
-            profileCircle.setFill(Color.BLACK);
-        } else {
-            profileCircle.setFill(new ImagePattern(photo));
+        try {
+            Image defaultIcon = new Image(
+                    Objects.requireNonNull(UserBoxComponent.class.getResourceAsStream("/goksoft/chat/app/resources/images/icons/user-icon.png"))
+            );
+            profileCircle.setFill(new ImagePattern(defaultIcon));
+        } catch (Exception e) {
+            profileCircle.setFill(Color.DODGERBLUE);  // Fallback color
         }
         HBox.setMargin(profileCircle, new Insets(0, 0, 0, 10));
 

@@ -15,6 +15,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 
+import java.util.Objects;
+
 /**
  * Component for rendering a friend box in the friends list
  */
@@ -33,13 +35,12 @@ public class FriendBoxComponent {
      * @param lastMessage     Last message text
      * @param notifCount      Notification count (as string)
      * @param lastDate        Last message timestamp
-     * @param photo           Profile photo (nullable)
      * @param onClickCallback Callback when friend box is clicked
      * @return BorderPane containing friend info
      */
     public static BorderPane create(String friendName, String lastMessage,
                                     String notifCount, String lastDate,
-                                    Image photo, Runnable onClickCallback) {
+                                    Runnable onClickCallback) {
 
         // Main container
         BorderPane borderPane = new BorderPane();
@@ -52,11 +53,15 @@ public class FriendBoxComponent {
         // Profile photo circle
         Circle profileCircle = new Circle(21);
         profileCircle.setStrokeWidth(0);
-        if (photo == null || photo.isError()) {
-            profileCircle.setFill(Color.BLACK);
-        } else {
-            profileCircle.setFill(new ImagePattern(photo));
+        try {
+            Image defaultIcon = new Image(
+                    Objects.requireNonNull(FriendBoxComponent.class.getResourceAsStream("/goksoft/chat/app/resources/images/icons/user-icon.png"))
+            );
+            profileCircle.setFill(new ImagePattern(defaultIcon));
+        } catch (Exception e) {
+            profileCircle.setFill(Color.DODGERBLUE);  // Fallback color
         }
+
         BorderPane.setAlignment(profileCircle, Pos.CENTER);
         BorderPane.setMargin(profileCircle, new Insets(0, 0, 30, 10));
 

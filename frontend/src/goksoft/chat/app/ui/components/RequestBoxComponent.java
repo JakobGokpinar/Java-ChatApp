@@ -14,6 +14,8 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 
+import java.util.Objects;
+
 /**
  * Component for rendering a friend request box
  */
@@ -29,12 +31,11 @@ public class RequestBoxComponent {
      * Create a friend request box UI component
      *
      * @param requesterName Username of person who sent request
-     * @param photo         Profile photo (nullable)
      * @param onAccept      Callback when accept button clicked
      * @param onReject      Callback when reject button clicked
      * @return BorderPane containing request info
      */
-    public static BorderPane create(String requesterName, Image photo,
+    public static BorderPane create(String requesterName,
                                     EventHandler<MouseEvent> onAccept,
                                     EventHandler<MouseEvent> onReject) {
 
@@ -49,10 +50,13 @@ public class RequestBoxComponent {
         // Profile photo circle
         Circle profileCircle = new Circle(21);
         profileCircle.setStrokeWidth(0);
-        if (photo == null || photo.isError()) {
-            profileCircle.setFill(Color.BLACK);
-        } else {
-            profileCircle.setFill(new ImagePattern(photo));
+        try {
+            Image defaultIcon = new Image(
+                    Objects.requireNonNull(RequestBoxComponent.class.getResourceAsStream("/goksoft/chat/app/resources/images/icons/user-icon.png"))
+            );
+            profileCircle.setFill(new ImagePattern(defaultIcon));
+        } catch (Exception e) {
+            profileCircle.setFill(Color.DODGERBLUE);  // Fallback color
         }
         BorderPane.setAlignment(profileCircle, Pos.CENTER);
         BorderPane.setMargin(profileCircle, new Insets(10, 0, 0, 10));
