@@ -26,9 +26,9 @@ public class UserBoxComponent {
     /**
      * Create a user search result box UI component
      *
-     * @param userName Username of found user
-     * @param photo Profile photo (nullable)
-     * @param onAddClick Callback when add button clicked
+     * @param userName   Username of found user
+     * @param photo      Profile photo (nullable)
+     * @param onAddClick Callback when the add button clicked
      * @return HBox containing user info
      */
     public static HBox create(String userName, Image photo, EventHandler<MouseEvent> onAddClick) {

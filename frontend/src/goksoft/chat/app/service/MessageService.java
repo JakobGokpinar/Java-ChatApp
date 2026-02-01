@@ -27,7 +27,8 @@ public class MessageService {
         String url = "/messages/get?receiver=" + receiver;
         return apiClient.post(url, "")
                 .thenApply(json -> {
-                    return JsonUtil.fromJson(json, new TypeToken<List<List<String>>>(){});
+                    return JsonUtil.fromJson(json, new TypeToken<List<List<String>>>() {
+                    });
                 })
                 .exceptionally(ex -> {
                     logger.error("Error fetching messages", ex);
@@ -41,7 +42,8 @@ public class MessageService {
     public CompletableFuture<ApiResponse<String>> sendMessage(String receiver, String message) {
         String url = "/messages/send?receiver=" + receiver + "&message=" + message;
         return apiClient.post(url, "")
-                .thenApply(json -> JsonUtil.fromJson(json, new TypeToken<ApiResponse<String>>(){}))
+                .thenApply(json -> JsonUtil.fromJson(json, new TypeToken<ApiResponse<String>>() {
+                }))
                 .exceptionally(ex -> {
                     logger.error("Error sending message", ex);
                     return new ApiResponse<>(false, "Connection error", null);

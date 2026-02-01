@@ -2,11 +2,11 @@ package goksoft.chat.app.config;
 
 /**
  * Environment configuration for dev/prod separation.
- *
+ * <p>
  * Usage:
  * - Development: Run with VM argument -Dapp.env=dev
  * - Production: Run without arguments (defaults to prod)
- *
+ * <p>
  * IntelliJ Setup:
  * 1. Run → Edit Configurations
  * 2. Add "Dev" configuration with VM options: -Dapp.env=dev
@@ -15,6 +15,17 @@ package goksoft.chat.app.config;
 public class Environment {
 
     // ===== ENVIRONMENT DETECTION =====
+
+    public static final int CONNECT_TIMEOUT_SECONDS = 10;
+
+    // ===== BACKEND URLS =====
+    public static final int REQUEST_TIMEOUT_SECONDS = 30;
+    public static final int MESSAGE_POLL_INTERVAL_MS = 2000;      // 2 seconds
+    public static final int FRIEND_REQUEST_POLL_INTERVAL_MS = 20000; // 20 seconds
+    private static final String PROD_URL = "https://java-chatapp-production.up.railway.app/api";
+
+    // ===== TIMEOUTS =====
+    private static final String DEV_URL = "http://localhost:8080/api";
 
     /**
      * Check if running in production mode.
@@ -40,13 +51,11 @@ public class Environment {
         return isProd;
     }
 
-    // ===== BACKEND URLS =====
-
-    private static final String PROD_URL = "https://java-chatapp-production.up.railway.app/api";
-    private static final String DEV_URL = "http://localhost:8080/api";
+    // ===== POLLING INTERVALS =====
 
     /**
      * Get the base API URL based on current environment
+     *
      * @return Base URL for API calls
      */
     public static String getBaseUrl() {
@@ -55,6 +64,7 @@ public class Environment {
 
     /**
      * Get the server URL without /api suffix (for direct resource access like photos)
+     *
      * @return Server base URL
      */
     public static String getServerUrl() {
@@ -64,20 +74,11 @@ public class Environment {
         return baseUrl;
     }
 
-    // ===== TIMEOUTS =====
-
-    public static final int CONNECT_TIMEOUT_SECONDS = 10;
-    public static final int REQUEST_TIMEOUT_SECONDS = 30;
-
-    // ===== POLLING INTERVALS =====
-
-    public static final int MESSAGE_POLL_INTERVAL_MS = 2000;      // 2 seconds
-    public static final int FRIEND_REQUEST_POLL_INTERVAL_MS = 20000; // 20 seconds
-
     // ===== ENVIRONMENT INFO =====
 
     /**
      * Get current environment name
+     *
      * @return "development" or "production"
      */
     public static String getEnvironmentName() {

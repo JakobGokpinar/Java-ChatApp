@@ -10,18 +10,14 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class WarningWindowController{
-    //Creates a warning window with a given message.
+public class WarningWindowController {
 
-    @FXML private Label messageLabel;
+    @FXML
+    private Label messageLabel;
 
-    public void setLabelText(String text){
-        messageLabel.setText(text);
-    }
-
-    public static void warningMessage(String text){
+    public static void warningMessage(String text) {
         try {
-            FXMLLoader loader = new FXMLLoader(WarningWindowController.class.getResource("../../view/dialog/warningWindow.fxml"));
+            FXMLLoader loader = new FXMLLoader(WarningWindowController.class.getResource("/goksoft/chat/app/view/dialog/warningWindow.fxml"));
             Parent root = loader.load();
             WarningWindowController windowController = loader.getController();
             windowController.setLabelText(text);
@@ -36,6 +32,10 @@ public class WarningWindowController{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setLabelText(String text) {
+        messageLabel.setText(text);
     }
 
 }

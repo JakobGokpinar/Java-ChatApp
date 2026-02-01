@@ -27,7 +27,8 @@ public class UserService {
         String url = "/users/search?username=" + username;
         return apiClient.post(url, "")
                 .thenApply(json -> {
-                    return JsonUtil.fromJson(json, new TypeToken<List<String>>(){});
+                    return JsonUtil.fromJson(json, new TypeToken<List<String>>() {
+                    });
                 })
                 .exceptionally(ex -> {
                     logger.error("Error searching users", ex);

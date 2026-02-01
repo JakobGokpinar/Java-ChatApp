@@ -18,12 +18,13 @@ public class UIUtil {
 
     /**
      * Apply drop shadow effect to a UI component
+     *
      * @param shadowColor Color of the shadow
-     * @param spread Spread of the shadow
-     * @param duration1 Duration of first keyframe
-     * @param duration2 Duration of second keyframe
-     * @param cycleCount Number of cycles
-     * @param node Target node
+     * @param spread      Spread of the shadow
+     * @param duration1   Duration of first keyframe
+     * @param duration2   Duration of second keyframe
+     * @param cycleCount  Number of cycles
+     * @param node        Target node
      */
     public static void dropShadowEffect(Color shadowColor, double spread,
                                         int duration1, int duration2,
@@ -47,12 +48,13 @@ public class UIUtil {
 
     /**
      * Open or close sections with animation
-     * @param isOpen Current open state
-     * @param targetSection Section to toggle
+     *
+     * @param isOpen           Current open state
+     * @param targetSection    Section to toggle
      * @param contentContainer Container VBox
-     * @param friendListPanel Friend list section
-     * @param otherSection Other section to manage
-     * @param stage Current stage
+     * @param friendListPanel  Friend list section
+     * @param otherSection     Other section to manage
+     * @param stage            Current stage
      */
     public static void openAndCloseSections(boolean isOpen, VBox targetSection,
                                             VBox contentContainer, VBox friendListPanel,

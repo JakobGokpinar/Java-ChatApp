@@ -16,15 +16,19 @@ import org.slf4j.LoggerFactory;
 public class RegisterController {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
-
-    @FXML private TextField usernameField;
-    @FXML private PasswordField password1Field;
-    @FXML private PasswordField password2Field;
-    @FXML private TextField textField1;
-    @FXML private TextField textField2;
-    @FXML private CheckBox showPasswordsButton;
-
     private final ServiceManager serviceManager = ServiceManager.getInstance();
+    @FXML
+    private TextField usernameField;
+    @FXML
+    private PasswordField password1Field;
+    @FXML
+    private PasswordField password2Field;
+    @FXML
+    private TextField textField1;
+    @FXML
+    private TextField textField2;
+    @FXML
+    private CheckBox showPasswordsButton;
 
     public void changeSceneToLogin(ActionEvent event) {
         SceneUtil.switchScene(usernameField, "../../view/auth/login.fxml", "Login", getClass());
@@ -90,6 +94,7 @@ public class RegisterController {
 
     /**
      * Validate all input fields
+     *
      * @return true if valid, false otherwise (shows error message)
      */
     private boolean validateInputs() {

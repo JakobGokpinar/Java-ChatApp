@@ -6,7 +6,8 @@ public class Message {
     private String content;
     private String timestamp;
 
-    public Message() {}
+    public Message() {
+    }
 
     public Message(String sender, String receiver, String content, String timestamp) {
         this.sender = sender;

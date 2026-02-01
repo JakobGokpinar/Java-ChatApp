@@ -4,7 +4,8 @@ public class LoginResponse {
     private String token;
     private User user;
 
-    public LoginResponse() {}
+    public LoginResponse() {
+    }
 
     public LoginResponse(String token, User user) {
         this.token = token;

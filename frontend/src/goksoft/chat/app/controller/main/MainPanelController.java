@@ -1,8 +1,8 @@
 package goksoft.chat.app.controller.main;
 
 import goksoft.chat.app.config.Environment;
-import goksoft.chat.app.controller.dialog.WarningWindowController;
 import goksoft.chat.app.controller.auth.LoginController;
+import goksoft.chat.app.controller.dialog.WarningWindowController;
 import goksoft.chat.app.service.ServiceManager;
 import goksoft.chat.app.ui.components.FriendBoxComponent;
 import goksoft.chat.app.ui.components.ProfilePhotoLoader;
@@ -46,45 +46,69 @@ import java.util.prefs.Preferences;
 public class MainPanelController {
 
     private static final Logger logger = LoggerFactory.getLogger(MainPanelController.class);
-
-    @FXML private SplitPane splitPane;
-    @FXML private TextField searchFriendField;
-    @FXML private BorderPane chatBorderPane;
-    @FXML private ScrollPane friendScrollPane;
-    @FXML public BorderPane settingsBorderPane;
-    @FXML public HBox operationsHBox;
-    @FXML public VBox contentContainer;
-    @FXML public VBox friendListPanel;
-    @FXML public VBox notificationsPanel;
-    @FXML public VBox addfriendListPanel;
-    @FXML private VBox friendsVBox;
-    @FXML private VBox notificationVBox;
-    @FXML private VBox usersVBox;
-    @FXML private VBox settingsTopVBox;
-    @FXML private TextField searchUserField;
-    @FXML public Circle profilePhoto;
-    @FXML public Circle settingsButton;
-    @FXML public Button mailboxButton;
-    @FXML public Circle chatFriendProfilePhoto;
-    @FXML public Label chatFriendName;
-    @FXML public TextField messageField;
-    @FXML public ListView<String> listView;
-    @FXML public ChoiceBox<String> languageChoiceBox;
-    @FXML private Label settingsUsername;
-    @FXML private Label noFriendLabel;
-    @FXML private Label noNotifLabel;
-    @FXML private Label noUserLabel;
-
+    // Modern services
+    private final ServiceManager serviceManager = ServiceManager.getInstance();
+    @FXML
+    public BorderPane settingsBorderPane;
+    @FXML
+    public HBox operationsHBox;
+    @FXML
+    public VBox contentContainer;
+    @FXML
+    public VBox friendListPanel;
+    @FXML
+    public VBox notificationsPanel;
+    @FXML
+    public VBox addfriendListPanel;
+    @FXML
+    public Circle profilePhoto;
+    @FXML
+    public Circle settingsButton;
+    @FXML
+    public Button mailboxButton;
+    @FXML
+    public Circle chatFriendProfilePhoto;
+    @FXML
+    public Label chatFriendName;
+    @FXML
+    public TextField messageField;
+    @FXML
+    public ListView<String> listView;
+    @FXML
+    public ChoiceBox<String> languageChoiceBox;
+    @FXML
+    private SplitPane splitPane;
+    @FXML
+    private TextField searchFriendField;
+    @FXML
+    private BorderPane chatBorderPane;
+    @FXML
+    private ScrollPane friendScrollPane;
+    @FXML
+    private VBox friendsVBox;
+    @FXML
+    private VBox notificationVBox;
+    @FXML
+    private VBox usersVBox;
+    @FXML
+    private VBox settingsTopVBox;
+    @FXML
+    private TextField searchUserField;
+    @FXML
+    private Label settingsUsername;
+    @FXML
+    private Label noFriendLabel;
+    @FXML
+    private Label noNotifLabel;
+    @FXML
+    private Label noUserLabel;
     // Instance fields (no longer static!)
     private String currentFriend;
     private BorderPane currentPane;
-    private ArrayList<String> friendsNameList = new ArrayList<>();
-    private ArrayList<String> friendRequestsNameList = new ArrayList<>();
-    private List<Object> friendArray = new ArrayList<>();
+    private final ArrayList<String> friendsNameList = new ArrayList<>();
+    private final ArrayList<String> friendRequestsNameList = new ArrayList<>();
+    private final List<Object> friendArray = new ArrayList<>();
     private int currentTimer;
-
-    // Modern services
-    private final ServiceManager serviceManager = ServiceManager.getInstance();
     private ScheduledExecutorService scheduler;
     private ScheduledExecutorService messagePollingScheduler;
 
@@ -715,9 +739,11 @@ public class MainPanelController {
     public void logOff(MouseEvent event) {
         cleanup();
         serviceManager.clearCurrentUser();
+        serviceManager.getAuthService().logout();
+
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainPanelController.class.getResource("../../view/auth/login.fxml")
+                    MainPanelController.class.getResource("/goksoft/chat/app/view/auth/login.fxml")
             );
             Parent loginPanel = loader.load();
             Scene scene = new Scene(loginPanel);

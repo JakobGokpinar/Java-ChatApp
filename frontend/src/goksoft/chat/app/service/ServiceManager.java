@@ -50,13 +50,13 @@ public class ServiceManager {
         return userService;
     }
 
+    public String getCurrentUser() {
+        return currentUser;
+    }
+
     // User state management
     public void setCurrentUser(String username) {
         this.currentUser = username;
-    }
-
-    public String getCurrentUser() {
-        return currentUser;
     }
 
     public void clearCurrentUser() {

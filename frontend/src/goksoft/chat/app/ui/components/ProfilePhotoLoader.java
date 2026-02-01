@@ -20,6 +20,7 @@ public class ProfilePhotoLoader {
 
     /**
      * Load profile photo for a given username
+     *
      * @param username The username to load photo for
      * @return JavaFX Image, or null if loading fails
      */

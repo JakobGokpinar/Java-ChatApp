@@ -29,11 +29,11 @@ public class FriendBoxComponent {
     /**
      * Create a friend box UI component
      *
-     * @param friendName Friend's username
-     * @param lastMessage Last message text
-     * @param notifCount Notification count (as string)
-     * @param lastDate Last message timestamp
-     * @param photo Profile photo (nullable)
+     * @param friendName      Friend's username
+     * @param lastMessage     Last message text
+     * @param notifCount      Notification count (as string)
+     * @param lastDate        Last message timestamp
+     * @param photo           Profile photo (nullable)
      * @param onClickCallback Callback when friend box is clicked
      * @return BorderPane containing friend info
      */

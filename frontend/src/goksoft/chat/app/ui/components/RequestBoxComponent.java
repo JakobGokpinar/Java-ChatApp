@@ -29,9 +29,9 @@ public class RequestBoxComponent {
      * Create a friend request box UI component
      *
      * @param requesterName Username of person who sent request
-     * @param photo Profile photo (nullable)
-     * @param onAccept Callback when accept button clicked
-     * @param onReject Callback when reject button clicked
+     * @param photo         Profile photo (nullable)
+     * @param onAccept      Callback when accept button clicked
+     * @param onReject      Callback when reject button clicked
      * @return BorderPane containing request info
      */
     public static BorderPane create(String requesterName, Image photo,

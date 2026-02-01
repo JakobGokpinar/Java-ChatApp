@@ -20,9 +20,10 @@ public class SceneUtil {
 
     /**
      * Switch to a new scene in the same window
-     * @param currentNode Any node from the current scene
-     * @param fxmlPath Path to FXML file (e.g., "userinterfaces/MainPanel.fxml")
-     * @param title Window title
+     *
+     * @param currentNode  Any node from the current scene
+     * @param fxmlPath     Path to FXML file (e.g., "userinterfaces/MainPanel.fxml")
+     * @param title        Window title
      * @param contextClass Class to use for resource loading
      */
     public static void switchScene(Node currentNode, String fxmlPath, String title, Class<?> contextClass) {
@@ -40,11 +41,12 @@ public class SceneUtil {
 
     /**
      * Open a new window with a scene
-     * @param fxmlPath Path to FXML file
-     * @param title Window title
+     *
+     * @param fxmlPath     Path to FXML file
+     * @param title        Window title
      * @param contextClass Class to use for resource loading
-     * @param resizable Whether window is resizable
-     * @param fullScreen Whether to open in fullscreen
+     * @param resizable    Whether window is resizable
+     * @param fullScreen   Whether to open in fullscreen
      * @return The new Stage
      */
     public static Stage openNewWindow(String fxmlPath, String title, Class<?> contextClass,
@@ -67,12 +69,13 @@ public class SceneUtil {
 
     /**
      * Close current window and open a new one
-     * @param currentNode Any node from the current scene
-     * @param fxmlPath Path to FXML file
-     * @param title Window title
+     *
+     * @param currentNode  Any node from the current scene
+     * @param fxmlPath     Path to FXML file
+     * @param title        Window title
      * @param contextClass Class to use for resource loading
-     * @param resizable Whether new window is resizable
-     * @param fullScreen Whether to open in fullscreen
+     * @param resizable    Whether new window is resizable
+     * @param fullScreen   Whether to open in fullscreen
      * @return The new Stage
      */
     public static Stage closeAndOpenNew(Node currentNode, String fxmlPath, String title,

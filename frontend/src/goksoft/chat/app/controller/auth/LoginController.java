@@ -21,16 +21,20 @@ public class LoginController {
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
     private static final String PREF_REMEMBER_ME = "rememberMe";
     private static final String PREF_USERNAME = "username";
-
-    @FXML private TextField usernameField;
-    @FXML private PasswordField passwordField;
-    @FXML private TextField textField;
-    @FXML private CheckBox rememberMeButton;
-    @FXML private CheckBox showPasswordButton;
-    @FXML private Button signinbutton;
-
     private final ServiceManager serviceManager = ServiceManager.getInstance();
     private final Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
+    @FXML
+    private TextField usernameField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private TextField textField;
+    @FXML
+    private CheckBox rememberMeButton;
+    @FXML
+    private CheckBox showPasswordButton;
+    @FXML
+    private Button signinbutton;
 
     @FXML
     public void initialize() {

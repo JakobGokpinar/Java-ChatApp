@@ -20,12 +20,12 @@ public class ApiClient {
                 .build();
     }
 
-    public void setToken(String token) {
-        this.jwtToken = token;
-    }
-
     public String getToken() {
         return jwtToken;
+    }
+
+    public void setToken(String token) {
+        this.jwtToken = token;
     }
 
     public boolean hasToken() {

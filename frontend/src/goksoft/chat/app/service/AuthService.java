@@ -1,13 +1,9 @@
 package goksoft.chat.app.service;
 
-import goksoft.chat.app.api.ApiClient;
-import goksoft.chat.app.model.dto.ApiResponse;
-import goksoft.chat.app.model.dto.LoginRequest;
-import goksoft.chat.app.model.dto.LoginResponse;
-import goksoft.chat.app.model.dto.RegisterRequest;
-import goksoft.chat.app.model.dto.User;
-import goksoft.chat.app.util.JsonUtil;
 import com.google.gson.reflect.TypeToken;
+import goksoft.chat.app.api.ApiClient;
+import goksoft.chat.app.model.dto.*;
+import goksoft.chat.app.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +26,8 @@ public class AuthService {
                 .thenApply(responseJson -> {
                     ApiResponse<LoginResponse> response = JsonUtil.fromJson(
                             responseJson,
-                            new TypeToken<ApiResponse<LoginResponse>>(){}
+                            new TypeToken<ApiResponse<LoginResponse>>() {
+                            }
                     );
 
                     if (response.isSuccess() && response.getData() != null) {
@@ -57,7 +54,8 @@ public class AuthService {
                 .thenApply(responseJson -> {
                     ApiResponse<User> response = JsonUtil.fromJson(
                             responseJson,
-                            new TypeToken<ApiResponse<User>>(){}
+                            new TypeToken<ApiResponse<User>>() {
+                            }
                     );
 
                     if (response.isSuccess()) {
