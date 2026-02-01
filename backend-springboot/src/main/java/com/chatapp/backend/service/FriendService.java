@@ -1,23 +1,23 @@
 package com.chatapp.backend.service;
 
 import com.chatapp.backend.dto.response.ApiResponse;
+import com.chatapp.backend.dto.response.FriendDetailsResponse;
 import com.chatapp.backend.exception.DuplicateResourceException;
 import com.chatapp.backend.exception.ResourceNotFoundException;
 import com.chatapp.backend.exception.ValidationException;
 import com.chatapp.backend.model.Friendship;
 import com.chatapp.backend.model.Friendship.FriendshipStatus;
+import com.chatapp.backend.model.Message;
 import com.chatapp.backend.repository.FriendshipRepository;
+import com.chatapp.backend.repository.MessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.chatapp.backend.dto.response.FriendDetailsResponse;
-import com.chatapp.backend.model.Message;
-import com.chatapp.backend.repository.MessageRepository;
+
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-
 import java.util.ArrayList;
 import java.util.List;
 

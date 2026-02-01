@@ -87,14 +87,30 @@ public class AuthService {
             throw new ValidationException("Password is required");
         }
 
-        if (request.username().length() < 3) {
+        if (request.username().length() < 4) {
             logger.warn("Registration attempt with username too short: {}", request.username());
-            throw new ValidationException("Username must be at least 3 characters");
+            throw new ValidationException("Username must be at least 4 characters");
         }
 
-        if (request.password().length() < 4) {
+        if (request.password().length() < 6) {
             logger.warn("Registration attempt with password too short for user: {}", request.username());
-            throw new ValidationException("Password must be at least 4 characters");
+            throw new ValidationException("Password must be at least 6 characters");
+        }
+
+        if (request.password().length() > 24) {
+            logger.warn("Registration attempt with password too long for user: {}", request.username());
+            throw new ValidationException("Password must be maximum 24 characters");
+        }
+
+        // Check for at least one letter and one number
+        if (!request.password().matches(".*[a-zA-Z].*")) {
+            logger.warn("Registration attempt without a character: {}", request.username());
+            throw new ValidationException("Password must contain at least one letter");
+        }
+
+        if (!request.password().matches(".*\\d.*")) {
+            logger.warn("Registration attempt without at least one number in password for user: {}", request.username());
+            throw new ValidationException("Password must contain at least one number");
         }
 
         logger.info("Registration attempt for username: {}", request.username());
