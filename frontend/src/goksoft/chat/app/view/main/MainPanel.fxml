@@ -59,7 +59,7 @@
                     <!-- ===== PANEL 1: Friends List (default) ===== -->
                     <VBox fx:id="friendListPanel" VBox.vgrow="ALWAYS">
                         <Label fx:id="noFriendLabel"
-                               text="No conversations yet.\nTap 'Add Friend' to get started."
+                               text="No conversations yet.Tap 'Add Friend' to get started."
                                styleClass="empty-state-label"
                                alignment="CENTER"
                                maxWidth="1.7976931348623157E308"

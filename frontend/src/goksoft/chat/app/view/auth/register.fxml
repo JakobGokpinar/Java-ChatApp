@@ -49,7 +49,7 @@
         <Region prefHeight="12" />
 
         <!-- Password fields -->
-        <PasswordField fx:id="password1Field"
+        <PasswordField fx:id="passwordField1"
                        promptText="Password"
                        styleClass="auth-input"
                        maxWidth="1.7976931348623157E308" />
@@ -61,7 +61,7 @@
 
         <Region prefHeight="12" />
 
-        <PasswordField fx:id="password2Field"
+        <PasswordField fx:id="passwordField2"
                        promptText="Confirm password"
                        styleClass="auth-input"
                        maxWidth="1.7976931348623157E308" />
