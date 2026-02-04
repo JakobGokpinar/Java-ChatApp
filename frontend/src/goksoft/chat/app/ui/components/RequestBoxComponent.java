@@ -9,103 +9,77 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.Font;
-
-import java.util.Objects;
 
 /**
- * Component for rendering a friend request box
+ * Signal-style friend request card component.
+ * Shows avatar, requester name, and accept/reject buttons.
  */
 public class RequestBoxComponent {
 
-    // Colors
-    private static final String COLOR_BG_PRIMARY = "#ffb700";
-    private static final String COLOR_BORDER = "#ffaa00";
-    private static final String COLOR_BTN_ACCEPT = "#ff6f00";
-    private static final String COLOR_BTN_REJECT = "#1c1b1b";
-
     /**
-     * Create a friend request box UI component
+     * Create a friend request card
      *
      * @param requesterName Username of person who sent request
+     * @param photo         Profile photo (nullable)
      * @param onAccept      Callback when accept button clicked
      * @param onReject      Callback when reject button clicked
-     * @return BorderPane containing request info
+     * @return BorderPane containing request card
      */
-    public static BorderPane create(String requesterName,
+    public static BorderPane create(String requesterName, Image photo,
                                     EventHandler<MouseEvent> onAccept,
                                     EventHandler<MouseEvent> onReject) {
 
-        // Main container
-        BorderPane borderPane = new BorderPane();
-        borderPane.setPrefHeight(75);
-        borderPane.setPrefWidth(237);
-        borderPane.setStyle("-fx-background-color: " + COLOR_BG_PRIMARY +
-                "; -fx-border-color: " + COLOR_BORDER +
-                "; -fx-border-width: 1.5px");
+        BorderPane container = new BorderPane();
+        container.getStyleClass().add("request-item");
+        container.setPrefHeight(72);
 
-        // Profile photo circle
-        Circle profileCircle = new Circle(21);
-        profileCircle.setStrokeWidth(0);
-        try {
-            Image defaultIcon = new Image(
-                    Objects.requireNonNull(RequestBoxComponent.class.getResourceAsStream("/goksoft/chat/app/resources/images/icons/user-icon.png"))
-            );
-            profileCircle.setFill(new ImagePattern(defaultIcon));
-        } catch (Exception e) {
-            profileCircle.setFill(Color.DODGERBLUE);  // Fallback color
+        // Avatar
+        Circle avatar = new Circle(20);
+        avatar.setStrokeWidth(0);
+        if (photo != null && !photo.isError()) {
+            avatar.setFill(new ImagePattern(photo));
+        } else {
+            avatar.getStyleClass().add("profile-circle-default");
         }
-        BorderPane.setAlignment(profileCircle, Pos.CENTER);
-        BorderPane.setMargin(profileCircle, new Insets(10, 0, 0, 10));
+        BorderPane.setAlignment(avatar, Pos.CENTER);
+        BorderPane.setMargin(avatar, new Insets(0, 12, 0, 0));
 
-        // Requester name label
+        // Center: name + subtitle
+        VBox centerBox = new VBox(2);
+        centerBox.setAlignment(Pos.CENTER_LEFT);
+
         Label nameLabel = new Label(requesterName);
-        nameLabel.setPrefHeight(24);
-        nameLabel.setPrefWidth(158);
-        nameLabel.setFont(new Font(14));
-        nameLabel.setPadding(new Insets(10, 0, 0, 0));
-        BorderPane.setAlignment(nameLabel, Pos.CENTER_LEFT);
-        BorderPane.setMargin(nameLabel, new Insets(0, 0, 0, 20));
+        nameLabel.getStyleClass().add("request-name");
 
-        // Buttons container
-        HBox buttonBox = new HBox(15);
-        buttonBox.setPrefHeight(38);
-        buttonBox.setPrefWidth(166);
-        buttonBox.setAlignment(Pos.CENTER_LEFT);
-        buttonBox.setPadding(new Insets(0, 0, 5, 0));
-        BorderPane.setMargin(buttonBox, new Insets(0, 0, 0, 55));
+        Label subtitleLabel = new Label("Wants to connect");
+        subtitleLabel.getStyleClass().add("request-label");
+
+        centerBox.getChildren().addAll(nameLabel, subtitleLabel);
+
+        // Right: buttons
+        HBox buttonBox = new HBox(8);
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
+
+        Button acceptBtn = new Button("Accept");
+        acceptBtn.getStyleClass().add("btn-accept");
+        if (onAccept != null) acceptBtn.setOnMouseClicked(onAccept);
+
+        Button rejectBtn = new Button("Decline");
+        rejectBtn.getStyleClass().add("btn-reject");
+        if (onReject != null) rejectBtn.setOnMouseClicked(onReject);
+
+        buttonBox.getChildren().addAll(rejectBtn, acceptBtn);
+
+        // Assemble
+        container.setLeft(avatar);
+        container.setCenter(centerBox);
+        container.setRight(buttonBox);
         BorderPane.setAlignment(buttonBox, Pos.CENTER);
 
-        // Accept button
-        Button acceptButton = new Button("Accept");
-        acceptButton.setPrefHeight(26);
-        acceptButton.setPrefWidth(65);
-        acceptButton.setStyle("-fx-background-color: " + COLOR_BTN_ACCEPT);
-        acceptButton.setTextFill(Color.WHITE);
-        if (onAccept != null) {
-            acceptButton.setOnMouseClicked(onAccept);
-        }
-
-        // Reject button
-        Button rejectButton = new Button("Reject");
-        rejectButton.setPrefHeight(26);
-        rejectButton.setPrefWidth(59);
-        rejectButton.setStyle("-fx-background-color: " + COLOR_BTN_REJECT);
-        rejectButton.setTextFill(Color.WHITE);
-        if (onReject != null) {
-            rejectButton.setOnMouseClicked(onReject);
-        }
-
-        buttonBox.getChildren().addAll(acceptButton, rejectButton);
-
-        // Assemble components
-        borderPane.setLeft(profileCircle);
-        borderPane.setCenter(nameLabel);
-        borderPane.setBottom(buttonBox);
-
-        return borderPane;
+        return container;
     }
 }

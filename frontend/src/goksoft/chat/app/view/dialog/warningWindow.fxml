@@ -2,33 +2,29 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" 
-      prefHeight="140.0" prefWidth="400.0" 
-      spacing="16.0"
-      styleClass="card" 
-      stylesheets="@../../resources/styles/modern-design.css" 
-      xmlns="http://javafx.com/javafx/21" 
-      xmlns:fx="http://javafx.com/fxml/1" 
+<VBox alignment="CENTER" prefHeight="130.0" prefWidth="360.0"
+      styleClass="dialog-overlay"
+      stylesheets="@../../resources/styles/app-styles.css"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="goksoft.chat.app.controller.dialog.WarningWindowController">
-    
     <padding>
-        <Insets top="32.0" right="32.0" bottom="32.0" left="32.0" />
+        <Insets top="24" right="28" bottom="24" left="28" />
     </padding>
-    
-    <!-- Icon (emoji) -->
-    <Label text="⚠️" styleClass="text-4xl" />
-    
-    <!-- Message -->
-    <Label fx:id="messageLabel" 
-           text="Varselmelding!" 
-           alignment="CENTER" 
+
+    <!-- Icon -->
+    <Label text="●" styleClass="dialog-icon" />
+
+    <Region prefHeight="10" />
+
+    <!-- Message label -->
+    <Label fx:id="messageLabel"
+           text="Message"
+           styleClass="dialog-message"
            wrapText="true"
-           maxWidth="336.0"
-           styleClass="label-primary text-base">
-        <padding>
-            <Insets top="8.0" bottom="8.0" />
-        </padding>
-    </Label>
+           maxWidth="300"
+           alignment="CENTER" />
 </VBox>

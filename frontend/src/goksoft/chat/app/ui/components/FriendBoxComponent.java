@@ -5,135 +5,107 @@ import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextBoundsType;
-
-import java.util.Objects;
 
 /**
- * Component for rendering a friend box in the friends list
+ * Signal-style friend list item component.
+ * Shows avatar, name, last message preview, time, and unread badge.
  */
 public class FriendBoxComponent {
 
-    // Colors
-    private static final String COLOR_BORDER = "#949494";
-    private static final String COLOR_TEXT_SECONDARY = "#949494";
-    private static final String COLOR_NOTIFICATION = "#ff6f00";
-    private static final String COLOR_BG_DARK = "#1c1b1b";
-
     /**
-     * Create a friend box UI component
+     * Create a friend list item
      *
-     * @param friendName      Friend's username
-     * @param lastMessage     Last message text
-     * @param notifCount      Notification count (as string)
-     * @param lastDate        Last message timestamp
-     * @param onClickCallback Callback when friend box is clicked
-     * @return BorderPane containing friend info
+     * @param friendName    Friend's username
+     * @param lastMessage   Last message preview text
+     * @param notifCount    Unread message count (as string)
+     * @param lastDate      Time since last message
+     * @param photo         Profile photo (nullable, falls back to colored circle)
+     * @param onClickCallback Action when item is clicked
+     * @return BorderPane containing the friend item
      */
     public static BorderPane create(String friendName, String lastMessage,
                                     String notifCount, String lastDate,
-                                    Runnable onClickCallback) {
+                                    Image photo, Runnable onClickCallback) {
 
-        // Main container
-        BorderPane borderPane = new BorderPane();
-        borderPane.setPrefHeight(86);
-        borderPane.setPrefWidth(237);
-        borderPane.setStyle("-fx-border-color: " + COLOR_BORDER + "; -fx-border-width: 0.5px 0px 0.5px 0px");
-        borderPane.setCursor(Cursor.HAND);
-        borderPane.setId(friendName);
+        BorderPane container = new BorderPane();
+        container.getStyleClass().add("friend-item");
+        container.setPrefHeight(68);
+        container.setCursor(Cursor.HAND);
+        container.setId(friendName);
 
-        // Profile photo circle
-        Circle profileCircle = new Circle(21);
-        profileCircle.setStrokeWidth(0);
-        try {
-            Image defaultIcon = new Image(
-                    Objects.requireNonNull(FriendBoxComponent.class.getResourceAsStream("/goksoft/chat/app/resources/images/icons/user-icon.png"))
-            );
-            profileCircle.setFill(new ImagePattern(defaultIcon));
-        } catch (Exception e) {
-            profileCircle.setFill(Color.DODGERBLUE);  // Fallback color
+        // Avatar
+        Circle avatar = new Circle(22);
+        avatar.setStrokeWidth(0);
+        if (photo != null && !photo.isError()) {
+            avatar.setFill(new ImagePattern(photo));
+        } else {
+            avatar.getStyleClass().add("profile-circle-default");
         }
+        BorderPane.setAlignment(avatar, Pos.CENTER);
+        BorderPane.setMargin(avatar, new Insets(0, 12, 0, 0));
 
-        BorderPane.setAlignment(profileCircle, Pos.CENTER);
-        BorderPane.setMargin(profileCircle, new Insets(0, 0, 30, 10));
+        // Center: name + last message
+        VBox centerBox = new VBox(3);
+        centerBox.setAlignment(Pos.CENTER_LEFT);
 
-        // Friend name label
         Label nameLabel = new Label(friendName);
-        nameLabel.setPrefHeight(30);
-        nameLabel.setPrefWidth(246);
-        nameLabel.setFont(new Font(15));
-        nameLabel.setTextFill(Color.WHITE);
-        nameLabel.setPadding(new Insets(10, 0, 0, 70));
-        BorderPane.setAlignment(nameLabel, Pos.CENTER_LEFT);
+        nameLabel.getStyleClass().add("friend-name");
 
-        // Last message label
-        Label messageLabel = new Label(lastMessage);
-        messageLabel.setMaxWidth(Double.MAX_VALUE);
-        messageLabel.setPrefHeight(18);
-        messageLabel.setPrefWidth(49);
-        messageLabel.setTextFill(Color.web(COLOR_TEXT_SECONDARY));
-        BorderPane.setAlignment(messageLabel, Pos.CENTER_LEFT);
-        BorderPane.setMargin(messageLabel, new Insets(0, 0, 10, 15));
+        Label messageLabel = new Label(
+                lastMessage != null && !lastMessage.isEmpty() ? lastMessage : "No messages yet"
+        );
+        messageLabel.getStyleClass().add("friend-last-message");
+        messageLabel.setMaxWidth(180);
+        messageLabel.setEllipsisString("...");
 
-        // Right section (notification + date)
-        HBox rightBox = new HBox();
-        rightBox.setMaxWidth(Double.MAX_VALUE);
-        rightBox.setPrefHeight(42);
-        rightBox.setPrefWidth(87);
-        rightBox.setAlignment(Pos.CENTER_LEFT);
-        rightBox.setPadding(new Insets(0, 0, 10, 0));
-        BorderPane.setAlignment(rightBox, Pos.CENTER_LEFT);
+        centerBox.getChildren().addAll(nameLabel, messageLabel);
 
-        // Date label
-        Label dateLabel = new Label(lastDate);
-        dateLabel.setMaxWidth(Double.MAX_VALUE);
-        dateLabel.setPrefHeight(18);
-        dateLabel.setPrefWidth(71);
-        dateLabel.setTextFill(Color.web(COLOR_TEXT_SECONDARY));
-        dateLabel.setAlignment(Pos.CENTER);
-        BorderPane.setMargin(dateLabel, new Insets(0, 10, 0, 0));
+        // Right: time + notification badge
+        VBox rightBox = new VBox(6);
+        rightBox.setAlignment(Pos.CENTER_RIGHT);
+        rightBox.setMinWidth(50);
 
-        // Add notification badge if count > 0
+        Label timeLabel = new Label(lastDate != null ? lastDate : "");
+        timeLabel.getStyleClass().add("friend-time");
+
+        rightBox.getChildren().add(timeLabel);
+
+        // Notification badge
         try {
             int count = Integer.parseInt(notifCount);
             if (count > 0) {
-                // Notification badge
-                Circle notifCircle = new Circle(9);
-                notifCircle.setFill(Color.web(COLOR_NOTIFICATION));
-                notifCircle.setStroke(Color.web(COLOR_NOTIFICATION));
+                StackPane badge = new StackPane();
+                badge.getStyleClass().add("notification-badge");
+                badge.setMaxSize(22, 22);
+                badge.setMinSize(22, 22);
 
-                Text notifText = new Text(notifCount);
-                notifText.setFill(Color.WHITE);
-                notifText.setBoundsType(TextBoundsType.VISUAL);
+                Label badgeText = new Label(count > 99 ? "99+" : String.valueOf(count));
+                badgeText.getStyleClass().add("notification-badge-text");
 
-                StackPane badgeStack = new StackPane(notifCircle, notifText);
-                rightBox.getChildren().addAll(badgeStack, dateLabel);
-            } else {
-                rightBox.getChildren().add(dateLabel);
+                badge.getChildren().add(badgeText);
+
+                HBox badgeContainer = new HBox();
+                badgeContainer.setAlignment(Pos.CENTER_RIGHT);
+                badgeContainer.getChildren().add(badge);
+
+                rightBox.getChildren().add(badgeContainer);
             }
-        } catch (NumberFormatException e) {
-            rightBox.getChildren().add(dateLabel);
-        }
+        } catch (NumberFormatException ignored) {}
 
-        // Assemble components
-        borderPane.setLeft(profileCircle);
-        borderPane.setTop(nameLabel);
-        borderPane.setCenter(messageLabel);
-        borderPane.setRight(rightBox);
+        // Assemble
+        container.setLeft(avatar);
+        container.setCenter(centerBox);
+        container.setRight(rightBox);
 
-        // Set click handler
         if (onClickCallback != null) {
-            borderPane.setOnMouseClicked(event -> onClickCallback.run());
+            container.setOnMouseClicked(event -> onClickCallback.run());
         }
 
-        return borderPane;
+        return container;
     }
 }

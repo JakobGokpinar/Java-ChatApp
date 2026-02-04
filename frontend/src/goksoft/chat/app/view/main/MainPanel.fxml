@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -11,339 +10,241 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
-<?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" 
-            prefHeight="700.0" prefWidth="1200.0" 
-            styleClass="bg-main" 
-            stylesheets="@../../resources/styles/modern-design.css" 
-            xmlns="http://javafx.com/javafx/21" 
-            xmlns:fx="http://javafx.com/fxml/1" 
+<AnchorPane prefHeight="560.0" prefWidth="860.0"
+            styleClass="main-root"
+            stylesheets="@../../resources/styles/app-styles.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="goksoft.chat.app.controller.main.MainPanelController">
-    
-    <!-- Main Split Pane - RESIZABLE! -->
-    <SplitPane fx:id="splitPane" 
-               dividerPositions="0.28" 
-               prefHeight="700.0" prefWidth="1200.0" 
-               AnchorPane.bottomAnchor="0.0" 
-               AnchorPane.leftAnchor="0.0" 
-               AnchorPane.rightAnchor="0.0" 
-               AnchorPane.topAnchor="0.0">
-        
-        <!-- LEFT SIDEBAR -->
-        <AnchorPane minWidth="280.0" prefWidth="336.0" styleClass="sidebar-panel">
-            <BorderPane fx:id="leftBorderPane" 
-                        AnchorPane.bottomAnchor="0.0" 
-                        AnchorPane.leftAnchor="0.0" 
-                        AnchorPane.rightAnchor="0.0" 
-                        AnchorPane.topAnchor="0.0">
-                
-                <!-- BOTTOM TOOLBAR -->
-                <bottom>
-                    <HBox fx:id="operationsHBox" 
-                          alignment="CENTER" 
-                          spacing="8.0" 
-                          styleClass="panel-header"
-                          prefHeight="70.0">
-                        <padding>
-                            <Insets top="12.0" right="16.0" bottom="12.0" left="16.0" />
-                        </padding>
-                        
-                        <!-- Settings Button -->
-                        <Circle fx:id="settingsButton" 
-                                radius="20.0" 
-                                styleClass="avatar"
-                                onMouseClicked="#toggleSettingsPanel">
-                            <cursor>
-                                <Cursor fx:constant="HAND" />
-                            </cursor>
-                        </Circle>
-                        
-                        <!-- Mailbox Button with Emoji Icon -->
-                        <Button fx:id="mailboxButton" 
-                                text="📬 Innboks" 
-                                styleClass="btn-secondary"
-                                maxWidth="Infinity"
-                                prefHeight="36.0"
-                                onMouseClicked="#showNotificationsPanel"
-                                HBox.hgrow="ALWAYS">
-                            <cursor>
-                                <Cursor fx:constant="HAND" />
-                            </cursor>
-                        </Button>
-                        
-                        <!-- Add Friend Button with Emoji Icon -->
-                        <Button fx:id="addFriendButton" 
-                                text="➕ Legg til" 
-                                styleClass="btn-primary"
-                                maxWidth="Infinity"
-                                prefHeight="36.0"
-                                onMouseClicked="#showUserSearchPanel"
-                                HBox.hgrow="ALWAYS">
-                            <cursor>
-                                <Cursor fx:constant="HAND" />
-                            </cursor>
-                        </Button>
+
+    <SplitPane fx:id="splitPane" dividerPositions="0.32"
+               styleClass="split-pane"
+               AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+               AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <!-- ==================== LEFT: SIDEBAR ==================== -->
+        <BorderPane styleClass="sidebar" minWidth="240" maxWidth="320"
+                    SplitPane.resizableWithParent="false">
+
+            <!-- Sidebar header: title + settings avatar -->
+            <top>
+                <VBox styleClass="sidebar-header" spacing="12">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Circle fx:id="settingsButton" radius="18"
+                                styleClass="profile-circle-default"
+                                onMouseClicked="#toggleSettingsPanel" />
+                        <Label text="Chats" styleClass="sidebar-title"
+                               HBox.hgrow="ALWAYS" maxWidth="1.7976931348623157E308" />
                     </HBox>
-                </bottom>
-                
-                <!-- CENTER CONTENT -->
-                <center>
-                    <VBox fx:id="contentContainer" 
-                          spacing="0.0" 
-                          styleClass="bg-sidebar">
-                        
-                        <!-- FRIEND LIST PANEL -->
-                        <VBox fx:id="friendListPanel" VBox.vgrow="ALWAYS">
-                            
-                            <!-- Search Bar -->
-                            <HBox alignment="CENTER" 
-                                  styleClass="panel-header"
-                                  prefHeight="64.0">
-                                <padding>
-                                    <Insets top="12.0" right="16.0" bottom="12.0" left="16.0" />
-                                </padding>
-                                <TextField fx:id="searchFriendField" 
-                                           promptText="🔍 Søk i venner" 
-                                           styleClass="search-field"
-                                           onKeyTyped="#searchFriend"
-                                           HBox.hgrow="ALWAYS" />
-                            </HBox>
-                            
-                            <!-- No Friends Label -->
-                            <Label fx:id="noFriendLabel" 
-                                   text="Ingen venner ennå. Bruk ➕ for å legge til!" 
-                                   styleClass="label-tertiary text-sm"
-                                   alignment="CENTER"
-                                   wrapText="true"
-                                   managed="false" 
-                                   visible="false">
-                                <padding>
-                                    <Insets top="32.0" right="24.0" left="24.0" />
-                                </padding>
-                            </Label>
-                            
-                            <!-- Friends ScrollPane -->
-                            <ScrollPane fx:id="friendScrollPane" 
-                                        fitToWidth="true" 
-                                        VBox.vgrow="ALWAYS">
-                                <VBox fx:id="friendsVBox" spacing="2.0">
-                                    <padding>
-                                        <Insets top="8.0" right="8.0" bottom="8.0" left="8.0" />
-                                    </padding>
-                                </VBox>
-                            </ScrollPane>
-                        </VBox>
-                        
-                        <!-- NOTIFICATIONS PANEL -->
-                        <VBox fx:id="notificationsPanel" 
-                              managed="false" 
-                              visible="false" 
-                              VBox.vgrow="ALWAYS">
-                            
-                            <!-- Header -->
-                            <HBox styleClass="panel-header" 
-                                  prefHeight="64.0"
-                                  alignment="CENTER_LEFT">
-                                <padding>
-                                    <Insets left="16.0" />
-                                </padding>
-                                <Label text="Venneforespørsler" 
-                                       styleClass="label-primary text-lg font-semibold" />
-                            </HBox>
-                            
-                            <!-- No Notifications Label -->
-                            <Label fx:id="noNotifLabel" 
-                                   text="Ingen nye forespørsler" 
-                                   styleClass="label-tertiary text-sm"
-                                   alignment="CENTER">
-                                <padding>
-                                    <Insets top="32.0" />
-                                </padding>
-                            </Label>
-                            
-                            <!-- Notifications ScrollPane -->
-                            <ScrollPane fitToWidth="true" 
-                                        VBox.vgrow="ALWAYS">
-                                <VBox fx:id="notificationVBox" spacing="2.0">
-                                    <padding>
-                                        <Insets top="8.0" right="8.0" bottom="8.0" left="8.0" />
-                                    </padding>
-                                </VBox>
-                            </ScrollPane>
-                        </VBox>
-                        
-                        <!-- ADD FRIEND PANEL -->
-                        <VBox fx:id="addfriendListPanel" 
-                              managed="false" 
-                              visible="false" 
-                              VBox.vgrow="ALWAYS">
-                            
-                            <!-- Header -->
-                            <HBox styleClass="panel-header" 
-                                  prefHeight="64.0"
-                                  alignment="CENTER_LEFT">
-                                <padding>
-                                    <Insets left="16.0" />
-                                </padding>
-                                <Label text="Finn nye venner" 
-                                       styleClass="label-primary text-lg font-semibold" />
-                            </HBox>
-                            
-                            <!-- No Users Label -->
-                            <Label fx:id="noUserLabel" 
-                                   text="Ingen resultater" 
-                                   styleClass="label-tertiary text-sm"
-                                   alignment="CENTER"
-                                   managed="false"
-                                   visible="false">
-                                <padding>
-                                    <Insets top="32.0" />
-                                </padding>
-                            </Label>
-                            
-                            <!-- Users ScrollPane -->
-                            <ScrollPane fitToWidth="true" 
-                                        VBox.vgrow="ALWAYS">
-                                <VBox fx:id="usersVBox" spacing="2.0">
-                                    <padding>
-                                        <Insets top="8.0" right="8.0" bottom="8.0" left="8.0" />
-                                    </padding>
-                                </VBox>
-                            </ScrollPane>
-                            
-                            <!-- Search Input at Bottom -->
-                            <HBox alignment="CENTER" 
-                                  styleClass="panel-header"
-                                  prefHeight="64.0">
-                                <padding>
-                                    <Insets top="12.0" right="16.0" bottom="12.0" left="16.0" />
-                                </padding>
-                                <TextField fx:id="searchUserField" 
-                                           promptText="🔍 Søk brukere..." 
-                                           styleClass="search-field"
-                                           onKeyTyped="#searchUsers"
-                                           HBox.hgrow="ALWAYS" />
-                            </HBox>
-                        </VBox>
+
+                    <!-- Search field (friends) -->
+                    <TextField fx:id="searchFriendField"
+                               promptText="Search conversations..."
+                               onKeyTyped="#searchFriend"
+                               styleClass="sidebar-search"
+                               focusTraversable="false" />
+                </VBox>
+            </top>
+
+            <!-- Sidebar center: switchable content panels -->
+            <center>
+                <VBox fx:id="contentContainer" styleClass="sidebar-content"
+                      BorderPane.alignment="CENTER">
+
+                    <!-- ===== PANEL 1: Friends List (default) ===== -->
+                    <VBox fx:id="friendListPanel" VBox.vgrow="ALWAYS">
+                        <Label fx:id="noFriendLabel"
+                               text="No conversations yet.\nTap 'Add Friend' to get started."
+                               styleClass="empty-state-label"
+                               alignment="CENTER"
+                               maxWidth="1.7976931348623157E308"
+                               managed="false" visible="false">
+                            <VBox.margin><Insets top="40" /></VBox.margin>
+                        </Label>
+                        <ScrollPane fx:id="friendScrollPane"
+                                    fitToWidth="true" fitToHeight="true"
+                                    hbarPolicy="NEVER"
+                                    styleClass="scroll-pane"
+                                    VBox.vgrow="ALWAYS">
+                            <VBox fx:id="friendsVBox" styleClass="sidebar-content" />
+                        </ScrollPane>
                     </VBox>
-                </center>
-            </BorderPane>
-        </AnchorPane>
-        
-        <!-- RIGHT MAIN AREA -->
-        <AnchorPane minWidth="600.0" styleClass="bg-chat">
-            
-            <!-- CHAT PANEL -->
-            <BorderPane fx:id="chatBorderPane" 
-                        managed="false"
-                        visible="false"
-                        AnchorPane.bottomAnchor="0.0" 
-                        AnchorPane.leftAnchor="0.0" 
-                        AnchorPane.rightAnchor="0.0" 
-                        AnchorPane.topAnchor="0.0">
-                
-                <!-- CHAT HEADER -->
+
+                    <!-- ===== PANEL 2: Notifications / Friend Requests ===== -->
+                    <VBox fx:id="notificationsPanel" managed="false" visible="false"
+                          VBox.vgrow="ALWAYS">
+                        <HBox styleClass="sidebar-section-header" alignment="CENTER_LEFT">
+                            <Label text="Friend Requests" styleClass="sidebar-section-title" />
+                        </HBox>
+                        <Label fx:id="noNotifLabel"
+                               text="No pending requests"
+                               styleClass="empty-state-label"
+                               alignment="CENTER"
+                               maxWidth="1.7976931348623157E308" />
+                        <ScrollPane fitToWidth="true" fitToHeight="true"
+                                    hbarPolicy="NEVER"
+                                    styleClass="scroll-pane"
+                                    VBox.vgrow="ALWAYS">
+                            <VBox fx:id="notificationVBox" styleClass="sidebar-content"
+                                  spacing="8">
+                                <padding><Insets top="8" left="12" right="12" bottom="8" /></padding>
+                            </VBox>
+                        </ScrollPane>
+                    </VBox>
+
+                    <!-- ===== PANEL 3: User Search / Add Friend ===== -->
+                    <VBox fx:id="addfriendListPanel" managed="false" visible="false"
+                          VBox.vgrow="ALWAYS">
+                        <HBox styleClass="sidebar-section-header" alignment="CENTER_LEFT">
+                            <Label text="Find People" styleClass="sidebar-section-title" />
+                        </HBox>
+                        <!-- Search input at top -->
+                        <HBox alignment="CENTER" styleClass="sidebar-header">
+                            <TextField fx:id="searchUserField"
+                                       promptText="Search by username..."
+                                       onKeyTyped="#searchUsers"
+                                       styleClass="sidebar-search"
+                                       HBox.hgrow="ALWAYS" />
+                        </HBox>
+                        <Label fx:id="noUserLabel"
+                               text="Search for users by their username"
+                               styleClass="empty-state-label"
+                               alignment="CENTER"
+                               maxWidth="1.7976931348623157E308">
+                            <padding><Insets top="20" /></padding>
+                        </Label>
+                        <ScrollPane fitToWidth="true" fitToHeight="true"
+                                    hbarPolicy="NEVER"
+                                    styleClass="scroll-pane"
+                                    VBox.vgrow="ALWAYS">
+                            <VBox fx:id="usersVBox" styleClass="sidebar-content"
+                                  spacing="8">
+                                <padding><Insets top="8" left="12" right="12" bottom="8" /></padding>
+                            </VBox>
+                        </ScrollPane>
+                    </VBox>
+                </VBox>
+            </center>
+
+            <!-- Sidebar bottom: navigation buttons -->
+            <bottom>
+                <HBox fx:id="operationsHBox" alignment="CENTER" spacing="8"
+                      styleClass="sidebar-nav">
+                    <Button fx:id="mailboxButton" text="Requests"
+                            onMouseClicked="#showNotificationsPanel"
+                            styleClass="nav-btn"
+                            maxWidth="1.7976931348623157E308"
+                            HBox.hgrow="ALWAYS" />
+                    <Button text="Add Friend"
+                            onMouseClicked="#showUserSearchPanel"
+                            styleClass="nav-btn"
+                            maxWidth="1.7976931348623157E308"
+                            HBox.hgrow="ALWAYS" />
+                </HBox>
+            </bottom>
+        </BorderPane>
+
+        <!-- ==================== RIGHT: CHAT / SETTINGS ==================== -->
+        <AnchorPane styleClass="chat-panel" minWidth="400">
+
+            <!-- Empty state (shown when no chat is selected) -->
+            <VBox fx:id="chatEmptyState" alignment="CENTER" spacing="8"
+                  AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                  AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+                <Circle radius="32" styleClass="profile-circle-default" />
+                <Region prefHeight="8" />
+                <Label text="Welcome to Chat" styleClass="chat-empty-title" />
+                <Label text="Select a conversation to start messaging"
+                       styleClass="chat-empty-subtitle" />
+            </VBox>
+
+            <!-- Chat panel (hidden until friend selected) -->
+            <BorderPane fx:id="chatBorderPane" visible="false"
+                        styleClass="chat-panel"
+                        AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                        AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+                <!-- Chat header -->
                 <top>
-                    <HBox alignment="CENTER_LEFT" 
-                          spacing="16.0" 
-                          styleClass="panel-header"
-                          prefHeight="64.0">
-                        <padding>
-                            <Insets left="24.0" right="24.0" />
-                        </padding>
-                        
-                        <!-- Friend Avatar -->
-                        <Circle fx:id="chatFriendProfilePhoto" 
-                                radius="20.0" 
-                                styleClass="avatar" />
-                        
-                        <!-- Friend Name -->
-                        <Label fx:id="chatFriendName" 
-                               text="Velg en venn" 
-                               styleClass="label-primary text-lg font-semibold"
-                               HBox.hgrow="ALWAYS" />
+                    <HBox alignment="CENTER_LEFT" spacing="12"
+                          styleClass="chat-header">
+                        <Circle fx:id="chatFriendProfilePhoto" radius="20"
+                                styleClass="profile-circle-default" />
+                        <VBox spacing="1">
+                            <Label fx:id="chatFriendName" text=""
+                                   styleClass="chat-friend-name" />
+                            <Label text="Online" styleClass="chat-status" />
+                        </VBox>
                     </HBox>
                 </top>
-                
-                <!-- MESSAGES LIST -->
+
+                <!-- Chat messages -->
                 <center>
-                    <ListView fx:id="listView" styleClass="list-view message-list" BorderPane.alignment="CENTER">
-                        <padding>
-                            <Insets top="16.0" bottom="16.0" />
-                        </padding>
-                    </ListView>
+                    <ListView fx:id="listView" styleClass="list-view"
+                              BorderPane.alignment="CENTER" />
                 </center>
-                
-                <!-- MESSAGE INPUT -->
+
+                <!-- Chat input bar -->
                 <bottom>
-                    <HBox alignment="CENTER" 
-                          spacing="12.0" 
-                          styleClass="panel-header"
-                          prefHeight="80.0">
-                        <padding>
-                            <Insets top="16.0" right="24.0" bottom="16.0" left="24.0" />
-                        </padding>
-                        
-                        <TextField fx:id="messageField" 
-                                   promptText="Skriv en melding..." 
-                                   styleClass="message-input"
-                                   prefHeight="48.0"
+                    <HBox alignment="CENTER" spacing="10"
+                          styleClass="chat-input-bar">
+                        <TextField fx:id="messageField"
+                                   promptText="Message..."
+                                   styleClass="chat-input"
                                    HBox.hgrow="ALWAYS" />
+                        <Button fx:id="sendButton" text="↑"
+                                onMouseClicked="#sendMessageButton"
+                                styleClass="btn-send" />
                     </HBox>
                 </bottom>
             </BorderPane>
-            
-            <!-- SETTINGS PANEL -->
-            <BorderPane fx:id="settingsBorderPane" 
-                        managed="false"
-                        visible="false"
-                        styleClass="bg-main"
-                        AnchorPane.bottomAnchor="0.0" 
-                        AnchorPane.leftAnchor="0.0" 
-                        AnchorPane.rightAnchor="0.0" 
-                        AnchorPane.topAnchor="0.0">
-                
-                <!-- Settings Content -->
+
+            <!-- Settings panel (hidden by default) -->
+            <BorderPane fx:id="settingsBorderPane" visible="false"
+                        styleClass="settings-panel"
+                        AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                        AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+                <!-- Settings header -->
+                <top>
+                    <HBox alignment="CENTER_LEFT" styleClass="settings-header">
+                        <Label text="Settings" styleClass="settings-title" />
+                    </HBox>
+                </top>
+
+                <!-- Settings content -->
                 <center>
-                    <VBox alignment="TOP_CENTER" 
-                          spacing="32.0"
-                          BorderPane.alignment="CENTER">
-                        <padding>
-                            <Insets top="64.0" />
-                        </padding>
-                        
-                        <!-- Avatar -->
-                        <Circle fx:id="profilePhoto" 
-                                radius="64.0" 
-                                styleClass="avatar" />
-                        
-                        <!-- Username -->
-                        <Label fx:id="settingsUsername" 
-                               text="Brukernavn" 
-                               styleClass="label-primary text-2xl font-bold" />
-                        
-                        <!-- Logout Button -->
-                        <Button fx:id="logoffButton" 
-                                text="🚪 Logg ut" 
-                                styleClass="btn-danger"
-                                prefHeight="44.0"
-                                prefWidth="200.0"
-                                onMouseClicked="#logOff">
-                            <cursor>
-                                <Cursor fx:constant="HAND" />
-                            </cursor>
-                        </Button>
-                        
-                        <!-- Footer -->
-                        <Label text="Chat App v2.0.0" 
-                               styleClass="label-tertiary text-xs">
-                            <VBox.margin>
-                                <Insets top="64.0" />
-                            </VBox.margin>
-                        </Label>
+                    <VBox fx:id="settingsTopVBox" alignment="TOP_CENTER"
+                          spacing="16">
+                        <padding><Insets top="40" left="40" right="40" /></padding>
+
+                        <!-- Profile section -->
+                        <VBox alignment="CENTER" spacing="12"
+                              styleClass="settings-card">
+                            <Circle fx:id="profilePhoto" radius="48"
+                                    styleClass="profile-circle-default"
+                                    onMouseClicked="#changeProfilePhoto"
+                                    onMouseEntered="#onMouseEnterProfilePhoto"
+                                    onMouseExited="#onMouseExitProfilePhoto" />
+                            <Label fx:id="settingsUsername" text=""
+                                   styleClass="settings-username" />
+                            <Button text="Change Photo"
+                                    onMouseClicked="#changeProfilePhoto"
+                                    styleClass="btn-change-photo" />
+                        </VBox>
+
+                        <Region prefHeight="20" />
+
+                        <!-- Logout -->
+                        <Button text="Log Out"
+                                onMouseClicked="#logOff"
+                                styleClass="btn-logout"
+                                maxWidth="200" />
                     </VBox>
                 </center>
             </BorderPane>

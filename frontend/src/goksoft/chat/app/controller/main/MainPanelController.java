@@ -1,10 +1,13 @@
 package goksoft.chat.app.controller.main;
 
 import goksoft.chat.app.config.Environment;
-import goksoft.chat.app.controller.auth.LoginController;
 import goksoft.chat.app.controller.dialog.WarningWindowController;
+import goksoft.chat.app.controller.auth.LoginController;
 import goksoft.chat.app.service.ServiceManager;
-import goksoft.chat.app.ui.components.*;
+import goksoft.chat.app.ui.components.FriendBoxComponent;
+import goksoft.chat.app.ui.components.ProfilePhotoLoader;
+import goksoft.chat.app.ui.components.RequestBoxComponent;
+import goksoft.chat.app.ui.components.UserBoxComponent;
 import goksoft.chat.app.util.UIUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -26,15 +29,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -43,66 +46,54 @@ import java.util.prefs.Preferences;
 public class MainPanelController {
 
     private static final Logger logger = LoggerFactory.getLogger(MainPanelController.class);
-    // Modern services
-    private final ServiceManager serviceManager = ServiceManager.getInstance();
-    @FXML
-    public BorderPane settingsBorderPane;
-    @FXML
-    public HBox operationsHBox;
-    @FXML
-    public VBox contentContainer;
-    @FXML
-    public VBox friendListPanel;
-    @FXML
-    public VBox notificationsPanel;
-    @FXML
-    public VBox addfriendListPanel;
-    @FXML
-    public Circle profilePhoto;
-    @FXML
-    public Circle settingsButton;
-    @FXML
-    public Button mailboxButton;
-    @FXML
-    public Circle chatFriendProfilePhoto;
-    @FXML
-    public Label chatFriendName;
-    @FXML
-    public TextField messageField;
-    @FXML
-    public ListView<MessageBubble> listView;
-    @FXML
-    private SplitPane splitPane;
-    @FXML
-    private TextField searchFriendField;
-    @FXML
-    private BorderPane chatBorderPane;
-    @FXML
-    private ScrollPane friendScrollPane;
-    @FXML
-    private VBox friendsVBox;
-    @FXML
-    private VBox notificationVBox;
-    @FXML
-    private VBox usersVBox;
-    @FXML
-    private VBox settingsTopVBox;
-    @FXML
-    private TextField searchUserField;
-    @FXML
-    private Label settingsUsername;
-    @FXML
-    private Label noFriendLabel;
-    @FXML
-    private Label noNotifLabel;
-    @FXML
-    private Label noUserLabel;
-    // Instance fields (no longer static!)
+
+    // Layout structure
+    @FXML private SplitPane splitPane;
+    @FXML private BorderPane chatBorderPane;
+    @FXML private BorderPane settingsBorderPane;
+    @FXML private VBox chatEmptyState;
+
+    // Sidebar
+    @FXML private TextField searchFriendField;
+    @FXML private ScrollPane friendScrollPane;
+    @FXML public HBox operationsHBox;
+    @FXML public VBox contentContainer;
+    @FXML public VBox friendListPanel;
+    @FXML public VBox notificationsPanel;
+    @FXML public VBox addfriendListPanel;
+    @FXML private VBox friendsVBox;
+    @FXML private VBox notificationVBox;
+    @FXML private VBox usersVBox;
+    @FXML private TextField searchUserField;
+    @FXML public Button mailboxButton;
+
+    // Profile & Settings
+    @FXML public Circle profilePhoto;
+    @FXML public Circle settingsButton;
+    @FXML private VBox settingsTopVBox;
+    @FXML private Label settingsUsername;
+
+    // Chat area
+    @FXML public Circle chatFriendProfilePhoto;
+    @FXML public Label chatFriendName;
+    @FXML public TextField messageField;
+    @FXML public ListView<String> listView;
+
+    // Empty state labels
+    @FXML private Label noFriendLabel;
+    @FXML private Label noNotifLabel;
+    @FXML private Label noUserLabel;
+
+    // Instance state
     private String currentFriend;
-    private final ArrayList<String> friendsNameList = new ArrayList<>();
-    private final ArrayList<String> friendRequestsNameList = new ArrayList<>();
-    private final List<Object> friendArray = new ArrayList<>();
+    private BorderPane currentPane;
+    private ArrayList<String> friendsNameList = new ArrayList<>();
+    private ArrayList<String> friendRequestsNameList = new ArrayList<>();
+    private List<Object> friendArray = new ArrayList<>();
     private int currentTimer;
+
+    // Services & scheduling
+    private final ServiceManager serviceManager = ServiceManager.getInstance();
     private ScheduledExecutorService scheduler;
     private ScheduledExecutorService messagePollingScheduler;
 
@@ -110,39 +101,30 @@ public class MainPanelController {
     public void initialize() {
         noUserLabel.setPadding(new Insets(25, 0, 0, 0));
 
-        // ⭐ Set default user icons
-        Image defaultUserIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/goksoft/chat/app/resources/images/icons/user-icon.png")));
-        profilePhoto.setFill(new ImagePattern(defaultUserIcon));
-        settingsButton.setFill(new ImagePattern(defaultUserIcon));
-
         // Load initial data
         loadFriends();
+        loadProfilePhoto(false);
         loadFriendRequests();
 
         settingsUsername.setText(serviceManager.getCurrentUser());
 
-        // Bind Enter key to send messages
+        // Enter key sends message
         messageField.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.ENTER) sendMessage();
         });
 
-        // Initialize scheduler for polling tasks
+        // Initialize scheduler for polling
         scheduler = Executors.newScheduledThreadPool(2);
-
-        // Start polling tasks
         startFriendStatsPolling();
         startFriendRequestsPolling();
 
-        // Setup cleanup on window close
+        // Cleanup on close
         setupWindowCloseHandler();
 
-        // Prevent splitPane divider from moving
+        // Lock splitPane divider
         setupSplitPaneLock();
     }
 
-    /**
-     * Setup handler to cleanup resources when window closes
-     */
     private void setupWindowCloseHandler() {
         chatBorderPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
@@ -155,27 +137,16 @@ public class MainPanelController {
         });
     }
 
-    /**
-     * Lock the split pane divider position
-     */
     private void setupSplitPaneLock() {
         final double pos = splitPane.getDividers().get(0).getPosition();
         splitPane.getDividers().get(0).positionProperty().addListener(
-                new ChangeListener<Number>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Number> observableValue,
-                                        Number number, Number t1) {
-                        splitPane.getDividers().get(0).setPosition(pos);
-                    }
-                }
+                (observableValue, number, t1) ->
+                        splitPane.getDividers().get(0).setPosition(pos)
         );
     }
 
     // ===== FRIEND MANAGEMENT =====
 
-    /**
-     * Load friends list from server
-     */
     private void loadFriends() {
         friendsNameList.clear();
         friendArray.clear();
@@ -193,26 +164,20 @@ public class MainPanelController {
 
                                 Image photo = ProfilePhotoLoader.loadPhoto(username);
 
-                                // Create modern friend list item
-                                FriendListItem friendItem = new FriendListItem(
-                                        username,
-                                        lastMsg,
-                                        notifCount,
-                                        passedTime,
-                                        photo,
+                                BorderPane friendBox = FriendBoxComponent.create(
+                                        username, lastMsg, notifCount, passedTime, photo,
                                         () -> {
-                                            final String finalUsername = username;
-                                            Image friendPhoto = ProfilePhotoLoader.loadPhoto(finalUsername);
-                                            onFriendClicked(friendPhoto, finalUsername, null);
+                                            Image friendPhoto = ProfilePhotoLoader.loadPhoto(username);
+                                            BorderPane actualPane = findPaneById(friendsVBox, username);
+                                            onFriendClicked(friendPhoto, username, actualPane);
                                         }
                                 );
 
-                                friendArray.add(friendItem);
+                                friendArray.add(friendBox);
                                 friendsNameList.add(username);
-                                friendsVBox.getChildren().add(friendItem);
+                                friendsVBox.getChildren().add(friendBox);
                             }
                         }
-
                         checkNoResult(friendsList.isEmpty(), noFriendLabel);
                     });
                 })
@@ -223,9 +188,6 @@ public class MainPanelController {
                 });
     }
 
-    /**
-     * Load friend requests from the server
-     */
     private void loadFriendRequests() {
         serviceManager.getFriendService().getFriendRequests()
                 .thenAccept(requests -> {
@@ -234,20 +196,20 @@ public class MainPanelController {
                         friendRequestsNameList.clear();
 
                         for (String username : requests) {
-                            // Create request box with modern callbacks
+                            Image photo = ProfilePhotoLoader.loadPhoto(username);
                             BorderPane requestBox = RequestBoxComponent.create(
-                                    username,
+                                    username, photo,
                                     event -> acceptFriendRequest(username),
                                     event -> rejectFriendRequest(username)
                             );
-
                             notificationVBox.getChildren().add(0, requestBox);
                             friendRequestsNameList.add(username);
                         }
 
-                        // Show red shadow on mailbox if there are requests
+                        // Subtle highlight on requests button if there are pending requests
                         if (!friendRequestsNameList.isEmpty()) {
-                            UIUtil.dropShadowEffect(Color.RED, 0.60, 1, 1, 15, mailboxButton);
+                            mailboxButton.getStyleClass().remove("nav-btn");
+                            mailboxButton.getStyleClass().add("nav-btn-active");
                         }
 
                         checkNoResult(requests.isEmpty(), noNotifLabel);
@@ -260,9 +222,6 @@ public class MainPanelController {
                 });
     }
 
-    /**
-     * Accept a friend request
-     */
     private void acceptFriendRequest(String requester) {
         serviceManager.getFriendService().acceptFriendRequest(requester)
                 .thenAccept(response -> {
@@ -273,49 +232,39 @@ public class MainPanelController {
                             loadFriends();
                         } else {
                             WarningWindowController.warningMessage(
-                                    "Could not add friend: " + response.getMessage()
-                            );
+                                    "Could not add friend: " + response.getMessage());
                         }
                     });
                 })
                 .exceptionally(ex -> {
                     logger.error("Error accepting friend request", ex);
                     Platform.runLater(() ->
-                            WarningWindowController.warningMessage("Connection error")
-                    );
+                            WarningWindowController.warningMessage("Connection error"));
                     return null;
                 });
     }
 
-    /**
-     * Reject a friend request
-     */
     private void rejectFriendRequest(String requester) {
         serviceManager.getFriendService().rejectFriendRequest(requester)
                 .thenAccept(response -> {
                     Platform.runLater(() -> {
                         if (response.isSuccess()) {
-                            WarningWindowController.warningMessage("Request rejected!");
+                            WarningWindowController.warningMessage("Request declined");
                             loadFriendRequests();
                         } else {
                             WarningWindowController.warningMessage(
-                                    "Could not reject request: " + response.getMessage()
-                            );
+                                    "Could not decline request: " + response.getMessage());
                         }
                     });
                 })
                 .exceptionally(ex -> {
                     logger.error("Error rejecting friend request", ex);
                     Platform.runLater(() ->
-                            WarningWindowController.warningMessage("Connection error")
-                    );
+                            WarningWindowController.warningMessage("Connection error"));
                     return null;
                 });
     }
 
-    /**
-     * Search through friends list
-     */
     public void searchFriend(KeyEvent event) {
         String searchTerm = searchFriendField.getText().toLowerCase();
         friendsVBox.getChildren().clear();
@@ -329,54 +278,39 @@ public class MainPanelController {
 
     // ===== MESSAGING =====
 
-    /**
-     * Handle clicking on a friend to start chatting
-     */
-    public void onFriendClicked(Image friendPhoto, String friendName, FriendListItem item) {
+    public void onFriendClicked(Image friendPhoto, String friendName, BorderPane pane) {
         chatFriendName.setText(friendName);
-        chatFriendProfilePhoto.setFill(new ImagePattern(friendPhoto));
+        if (friendPhoto != null && !friendPhoto.isError()) {
+            chatFriendProfilePhoto.setFill(new ImagePattern(friendPhoto));
+        }
         chatFriendProfilePhoto.setStrokeWidth(0);
+
+        // Show chat, hide empty state and settings
         chatBorderPane.setVisible(true);
+        if (chatEmptyState != null) chatEmptyState.setVisible(false);
         settingsBorderPane.setVisible(false);
+
         currentFriend = friendName;
+        currentPane = pane;
 
-        // Load messages for this friend
         loadMessages();
-
-        // Start polling for new messages
         startMessagePollingForCurrentFriend();
     }
 
     private void loadMessages() {
         if (currentFriend == null) return;
 
-        String currentUser = serviceManager.getCurrentUser();
-
         serviceManager.getMessageService().getMessages(currentFriend)
                 .thenAccept(messages -> {
                     Platform.runLater(() -> {
                         listView.getItems().clear();
-
                         for (List<String> msgData : messages) {
                             if (msgData.size() >= 2) {
                                 String sender = msgData.get(0);
-                                String content = msgData.get(1);
-
-                                // Determine if message was sent by current user
-                                boolean isSent = sender.equals(currentUser);
-
-                                // Create message bubble
-                                MessageBubble bubble = new MessageBubble(
-                                        sender,
-                                        content,
-                                        isSent
-                                );
-
-                                listView.getItems().add(bubble);
+                                String message = msgData.get(1);
+                                listView.getItems().add(sender + ": " + message);
                             }
                         }
-
-                        // Scroll to bottom
                         if (!listView.getItems().isEmpty()) {
                             listView.scrollTo(listView.getItems().size() - 1);
                         }
@@ -388,28 +322,18 @@ public class MainPanelController {
                 });
     }
 
-    /**
-     * Send a message to current friend
-     */
+    /** Called by Enter key in messageField */
     public void sendMessage() {
-        if (currentFriend == null || messageField.getText().trim().isEmpty()) {
-            return;
-        }
+        if (currentFriend == null || messageField.getText().trim().isEmpty()) return;
 
         String message = messageField.getText();
         String loggedUser = serviceManager.getCurrentUser();
 
-        // Add message to UI immediately (optimistic update)
-        MessageBubble sentBubble = new MessageBubble(loggedUser, message, true);
-        listView.getItems().add(sentBubble);
+        // Optimistic UI update
+        listView.getItems().add(loggedUser + ": " + message);
+        listView.scrollTo(listView.getItems().size() - 1);
         messageField.clear();
 
-        // Scroll to bottom
-        if (!listView.getItems().isEmpty()) {
-            listView.scrollTo(listView.getItems().size() - 1);
-        }
-
-        // Send to server
         serviceManager.getMessageService().sendMessage(currentFriend, message)
                 .thenAccept(response -> {
                     if (!response.isSuccess()) {
@@ -419,20 +343,17 @@ public class MainPanelController {
                 .exceptionally(ex -> {
                     logger.error("Error sending message", ex);
                     Platform.runLater(() ->
-                            WarningWindowController.warningMessage("Failed to send message")
-                    );
+                            WarningWindowController.warningMessage("Failed to send message"));
                     return null;
                 });
-
-        friendScrollPane.setVvalue(friendScrollPane.getHmin());
     }
 
+    /** Called by the send button in FXML */
+    public void sendMessageButton(MouseEvent event) {
+        sendMessage();
+    }
 
-    /**
-     * Start polling for new messages with current friend
-     */
     private void startMessagePollingForCurrentFriend() {
-        // Stop previous polling if exists
         if (messagePollingScheduler != null && !messagePollingScheduler.isShutdown()) {
             messagePollingScheduler.shutdown();
         }
@@ -442,10 +363,7 @@ public class MainPanelController {
 
         messagePollingScheduler = Executors.newSingleThreadScheduledExecutor();
         messagePollingScheduler.scheduleAtFixedRate(() -> {
-            // Stop if we switched friends
-            if (timerSnapshot != currentTimer || currentFriend == null) {
-                return;
-            }
+            if (timerSnapshot != currentTimer || currentFriend == null) return;
 
             serviceManager.getMessageService().checkNotification(currentFriend)
                     .thenAccept(count -> {
@@ -462,9 +380,6 @@ public class MainPanelController {
 
     // ===== USER SEARCH =====
 
-    /**
-     * Search for users
-     */
     public void searchUsers(KeyEvent event) {
         String searchTerm = searchUserField.getText();
 
@@ -478,16 +393,14 @@ public class MainPanelController {
                 .thenAccept(users -> {
                     Platform.runLater(() -> {
                         usersVBox.getChildren().clear();
-
                         for (String username : users) {
-                            // Create user box with modern callback
+                            Image photo = ProfilePhotoLoader.loadPhoto(username);
                             HBox userBox = UserBoxComponent.create(
-                                    username,
+                                    username, photo,
                                     event2 -> sendFriendRequest(username)
                             );
                             usersVBox.getChildren().add(0, userBox);
                         }
-
                         checkNoResult(users.isEmpty(), noUserLabel);
                     });
                 })
@@ -498,9 +411,6 @@ public class MainPanelController {
                 });
     }
 
-    /**
-     * Send friend request to a user
-     */
     private void sendFriendRequest(String username) {
         serviceManager.getFriendService().sendFriendRequest(username)
                 .thenAccept(response -> {
@@ -515,24 +425,56 @@ public class MainPanelController {
                 .exceptionally(ex -> {
                     logger.error("Error sending friend request", ex);
                     Platform.runLater(() ->
-                            WarningWindowController.warningMessage("Connection error")
-                    );
+                            WarningWindowController.warningMessage("Connection error"));
                     return null;
                 });
     }
 
+    // ===== PROFILE PHOTO =====
+
+    private void loadProfilePhoto(boolean showHoverState) {
+        Image image = ProfilePhotoLoader.loadPhoto(serviceManager.getCurrentUser());
+
+        Platform.runLater(() -> {
+            if (image != null && !image.isError()) {
+                profilePhoto.setFill(new ImagePattern(image));
+                settingsButton.setFill(new ImagePattern(image));
+            } else {
+                profilePhoto.getStyleClass().add("profile-circle-default");
+                settingsButton.getStyleClass().add("profile-circle-default");
+            }
+
+            if (showHoverState) {
+                profilePhoto.setFill(Color.web("#48484C"));
+                Tooltip.install(profilePhoto, new Tooltip("Change Profile Photo"));
+            }
+        });
+    }
+
+    public void changeProfilePhoto(MouseEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Profile Photo");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        Stage stage = (Stage) profilePhoto.getScene().getWindow();
+        File file = fileChooser.showOpenDialog(stage);
+
+        if (file != null) {
+            logger.info("Selected file: {}", file.getAbsolutePath());
+            WarningWindowController.warningMessage("Photo upload coming soon!");
+        }
+    }
+
     // ===== POLLING =====
 
-    /**
-     * Polls friend statistics from server and updates UI
-     */
     private void startFriendStatsPolling() {
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 serviceManager.getFriendService().getFriendsWithDetails()
-                        .thenAccept(friendsList -> {
-                            Platform.runLater(() -> updateFriendsUI(friendsList));
-                        })
+                        .thenAccept(friendsList ->
+                                Platform.runLater(() -> updateFriendsUI(friendsList)))
                         .exceptionally(ex -> {
                             logger.error("Error polling friend stats", ex);
                             return null;
@@ -543,16 +485,12 @@ public class MainPanelController {
         }, 0, Environment.MESSAGE_POLL_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
 
-    /**
-     * Polls friend requests from the server and updates UI
-     */
     private void startFriendRequestsPolling() {
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 serviceManager.getFriendService().getFriendRequests()
-                        .thenAccept(requests -> {
-                            Platform.runLater(() -> updateFriendRequestsUI(requests));
-                        })
+                        .thenAccept(requests ->
+                                Platform.runLater(() -> updateFriendRequestsUI(requests)))
                         .exceptionally(ex -> {
                             logger.error("Error polling friend requests", ex);
                             return null;
@@ -563,12 +501,8 @@ public class MainPanelController {
         }, 0, Environment.FRIEND_REQUEST_POLL_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
 
-    /**
-     * Updates the friends list UI with latest data
-     */
     private void updateFriendsUI(List<List<String>> friendsList) {
         int index = 0;
-
         for (List<String> friendData : friendsList) {
             if (friendData.size() >= 4) {
                 String username = friendData.get(0);
@@ -577,56 +511,48 @@ public class MainPanelController {
                 String passedTime = friendData.get(3);
                 Image photo = ProfilePhotoLoader.loadPhoto(username);
 
-                // Create friend list item
-                FriendListItem friendItem = new FriendListItem(
-                        username,
-                        lastMsg,
-                        notifCount,
-                        passedTime,
-                        photo,
+                BorderPane friendBox = FriendBoxComponent.create(
+                        username, lastMsg, notifCount, passedTime, photo,
                         () -> {
                             Image friendPhoto = ProfilePhotoLoader.loadPhoto(username);
-                            onFriendClicked(friendPhoto, username, null);
+                            BorderPane actualPane = findPaneById(friendsVBox, username);
+                            onFriendClicked(friendPhoto, username, actualPane);
                         }
                 );
 
-                // Find and update existing friend item
                 boolean found = false;
                 for (int j = 0; j < friendsVBox.getChildren().size(); j++) {
-                    if (friendsVBox.getChildren().get(j).getId() != null &&
-                            friendsVBox.getChildren().get(j).getId().equals(username)) {
+                    Node child = friendsVBox.getChildren().get(j);
+                    if (child.getId() != null && child.getId().equals(username)) {
                         friendsVBox.getChildren().remove(j);
-                        friendsVBox.getChildren().add(index, friendItem);
+                        friendsVBox.getChildren().add(index, friendBox);
                         index++;
                         found = true;
                         break;
                     }
                 }
-
-                // If not found, add new friend
                 if (!found) {
-                    friendsVBox.getChildren().add(index, friendItem);
+                    friendsVBox.getChildren().add(index, friendBox);
                     index++;
                 }
             }
         }
     }
 
-    /**
-     * Updates the friend requests UI with latest data
-     */
     private void updateFriendRequestsUI(List<String> requests) {
         for (String username : requests) {
             if (!friendRequestsNameList.contains(username)) {
+                Image photo = ProfilePhotoLoader.loadPhoto(username);
                 BorderPane requestBox = RequestBoxComponent.create(
-                        username,
+                        username, photo,
                         event -> acceptFriendRequest(username),
                         event -> rejectFriendRequest(username)
                 );
 
-                notificationVBox.getChildren().addFirst(requestBox);
+                notificationVBox.getChildren().add(0, requestBox);
                 friendRequestsNameList.add(username);
-                UIUtil.dropShadowEffect(Color.RED, 0.60, 1, 1, 15, mailboxButton);
+                mailboxButton.getStyleClass().remove("nav-btn");
+                mailboxButton.getStyleClass().add("nav-btn-active");
                 logger.info("New friend request from: {}", username);
             }
         }
@@ -634,12 +560,19 @@ public class MainPanelController {
 
     // ===== UI HELPERS =====
 
-    /**
-     * Show/hide "no results" labels
-     */
     private void checkNoResult(boolean isEmpty, Label label) {
         label.setManaged(isEmpty);
         label.setVisible(isEmpty);
+    }
+
+    /** Find a child BorderPane by its fx:id within a container */
+    private BorderPane findPaneById(VBox container, String id) {
+        for (Node child : container.getChildren()) {
+            if (child.getId() != null && child.getId().equals(id) && child instanceof BorderPane) {
+                return (BorderPane) child;
+            }
+        }
+        return null;
     }
 
     // ===== UI EVENT HANDLERS =====
@@ -661,21 +594,34 @@ public class MainPanelController {
     public void toggleSettingsPanel(MouseEvent event) {
         if (!settingsBorderPane.isVisible()) {
             settingsBorderPane.setVisible(true);
+            chatBorderPane.setVisible(false);
+            if (chatEmptyState != null) chatEmptyState.setVisible(false);
             getStage().setTitle("Settings");
         } else {
             settingsBorderPane.setVisible(false);
+            if (currentFriend != null) {
+                chatBorderPane.setVisible(true);
+            } else if (chatEmptyState != null) {
+                chatEmptyState.setVisible(true);
+            }
             getStage().setTitle("Chat");
         }
+    }
+
+    public void onMouseEnterProfilePhoto(MouseEvent event) {
+        loadProfilePhoto(true);
+    }
+
+    public void onMouseExitProfilePhoto(MouseEvent event) {
+        loadProfilePhoto(false);
     }
 
     public void logOff(MouseEvent event) {
         cleanup();
         serviceManager.clearCurrentUser();
-        serviceManager.getAuthService().logout();
-
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainPanelController.class.getResource("/goksoft/chat/app/view/auth/login2.fxml")
+                    MainPanelController.class.getResource("../../view/auth/login.fxml")
             );
             Parent loginPanel = loader.load();
             Scene scene = new Scene(loginPanel);
@@ -688,7 +634,6 @@ public class MainPanelController {
             newWindow.setTitle("Login");
             newWindow.show();
 
-            // Clear stored credentials from Java Preferences
             Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
             prefs.putBoolean("rememberMe", false);
             prefs.remove("username");
@@ -701,11 +646,7 @@ public class MainPanelController {
 
     // ===== CLEANUP =====
 
-    /**
-     * Cleanup method to properly shutdown scheduled tasks
-     */
     public void cleanup() {
-
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdown();
             try {
@@ -716,7 +657,6 @@ public class MainPanelController {
             } catch (InterruptedException e) {
                 scheduler.shutdownNow();
                 Thread.currentThread().interrupt();
-                logger.warn("Main scheduler shutdown interrupted", e);
             }
         }
 
@@ -730,7 +670,6 @@ public class MainPanelController {
             } catch (InterruptedException e) {
                 messagePollingScheduler.shutdownNow();
                 Thread.currentThread().interrupt();
-                logger.warn("Message polling scheduler shutdown interrupted", e);
             }
         }
     }
