@@ -34,7 +34,6 @@ public class MessageBubble extends HBox {
      * Create a message bubble
      *
      * @param sender Username of sender
-     * @param content Message text
      * @param isSent True if current user sent this message
      * @param timestamp When message was sent (optional, can be null)
      */

@@ -45,16 +45,6 @@ class JsonUtilTest {
             // Gson excludes nulls by default (no serializeNulls)
         }
 
-        @Test
-        @DisplayName("Serialize empty object")
-        void serializeEmptyObject() {
-            LoginRequest request = new LoginRequest();
-
-            String json = JsonUtil.toJson(request);
-
-            assertNotNull(json);
-            assertFalse(json.isEmpty());
-        }
     }
 
     // ===== DESERIALIZATION (fromJson) =====

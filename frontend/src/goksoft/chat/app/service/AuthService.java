@@ -47,7 +47,7 @@ public class AuthService {
     }
 
     public CompletableFuture<ApiResponse<User>> register(String username, String password) {
-        RegisterRequest request = new RegisterRequest(username, null, password);
+        RegisterRequest request = new RegisterRequest(username, password);
         String jsonBody = JsonUtil.toJson(request);
 
         return apiClient.post("/auth/register", jsonBody)
