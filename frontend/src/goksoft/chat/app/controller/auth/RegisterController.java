@@ -76,18 +76,16 @@ public class RegisterController {
 
         // Use AuthService
         serviceManager.getAuthService().register(username, password)
-                .thenAccept(response -> {
-                    Platform.runLater(() -> {
-                        if (response.isSuccess()) {
-                            WarningWindowController.warningMessage("Registration successful! Please login.");
-                        } else {
-                            String message = response.getMessage() != null ?
-                                    response.getMessage() :
-                                    "Registration failed. Username might be taken.";
-                            WarningWindowController.warningMessage(message);
-                        }
-                    });
-                })
+                .thenAccept(response -> Platform.runLater(() -> {
+                    if (response.isSuccess()) {
+                        WarningWindowController.warningMessage("Registration successful! Please login.");
+                    } else {
+                        String message = response.getMessage() != null ?
+                                response.getMessage() :
+                                "Registration failed. Username might be taken.";
+                        WarningWindowController.warningMessage(message);
+                    }
+                }))
                 .exceptionally(ex -> {
                     Platform.runLater(() -> {
                         logger.error("Registration error", ex);

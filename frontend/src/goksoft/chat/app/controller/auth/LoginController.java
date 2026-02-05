@@ -106,20 +106,18 @@ public class LoginController {
         signinbutton.setDisable(true);
 
         serviceManager.getAuthService().login(username, password)
-                .thenAccept(response -> {
-                    Platform.runLater(() -> {
-                        if (response.isSuccess() && response.getData() != null) {
-                            serviceManager.setCurrentUser(username);
-                            SceneUtil.closeAndOpenNew(usernameField, "../../view/main/MainPanel.fxml",
-                                    "Chat", getClass(), false, false);
-                        } else {
-                            signinbutton.setDisable(false);
-                            String message = response.getMessage() != null ?
-                                    response.getMessage() : "Wrong username or password!";
-                            WarningWindowController.warningMessage(message);
-                        }
-                    });
-                })
+                .thenAccept(response -> Platform.runLater(() -> {
+                    if (response.isSuccess() && response.getData() != null) {
+                        serviceManager.setCurrentUser(username);
+                        SceneUtil.closeAndOpenNew(usernameField, "../../view/main/MainPanel.fxml",
+                                "Chat", getClass(), false, false);
+                    } else {
+                        signinbutton.setDisable(false);
+                        String message = response.getMessage() != null ?
+                                response.getMessage() : "Wrong username or password!";
+                        WarningWindowController.warningMessage(message);
+                    }
+                }))
                 .exceptionally(ex -> {
                     Platform.runLater(() -> {
                         signinbutton.setDisable(false);

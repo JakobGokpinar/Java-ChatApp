@@ -105,7 +105,6 @@ classDiagram
         +isProduction(): boolean$
         +getBaseUrl(): String$
         +getServerUrl(): String$
-        +getEnvironmentName(): String$
     }
 
     class JsonUtil {
