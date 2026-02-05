@@ -68,10 +68,9 @@ public class Environment {
      * @return Server base URL
      */
     public static String getServerUrl() {
-        String baseUrl = isProduction()
+        return isProduction()
                 ? "https://java-chatapp-production.up.railway.app"
                 : "http://localhost:8080";
-        return baseUrl;
     }
 
     // ===== ENVIRONMENT INFO =====
