@@ -98,7 +98,7 @@
                     </VBox>
 
                     <!-- ===== PANEL 3: User Search / Add Friend ===== -->
-                    <VBox fx:id="addfriendListPanel" managed="false" visible="false"
+                    <VBox fx:id="addFriendListPanel" managed="false" visible="false"
                           VBox.vgrow="ALWAYS">
                         <HBox styleClass="sidebar-section-header" alignment="CENTER_LEFT">
                             <Label text="Find People" styleClass="sidebar-section-title" />

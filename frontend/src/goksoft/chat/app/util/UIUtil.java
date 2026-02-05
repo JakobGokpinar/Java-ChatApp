@@ -66,10 +66,10 @@ public class UIUtil {
             boolean isMailbox = targetSection.getId() != null &&
                     targetSection.getId().equals("notificationsPanel");
             boolean isAddFriend = targetSection.getId() != null &&
-                    targetSection.getId().equals("addfriendListPanel");
+                    targetSection.getId().equals("addFriendListPanel");
 
             // Reorganize sections
-            if (isMailbox && !contentContainer.getChildren().get(1).getId().equals("addfriendListPanel")) {
+            if (isMailbox && !contentContainer.getChildren().get(1).getId().equals("addFriendListPanel")) {
                 contentContainer.getChildren().remove(otherSection);
                 contentContainer.getChildren().add(1, otherSection);
                 timeline.setOnFinished(actionEvent -> {

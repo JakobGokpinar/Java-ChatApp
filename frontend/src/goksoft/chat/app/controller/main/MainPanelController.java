@@ -58,7 +58,7 @@ public class MainPanelController {
     @FXML public VBox contentContainer;
     @FXML public VBox friendListPanel;
     @FXML public VBox notificationsPanel;
-    @FXML public VBox addfriendListPanel;
+    @FXML public VBox addFriendListPanel;
     @FXML private VBox friendsVBox;
     @FXML private VBox notificationVBox;
     @FXML private VBox usersVBox;
@@ -84,10 +84,9 @@ public class MainPanelController {
 
     // Instance state
     private String currentFriend;
-    private BorderPane currentPane;
-    private ArrayList<String> friendsNameList = new ArrayList<>();
-    private ArrayList<String> friendRequestsNameList = new ArrayList<>();
-    private List<Object> friendArray = new ArrayList<>();
+    private final ArrayList<String> friendsNameList = new ArrayList<>();
+    private final ArrayList<String> friendRequestsNameList = new ArrayList<>();
+    private final List<Object> friendArray = new ArrayList<>();
     private int currentTimer;
 
     // Services & scheduling
@@ -136,14 +135,30 @@ public class MainPanelController {
     }
 
     private void setupSplitPaneLock() {
-        final double pos = splitPane.getDividers().get(0).getPosition();
-        splitPane.getDividers().get(0).positionProperty().addListener(
-                (observableValue, number, t1) ->
-                        splitPane.getDividers().get(0).setPosition(pos)
+        var divider = splitPane.getDividers().getFirst();
+        final double pos = divider.getPosition();
+        divider.positionProperty().addListener(
+                (observableValue, number, t1) -> divider.setPosition(pos)
         );
     }
 
     // ===== FRIEND MANAGEMENT =====
+
+    private BorderPane createFriendBox(List<String> friendData) {
+        String username = friendData.get(0);
+        String notifCount = friendData.get(1);
+        String lastMsg = friendData.get(2);
+        String passedTime = friendData.get(3);
+        Image photo = ProfilePhotoLoader.loadPhoto(username);
+
+        return FriendBoxComponent.create(
+                username, lastMsg, notifCount, passedTime, photo,
+                () -> {
+                    Image friendPhoto = ProfilePhotoLoader.loadPhoto(username);
+                    onFriendClicked(friendPhoto, username);
+                }
+        );
+    }
 
     private void loadFriends() {
         friendsNameList.clear();
@@ -151,34 +166,18 @@ public class MainPanelController {
         friendsVBox.getChildren().clear();
 
         serviceManager.getFriendService().getFriendsWithDetails()
-                .thenAccept(friendsList -> {
-                    Platform.runLater(() -> {
-                        for (List<String> friendData : friendsList) {
-                            if (friendData.size() >= 4) {
-                                String username = friendData.get(0);
-                                String notifCount = friendData.get(1);
-                                String lastMsg = friendData.get(2);
-                                String passedTime = friendData.get(3);
-
-                                Image photo = ProfilePhotoLoader.loadPhoto(username);
-
-                                BorderPane friendBox = FriendBoxComponent.create(
-                                        username, lastMsg, notifCount, passedTime, photo,
-                                        () -> {
-                                            Image friendPhoto = ProfilePhotoLoader.loadPhoto(username);
-                                            BorderPane actualPane = findPaneById(friendsVBox, username);
-                                            onFriendClicked(friendPhoto, username, actualPane);
-                                        }
-                                );
-
-                                friendArray.add(friendBox);
-                                friendsNameList.add(username);
-                                friendsVBox.getChildren().add(friendBox);
-                            }
+                .thenAccept(friendsList -> Platform.runLater(() -> {
+                    for (List<String> friendData : friendsList) {
+                        if (friendData.size() >= 4) {
+                            BorderPane friendBox = createFriendBox(friendData);
+                            String username = friendData.getFirst();
+                            friendArray.add(friendBox);
+                            friendsNameList.add(username);
+                            friendsVBox.getChildren().add(friendBox);
                         }
-                        checkNoResult(friendsList.isEmpty(), noFriendLabel);
-                    });
-                })
+                    }
+                    checkNoResult(friendsList.isEmpty(), noFriendLabel);
+                }))
                 .exceptionally(ex -> {
                     logger.error("Error loading friends", ex);
                     Platform.runLater(() -> checkNoResult(true, noFriendLabel));
@@ -188,31 +187,29 @@ public class MainPanelController {
 
     private void loadFriendRequests() {
         serviceManager.getFriendService().getFriendRequests()
-                .thenAccept(requests -> {
-                    Platform.runLater(() -> {
-                        notificationVBox.getChildren().clear();
-                        friendRequestsNameList.clear();
+                .thenAccept(requests -> Platform.runLater(() -> {
+                    notificationVBox.getChildren().clear();
+                    friendRequestsNameList.clear();
 
-                        for (String username : requests) {
-                            Image photo = ProfilePhotoLoader.loadPhoto(username);
-                            BorderPane requestBox = RequestBoxComponent.create(
-                                    username, photo,
-                                    event -> acceptFriendRequest(username),
-                                    event -> rejectFriendRequest(username)
-                            );
-                            notificationVBox.getChildren().add(0, requestBox);
-                            friendRequestsNameList.add(username);
-                        }
+                    for (String username : requests) {
+                        Image photo = ProfilePhotoLoader.loadPhoto(username);
+                        BorderPane requestBox = RequestBoxComponent.create(
+                                username, photo,
+                                event -> acceptFriendRequest(username),
+                                event -> rejectFriendRequest(username)
+                        );
+                        notificationVBox.getChildren().addFirst(requestBox);
+                        friendRequestsNameList.add(username);
+                    }
 
-                        // Subtle highlight on requests button if there are pending requests
-                        if (!friendRequestsNameList.isEmpty()) {
-                            mailboxButton.getStyleClass().remove("nav-btn");
-                            mailboxButton.getStyleClass().add("nav-btn-active");
-                        }
+                    // Subtle highlight on requests button if there are pending requests
+                    if (!friendRequestsNameList.isEmpty()) {
+                        mailboxButton.getStyleClass().remove("nav-btn");
+                        mailboxButton.getStyleClass().add("nav-btn-active");
+                    }
 
-                        checkNoResult(requests.isEmpty(), noNotifLabel);
-                    });
-                })
+                    checkNoResult(requests.isEmpty(), noNotifLabel);
+                }))
                 .exceptionally(ex -> {
                     logger.error("Error loading friend requests", ex);
                     Platform.runLater(() -> checkNoResult(true, noNotifLabel));
@@ -222,18 +219,16 @@ public class MainPanelController {
 
     private void acceptFriendRequest(String requester) {
         serviceManager.getFriendService().acceptFriendRequest(requester)
-                .thenAccept(response -> {
-                    Platform.runLater(() -> {
-                        if (response.isSuccess()) {
-                            WarningWindowController.warningMessage("Friend added!");
-                            loadFriendRequests();
-                            loadFriends();
-                        } else {
-                            WarningWindowController.warningMessage(
-                                    "Could not add friend: " + response.getMessage());
-                        }
-                    });
-                })
+                .thenAccept(response -> Platform.runLater(() -> {
+                    if (response.isSuccess()) {
+                        WarningWindowController.warningMessage("Friend added!");
+                        loadFriendRequests();
+                        loadFriends();
+                    } else {
+                        WarningWindowController.warningMessage(
+                                "Could not add friend: " + response.getMessage());
+                    }
+                }))
                 .exceptionally(ex -> {
                     logger.error("Error accepting friend request", ex);
                     Platform.runLater(() ->
@@ -244,17 +239,15 @@ public class MainPanelController {
 
     private void rejectFriendRequest(String requester) {
         serviceManager.getFriendService().rejectFriendRequest(requester)
-                .thenAccept(response -> {
-                    Platform.runLater(() -> {
-                        if (response.isSuccess()) {
-                            WarningWindowController.warningMessage("Request declined");
-                            loadFriendRequests();
-                        } else {
-                            WarningWindowController.warningMessage(
-                                    "Could not decline request: " + response.getMessage());
-                        }
-                    });
-                })
+                .thenAccept(response -> Platform.runLater(() -> {
+                    if (response.isSuccess()) {
+                        WarningWindowController.warningMessage("Request declined");
+                        loadFriendRequests();
+                    } else {
+                        WarningWindowController.warningMessage(
+                                "Could not decline request: " + response.getMessage());
+                    }
+                }))
                 .exceptionally(ex -> {
                     logger.error("Error rejecting friend request", ex);
                     Platform.runLater(() ->
@@ -276,7 +269,7 @@ public class MainPanelController {
 
     // ===== MESSAGING =====
 
-    public void onFriendClicked(Image friendPhoto, String friendName, BorderPane pane) {
+    public void onFriendClicked(Image friendPhoto, String friendName) {
         chatFriendName.setText(friendName);
         if (friendPhoto != null && !friendPhoto.isError()) {
             chatFriendProfilePhoto.setFill(new ImagePattern(friendPhoto));
@@ -289,7 +282,6 @@ public class MainPanelController {
         settingsBorderPane.setVisible(false);
 
         currentFriend = friendName;
-        currentPane = pane;
 
         loadMessages();
         startMessagePollingForCurrentFriend();
@@ -299,21 +291,19 @@ public class MainPanelController {
         if (currentFriend == null) return;
 
         serviceManager.getMessageService().getMessages(currentFriend)
-                .thenAccept(messages -> {
-                    Platform.runLater(() -> {
-                        listView.getItems().clear();
-                        for (List<String> msgData : messages) {
-                            if (msgData.size() >= 2) {
-                                String sender = msgData.get(0);
-                                String message = msgData.get(1);
-                                listView.getItems().add(sender + ": " + message);
-                            }
+                .thenAccept(messages -> Platform.runLater(() -> {
+                    listView.getItems().clear();
+                    for (List<String> msgData : messages) {
+                        if (msgData.size() >= 2) {
+                            String sender = msgData.get(0);
+                            String message = msgData.get(1);
+                            listView.getItems().add(sender + ": " + message);
                         }
-                        if (!listView.getItems().isEmpty()) {
-                            listView.scrollTo(listView.getItems().size() - 1);
-                        }
-                    });
-                })
+                    }
+                    if (!listView.getItems().isEmpty()) {
+                        listView.scrollTo(listView.getItems().size() - 1);
+                    }
+                }))
                 .exceptionally(ex -> {
                     logger.error("Error loading messages", ex);
                     return null;
@@ -388,20 +378,18 @@ public class MainPanelController {
         }
 
         serviceManager.getUserService().searchUsers(searchTerm)
-                .thenAccept(users -> {
-                    Platform.runLater(() -> {
-                        usersVBox.getChildren().clear();
-                        for (String username : users) {
-                            Image photo = ProfilePhotoLoader.loadPhoto(username);
-                            HBox userBox = UserBoxComponent.create(
-                                    username, photo,
-                                    event2 -> sendFriendRequest(username)
-                            );
-                            usersVBox.getChildren().add(0, userBox);
-                        }
-                        checkNoResult(users.isEmpty(), noUserLabel);
-                    });
-                })
+                .thenAccept(users -> Platform.runLater(() -> {
+                    usersVBox.getChildren().clear();
+                    for (String username : users) {
+                        Image photo = ProfilePhotoLoader.loadPhoto(username);
+                        HBox userBox = UserBoxComponent.create(
+                                username, photo,
+                                event2 -> sendFriendRequest(username)
+                        );
+                        usersVBox.getChildren().addFirst(userBox);
+                    }
+                    checkNoResult(users.isEmpty(), noUserLabel);
+                }))
                 .exceptionally(ex -> {
                     logger.error("Error searching users", ex);
                     Platform.runLater(() -> checkNoResult(true, noUserLabel));
@@ -411,15 +399,13 @@ public class MainPanelController {
 
     private void sendFriendRequest(String username) {
         serviceManager.getFriendService().sendFriendRequest(username)
-                .thenAccept(response -> {
-                    Platform.runLater(() -> {
-                        if (response.isSuccess()) {
-                            WarningWindowController.warningMessage("Friend request sent!");
-                        } else {
-                            WarningWindowController.warningMessage(response.getMessage());
-                        }
-                    });
-                })
+                .thenAccept(response -> Platform.runLater(() -> {
+                    if (response.isSuccess()) {
+                        WarningWindowController.warningMessage("Friend request sent!");
+                    } else {
+                        WarningWindowController.warningMessage(response.getMessage());
+                    }
+                }))
                 .exceptionally(ex -> {
                     logger.error("Error sending friend request", ex);
                     Platform.runLater(() ->
@@ -503,20 +489,9 @@ public class MainPanelController {
         int index = 0;
         for (List<String> friendData : friendsList) {
             if (friendData.size() >= 4) {
-                String username = friendData.get(0);
-                String notifCount = friendData.get(1);
-                String lastMsg = friendData.get(2);
-                String passedTime = friendData.get(3);
-                Image photo = ProfilePhotoLoader.loadPhoto(username);
 
-                BorderPane friendBox = FriendBoxComponent.create(
-                        username, lastMsg, notifCount, passedTime, photo,
-                        () -> {
-                            Image friendPhoto = ProfilePhotoLoader.loadPhoto(username);
-                            BorderPane actualPane = findPaneById(friendsVBox, username);
-                            onFriendClicked(friendPhoto, username, actualPane);
-                        }
-                );
+                BorderPane friendBox = createFriendBox(friendData);
+                String username = friendData.getFirst();
 
                 boolean found = false;
                 for (int j = 0; j < friendsVBox.getChildren().size(); j++) {
@@ -547,7 +522,7 @@ public class MainPanelController {
                         event -> rejectFriendRequest(username)
                 );
 
-                notificationVBox.getChildren().add(0, requestBox);
+                notificationVBox.getChildren().addFirst(requestBox);
                 friendRequestsNameList.add(username);
                 mailboxButton.getStyleClass().remove("nav-btn");
                 mailboxButton.getStyleClass().add("nav-btn-active");
@@ -563,16 +538,6 @@ public class MainPanelController {
         label.setVisible(isEmpty);
     }
 
-    /** Find a child BorderPane by its fx:id within a container */
-    private BorderPane findPaneById(VBox container, String id) {
-        for (Node child : container.getChildren()) {
-            if (child.getId() != null && child.getId().equals(id) && child instanceof BorderPane) {
-                return (BorderPane) child;
-            }
-        }
-        return null;
-    }
-
     // ===== UI EVENT HANDLERS =====
 
     public Stage getStage() {
@@ -580,13 +545,13 @@ public class MainPanelController {
     }
 
     public void showUserSearchPanel(MouseEvent event) {
-        UIUtil.openAndCloseSections(addfriendListPanel.isManaged(), addfriendListPanel,
+        UIUtil.openAndCloseSections(addFriendListPanel.isManaged(), addFriendListPanel,
                 contentContainer, friendListPanel, notificationsPanel, getStage());
     }
 
     public void showNotificationsPanel(MouseEvent event) {
         UIUtil.openAndCloseSections(notificationsPanel.isManaged(), notificationsPanel,
-                contentContainer, friendListPanel, addfriendListPanel, getStage());
+                contentContainer, friendListPanel, addFriendListPanel, getStage());
     }
 
     public void toggleSettingsPanel(MouseEvent event) {

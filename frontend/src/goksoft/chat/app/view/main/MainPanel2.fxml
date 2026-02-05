@@ -149,7 +149,7 @@
                                                 </ScrollPane>
                                             </children>
                                         </VBox>
-                                        <VBox fx:id="addfriendListPanel" managed="false" prefHeight="200.0"
+                                        <VBox fx:id="addFriendListPanel" managed="false" prefHeight="200.0"
                                               prefWidth="100.0" styleClass="bg-dark" visible="false"
                                               VBox.vgrow="ALWAYS">
                                             <children>
