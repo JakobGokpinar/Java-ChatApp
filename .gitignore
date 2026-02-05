@@ -1,2 +1,58 @@
-.idea/
 .DS_Store
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Database config
+application-dev.properties
+application-local.properties
+*.env
+.env
+
+### VS Code ###
+.vscode/
+
+# Compiled
+target/
+frontend/target/
+backend-springboot/target
+*.class
+
+# IDE
+.idea/workspace.xml
+.idea/tasks.xml
+
+# OS
+.DS_Store
+
+# Temporary test files (if any)
+test-data/
+temp/
+
