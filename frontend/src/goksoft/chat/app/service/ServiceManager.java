@@ -2,6 +2,18 @@ package goksoft.chat.app.service;
 
 import goksoft.chat.app.api.ApiClient;
 
+/**
+ * Singleton service locator providing access to all application services.
+ * <p>
+ * Ensures a single shared {@link ApiClient} instance across the app,
+ * so all services use the same JWT token and HTTP client.
+ * Also manages the currently logged-in user's state.
+ *
+ * @see AuthService
+ * @see FriendService
+ * @see MessageService
+ * @see UserService
+ */
 public class ServiceManager {
 
     private static ServiceManager instance;

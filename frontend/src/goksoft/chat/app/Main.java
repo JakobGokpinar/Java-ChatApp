@@ -8,7 +8,11 @@ import javafx.stage.Stage;
 
 import java.util.Objects;
 
-
+/**
+ * JavaFX application entry point. Loads the login screen and shows the primary stage.
+ *
+ * @see Launcher for the module-safe entry point
+ */
 public class Main extends Application {
 
     public static void main(String[] args) {

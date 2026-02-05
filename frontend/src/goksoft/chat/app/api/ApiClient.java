@@ -9,6 +9,16 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * HTTP client for communicating with the Spring Boot backend.
+ * Wraps Java's HttpClient with JWT token management and async operations.
+ * <p>
+ * All requests are asynchronous via {@link CompletableFuture}.
+ * The JWT token is automatically injected into the Authorization header
+ * once set via {@link #setToken(String)}.
+ *
+ * @see Environment for URL and timeout configuration
+ */
 public class ApiClient {
 
     private final HttpClient client;

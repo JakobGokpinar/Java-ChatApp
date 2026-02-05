@@ -10,6 +10,10 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * Controller for the modal warning/info dialog.
+ * Use {@link #warningMessage(String)} to show a message from anywhere in the app.
+ */
 public class WarningWindowController {
 
     @FXML

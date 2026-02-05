@@ -1,5 +1,9 @@
 package goksoft.chat.app.model.dto;
 
+/**
+ * Request DTO for {@code POST /api/auth/register}.
+ * Serialized to JSON and sent to the backend.
+ */
 public class RegisterRequest {
     private String username;
     private String password;

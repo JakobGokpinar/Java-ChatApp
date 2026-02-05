@@ -1,5 +1,9 @@
 package goksoft.chat.app.model.dto;
 
+/**
+ * Response DTO for successful login, containing the JWT token and user info.
+ * Deserialized from the backend's {@code /api/auth/login} response.
+ */
 public class LoginResponse {
     private String token;
     private User user;

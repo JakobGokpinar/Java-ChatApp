@@ -9,6 +9,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Handles user authentication operations: login, registration, and logout.
+ * <p>
+ * On successful login, the JWT token is automatically stored in the
+ * shared {@link ApiClient} for subsequent authenticated requests.
+ */
 public class AuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
