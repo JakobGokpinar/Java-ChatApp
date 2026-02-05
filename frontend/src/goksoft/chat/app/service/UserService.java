@@ -26,10 +26,8 @@ public class UserService {
     public CompletableFuture<List<String>> searchUsers(String username) {
         String url = "/users/search?username=" + username;
         return apiClient.post(url, "")
-                .thenApply(json -> {
-                    return JsonUtil.fromJson(json, new TypeToken<List<String>>() {
-                    });
-                })
+                .thenApply(json -> JsonUtil.fromJson(json, new TypeToken<List<String>>() {
+                }))
                 .exceptionally(ex -> {
                     logger.error("Error searching users", ex);
                     return List.of();

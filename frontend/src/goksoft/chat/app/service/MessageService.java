@@ -26,10 +26,8 @@ public class MessageService {
     public CompletableFuture<List<List<String>>> getMessages(String receiver) {
         String url = "/messages/get?receiver=" + receiver;
         return apiClient.post(url, "")
-                .thenApply(json -> {
-                    return JsonUtil.fromJson(json, new TypeToken<List<List<String>>>() {
-                    });
-                })
+                .thenApply(json -> JsonUtil.fromJson(json, new TypeToken<List<List<String>>>() {
+                }))
                 .exceptionally(ex -> {
                     logger.error("Error fetching messages", ex);
                     return List.of();
