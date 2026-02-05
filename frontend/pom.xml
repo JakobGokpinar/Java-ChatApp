@@ -110,7 +110,6 @@
                     <target>21</target>
                 </configuration>
             </plugin>
-
             <!-- JavaFX Maven Plugin -->
             <plugin>
                 <groupId>org.openjfx</groupId>
@@ -152,6 +151,45 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- SurFire plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <argLine>
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                    </argLine>
+                </configuration>
+            </plugin>
+            <!-- jpackage Plugin for native executables -->
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.6.5</version>
+                <configuration>
+                    <name>ChatApp</name>
+                    <appVersion>1.0.0</appVersion>
+                    <vendor>Goksoft</vendor>
+                    <input>target</input>
+                    <mainJar>ChatApp.jar</mainJar>
+                    <mainClass>goksoft.chat.app.Launcher</mainClass>
+                    <javaOptions>
+                        <javaOption>--add-modules javafx.controls,javafx.fxml,javafx.swing</javaOption>
+                    </javaOptions>
+                    <destination>target/installer</destination>
+
+                    <!-- macOS specific -->
+                    <macPackageIdentifier>com.goksoft.chatapp</macPackageIdentifier>
+                    <macPackageName>ChatApp</macPackageName>
+
+                    <!-- Windows specific -->
+                    <winMenu>true</winMenu>
+                    <winShortcut>true</winShortcut>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
 </project>
