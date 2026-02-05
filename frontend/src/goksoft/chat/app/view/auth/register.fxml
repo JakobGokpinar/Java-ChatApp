@@ -92,7 +92,7 @@
 
         <Region prefHeight="12" />
 
-        <!-- Back to login -->
+        <!-- Back to Login -->
         <Button text="Back to Sign In"
                 onAction="#changeSceneToLogin"
                 styleClass="auth-btn-secondary"
