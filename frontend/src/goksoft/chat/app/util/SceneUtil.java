@@ -22,7 +22,7 @@ public class SceneUtil {
      * Switch to a new scene in the same window
      *
      * @param currentNode  Any node from the current scene
-     * @param fxmlPath     Path to FXML file (e.g., "userinterfaces/MainPanel.fxml")
+     * @param fxmlPath     Path to FXML file
      * @param title        Window title
      * @param contextClass Class to use for resource loading
      */
@@ -47,9 +47,8 @@ public class SceneUtil {
      * @param contextClass Class to use for resource loading
      * @param resizable    Whether window is resizable
      * @param fullScreen   Whether to open in fullscreen
-     * @return The new Stage
      */
-    public static Stage openNewWindow(String fxmlPath, String title, Class<?> contextClass,
+    public static void openNewWindow(String fxmlPath, String title, Class<?> contextClass,
                                       boolean resizable, boolean fullScreen) {
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(contextClass.getResource(fxmlPath)));
@@ -60,7 +59,6 @@ public class SceneUtil {
             stage.setResizable(resizable);
             stage.setFullScreen(fullScreen);
             stage.show();
-            return stage;
         } catch (IOException e) {
             logger.error("Failed to open new window: {}", fxmlPath, e);
             throw new RuntimeException("Failed to open new window: " + fxmlPath, e);
@@ -76,12 +74,11 @@ public class SceneUtil {
      * @param contextClass Class to use for resource loading
      * @param resizable    Whether new window is resizable
      * @param fullScreen   Whether to open in fullscreen
-     * @return The new Stage
      */
-    public static Stage closeAndOpenNew(Node currentNode, String fxmlPath, String title,
+    public static void closeAndOpenNew(Node currentNode, String fxmlPath, String title,
                                         Class<?> contextClass, boolean resizable, boolean fullScreen) {
         Stage currentWindow = (Stage) currentNode.getScene().getWindow();
         currentWindow.close();
-        return openNewWindow(fxmlPath, title, contextClass, resizable, fullScreen);
+        openNewWindow(fxmlPath, title, contextClass, resizable, fullScreen);
     }
 }

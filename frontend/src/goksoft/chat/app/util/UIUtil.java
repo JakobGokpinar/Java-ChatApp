@@ -4,10 +4,7 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.scene.Node;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -15,37 +12,6 @@ import javafx.util.Duration;
  * Utility class for common UI operations
  */
 public class UIUtil {
-
-    /**
-     * Apply drop shadow effect to a UI component
-     *
-     * @param shadowColor Color of the shadow
-     * @param spread      Spread of the shadow
-     * @param duration1   Duration of first keyframe
-     * @param duration2   Duration of second keyframe
-     * @param cycleCount  Number of cycles
-     * @param node        Target node
-     */
-    public static void dropShadowEffect(Color shadowColor, double spread,
-                                        int duration1, int duration2,
-                                        int cycleCount, Node node) {
-        DropShadow shadow = new DropShadow();
-        shadow.setColor(shadowColor);
-        shadow.setSpread(spread);
-
-        Timeline shadowAnimation = new Timeline(
-                new KeyFrame(Duration.millis(1000 * duration1),
-                        new KeyValue(shadow.radiusProperty(), 0d)),
-                new KeyFrame(Duration.millis(1000 * duration2),
-                        new KeyValue(shadow.radiusProperty(), 20d))
-        );
-        shadowAnimation.setCycleCount(cycleCount);
-
-        node.setEffect(shadow);
-        shadowAnimation.setOnFinished(evt -> node.setEffect(null));
-        shadowAnimation.play();
-    }
-
     /**
      * Open or close sections with animation
      *
