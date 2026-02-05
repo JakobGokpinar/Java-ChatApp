@@ -22,7 +22,7 @@
         <gson.version>2.13.2</gson.version>
         <okhttp.version>5.3.0</okhttp.version>
         <slf4j.version>2.0.17</slf4j.version>
-        <logback.version>1.5.23</logback.version>
+        <logback.version>1.5.27</logback.version>
     </properties>
 
     <dependencies>
@@ -69,10 +69,25 @@
             <version>5.11.4</version>
             <scope>test</scope>
         </dependency>
+        <!-- Mockito for mocking ApiClient in service tests -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.14.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Mockito-JUnit5 integration for @ExtendWith(MockitoExtension.class) -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.14.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test/java</testSourceDirectory>
         <resources>
             <resource>
                 <directory>src</directory>

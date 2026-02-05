@@ -1,8 +1,8 @@
 package goksoft.chat.app.controller.main;
 
 import goksoft.chat.app.config.Environment;
-import goksoft.chat.app.controller.dialog.WarningWindowController;
 import goksoft.chat.app.controller.auth.LoginController;
+import goksoft.chat.app.controller.dialog.WarningWindowController;
 import goksoft.chat.app.service.ServiceManager;
 import goksoft.chat.app.ui.components.FriendBoxComponent;
 import goksoft.chat.app.ui.components.ProfilePhotoLoader;
@@ -10,8 +10,6 @@ import goksoft.chat.app.ui.components.RequestBoxComponent;
 import goksoft.chat.app.ui.components.UserBoxComponent;
 import goksoft.chat.app.util.UIUtil;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
