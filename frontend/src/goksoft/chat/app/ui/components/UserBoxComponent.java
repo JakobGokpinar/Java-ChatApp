@@ -1,7 +1,6 @@
 package goksoft.chat.app.ui.components;
 
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -9,8 +8,6 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 
 /**
@@ -35,14 +32,7 @@ public class UserBoxComponent {
         container.setAlignment(Pos.CENTER_LEFT);
         container.setPrefHeight(56);
 
-        // Avatar
-        Circle avatar = new Circle(20);
-        avatar.setStrokeWidth(0);
-        if (photo != null && !photo.isError()) {
-            avatar.setFill(new ImagePattern(photo));
-        } else {
-            avatar.getStyleClass().add("profile-circle-default");
-        }
+        Circle avatar = AvatarComponent.createAvatar(22, photo);
 
         // Username
         Label nameLabel = new Label(userName);

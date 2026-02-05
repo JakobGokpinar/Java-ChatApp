@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility class for loading and caching profile photos.
- *
+
  * Features:
  * - Loads profile photos from backend API
  * - Caches loaded photos to reduce server requests
@@ -146,66 +146,5 @@ public class ProfilePhotoLoader {
             }
         }
         return defaultUserIcon;
-    }
-
-    /**
-     * Clear a specific user's photo from cache.
-     * Useful when a user updates their profile photo.
-     *
-     * @param username The username to clear from cache
-     */
-    public static void clearCache(String username) {
-        if (username != null) {
-            photoCache.remove(username);
-            logger.debug("Cleared photo cache for user '{}'", username);
-        }
-    }
-
-    /**
-     * Clear all cached photos.
-     * Useful on logout or memory pressure.
-     */
-    public static void clearAllCache() {
-        photoCache.clear();
-        logger.debug("Cleared all photo cache");
-    }
-
-    /**
-     * Preload photos for a list of usernames.
-     * Runs asynchronously to avoid blocking UI.
-     *
-     * @param usernames List of usernames to preload
-     */
-    public static void preloadPhotos(Iterable<String> usernames) {
-        if (usernames == null) return;
-
-        Thread preloadThread = new Thread(() -> {
-            for (String username : usernames) {
-                if (!photoCache.containsKey(username)) {
-                    loadPhoto(username);
-                }
-            }
-        }, "PhotoPreloader");
-        preloadThread.setDaemon(true);
-        preloadThread.start();
-    }
-
-    /**
-     * Check if a photo is already cached for a user.
-     *
-     * @param username The username to check
-     * @return true if photo is cached, false otherwise
-     */
-    public static boolean isCached(String username) {
-        return username != null && photoCache.containsKey(username);
-    }
-
-    /**
-     * Get the number of cached photos.
-     *
-     * @return The cache size
-     */
-    public static int getCacheSize() {
-        return photoCache.size();
     }
 }

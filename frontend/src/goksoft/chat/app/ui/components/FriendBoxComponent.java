@@ -5,11 +5,11 @@ import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.ImagePattern;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.Text;
 
 /**
  * Signal-style friend list item component.
@@ -39,13 +39,8 @@ public class FriendBoxComponent {
         container.setId(friendName);
 
         // Avatar
-        Circle avatar = new Circle(22);
-        avatar.setStrokeWidth(0);
-        if (photo != null && !photo.isError()) {
-            avatar.setFill(new ImagePattern(photo));
-        } else {
-            avatar.getStyleClass().add("profile-circle-default");
-        }
+        Circle avatar = AvatarComponent.createAvatar(22, photo);
+
         BorderPane.setAlignment(avatar, Pos.CENTER);
         BorderPane.setMargin(avatar, new Insets(0, 12, 0, 0));
 

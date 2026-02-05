@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Modern message bubble component - WhatsApp/Signal style
- *
+
  * Features:
  * - Different styling for sent vs received messages
  * - Rounded corners
