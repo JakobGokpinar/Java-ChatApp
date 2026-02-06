@@ -86,9 +86,6 @@
           <input>target</input>
           <mainJar>ChatApp.jar</mainJar>
           <mainClass>goksoft.chat.app.Launcher</mainClass>
-          <javaOptions>
-            <javaOption>--add-modules javafx.controls,javafx.fxml,javafx.swing</javaOption>
-          </javaOptions>
           <destination>target/installer</destination>
           <macPackageIdentifier>com.goksoft.chatapp</macPackageIdentifier>
           <macPackageName>ChatApp</macPackageName>
