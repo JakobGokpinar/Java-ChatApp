@@ -15,7 +15,7 @@ package goksoft.chat.app.config;
 public class Environment {
 
     // ===== BACKEND URLS =====
-    private static final String PROD_URL = "https://java-chatapp-production.up.railway.app/api";
+    private static final String PROD_URL = "https://chatapp-api.jakobg.tech/api";
     private static final String DEV_URL = "http://localhost:8080/api";
 
     // ===== TIMEOUTS =====
@@ -58,7 +58,7 @@ public class Environment {
      */
     public static String getServerUrl() {
         return IS_PRODUCTION
-                ? "https://java-chatapp-production.up.railway.app"
+                ? "https://chatapp-api.jakobg.tech/api"
                 : "http://localhost:8080";
     }
 
