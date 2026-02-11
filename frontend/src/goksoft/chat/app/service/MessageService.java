@@ -11,6 +11,8 @@ import goksoft.chat.app.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -59,7 +61,8 @@ public class MessageService {
      * Send a message to receiver
      */
     public CompletableFuture<ApiResponse<String>> sendMessage(String receiver, String message) {
-        String url = "/messages/send?receiver=" + receiver + "&message=" + message;
+        String url = "/messages/send?receiver=" + URLEncoder.encode(receiver, StandardCharsets.UTF_8)
+                + "&message=" + URLEncoder.encode(message, StandardCharsets.UTF_8);
         return apiClient.post(url, "")
                 .thenApply(json -> JsonUtil.fromJson(json, new TypeToken<ApiResponse<String>>() {
                 }))
