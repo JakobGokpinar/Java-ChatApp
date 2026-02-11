@@ -1,5 +1,9 @@
 package goksoft.chat.app.service;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import goksoft.chat.app.api.ApiClient;
 import goksoft.chat.app.model.dto.ApiResponse;
@@ -7,6 +11,7 @@ import goksoft.chat.app.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -19,15 +24,31 @@ public class MessageService {
         this.apiClient = apiClient;
     }
 
-    /**
-     * Get messages between current user and receiver
-     * Backend returns: [[sender, message], [sender, message], ...]
-     */
+
     public CompletableFuture<List<List<String>>> getMessages(String receiver) {
         String url = "/messages/get?receiver=" + receiver;
         return apiClient.post(url, "")
-                .thenApply(json -> JsonUtil.fromJson(json, new TypeToken<List<List<String>>>() {
-                }))
+                .thenApply(json -> {
+                    try {
+                        JsonObject responseObj = JsonParser.parseString(json).getAsJsonObject();
+                        if (!responseObj.get("success").getAsBoolean()) {
+                            return List.<List<String>>of();
+                        }
+                        JsonArray dataArray = responseObj.getAsJsonArray("data");
+                        List<List<String>> result = new ArrayList<>();
+                        for (JsonElement elem : dataArray) {
+                            JsonObject msgObj = elem.getAsJsonObject();
+                            result.add(List.of(
+                                    msgObj.get("sender").getAsString(),
+                                    msgObj.get("message").getAsString()
+                            ));
+                        }
+                        return result;
+                    } catch (Exception e) {
+                        logger.error("Error parsing messages response", e);
+                        return List.<List<String>>of();
+                    }
+                })
                 .exceptionally(ex -> {
                     logger.error("Error fetching messages", ex);
                     return List.of();
@@ -57,9 +78,13 @@ public class MessageService {
         return apiClient.post(url, "")
                 .thenApply(responseStr -> {
                     try {
-                        return Integer.parseInt(responseStr.trim());
-                    } catch (NumberFormatException e) {
-                        logger.warn("Invalid notification count format: {}", responseStr);
+                        JsonObject responseObj = JsonParser.parseString(responseStr).getAsJsonObject();
+                        if (responseObj.get("success").getAsBoolean()) {
+                            return responseObj.get("data").getAsInt();
+                        }
+                        return 0;
+                    } catch (Exception e) {
+                        logger.warn("Invalid notification response: {}", responseStr);
                         return 0;
                     }
                 })

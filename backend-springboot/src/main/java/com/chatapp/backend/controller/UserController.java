@@ -19,10 +19,10 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // Search users - no changes needed, anyone can search
     @PostMapping("/search")
     public ResponseEntity<ApiResponse<List<String>>> searchUsers(@RequestParam String username) {
-        ApiResponse<List<String>> response = userService.searchUsers(username);
+        String currentUser = SecurityUtils.getCurrentUsername();
+        ApiResponse<List<String>> response = userService.searchUsers(username, currentUser);
         return ResponseEntity.ok(response);
     }
 

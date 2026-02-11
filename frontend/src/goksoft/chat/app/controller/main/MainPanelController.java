@@ -4,10 +4,7 @@ import goksoft.chat.app.config.Environment;
 import goksoft.chat.app.controller.auth.LoginController;
 import goksoft.chat.app.controller.dialog.WarningWindowController;
 import goksoft.chat.app.service.ServiceManager;
-import goksoft.chat.app.ui.components.FriendBoxComponent;
-import goksoft.chat.app.ui.components.ProfilePhotoLoader;
-import goksoft.chat.app.ui.components.RequestBoxComponent;
-import goksoft.chat.app.ui.components.UserBoxComponent;
+import goksoft.chat.app.ui.components.*;
 import goksoft.chat.app.util.UIUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -120,6 +117,18 @@ public class MainPanelController {
 
         // Lock splitPane divider
         setupSplitPaneLock();
+
+        // Message bubbles (in initialize()):
+        listView.setCellFactory(MessageBubbleFactory.create(serviceManager.getCurrentUser()));
+
+        // Gradient avatars
+        String currentUser = serviceManager.getCurrentUser();
+        if (currentUser != null) {
+            AvatarFactory.applyGradient(settingsButton, currentUser);
+            AvatarFactory.applyGradient(profilePhoto, currentUser);
+            settingsUsername.setText(currentUser);
+        }
+
     }
 
     private void setupWindowCloseHandler() {
@@ -417,38 +426,17 @@ public class MainPanelController {
     // ===== PROFILE PHOTO =====
 
     private void loadProfilePhoto(boolean showHoverState) {
-        Image image = ProfilePhotoLoader.loadPhoto(serviceManager.getCurrentUser());
+        Image image = ProfilePhotoLoader.getDefaultUserIcon();
 
         Platform.runLater(() -> {
             if (image != null && !image.isError()) {
-                profilePhoto.setFill(new ImagePattern(image));
-                settingsButton.setFill(new ImagePattern(image));
+                profilePhoto.setFill(new javafx.scene.paint.ImagePattern(image));
+                settingsButton.setFill(new javafx.scene.paint.ImagePattern(image));
             } else {
                 profilePhoto.getStyleClass().add("profile-circle-default");
                 settingsButton.getStyleClass().add("profile-circle-default");
             }
-
-            if (showHoverState) {
-                profilePhoto.setFill(Color.web("#48484C"));
-                Tooltip.install(profilePhoto, new Tooltip("Change Profile Photo"));
-            }
         });
-    }
-
-    public void changeProfilePhoto(MouseEvent event) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Profile Photo");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
-        );
-
-        Stage stage = (Stage) profilePhoto.getScene().getWindow();
-        File file = fileChooser.showOpenDialog(stage);
-
-        if (file != null) {
-            logger.info("Selected file: {}", file.getAbsolutePath());
-            WarningWindowController.warningMessage("Photo upload coming soon!");
-        }
     }
 
     // ===== POLLING =====
@@ -569,14 +557,6 @@ public class MainPanelController {
             }
             getStage().setTitle("Chat");
         }
-    }
-
-    public void onMouseEnterProfilePhoto(MouseEvent event) {
-        loadProfilePhoto(true);
-    }
-
-    public void onMouseExitProfilePhoto(MouseEvent event) {
-        loadProfilePhoto(false);
     }
 
     public void logOff(MouseEvent event) {

@@ -5,29 +5,23 @@ import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
+import javafx.scene.layout.*;
 
 /**
- * Signal-style friend list item component.
- * Shows avatar, name, last message preview, time, and unread badge.
+ * Friend list item — chat conversation row in the sidebar.
+ *
+ * Layout matches the prototype:
+ *   [Gradient Avatar]  Name           Time
+ *                      Last message…  (badge)
+ *
+ * - Left accent border when selected
+ * - Unread badge with glow
+ * - Ellipsis on long messages
+ *
+ * Signature preserved for controller compatibility.
  */
 public class FriendBoxComponent {
 
-    /**
-     * Create a friend list item
-     *
-     * @param friendName    Friend's username
-     * @param lastMessage   Last message preview text
-     * @param notifCount    Unread message count (as string)
-     * @param lastDate      Time since last message
-     * @param photo         Profile photo (nullable, falls back to colored circle)
-     * @param onClickCallback Action when item is clicked
-     * @return BorderPane containing the friend item
-     */
     public static BorderPane create(String friendName, String lastMessage,
                                     String notifCount, String lastDate,
                                     Image photo, Runnable onClickCallback) {
@@ -38,61 +32,70 @@ public class FriendBoxComponent {
         container.setCursor(Cursor.HAND);
         container.setId(friendName);
 
-        // Avatar
-        Circle avatar = AvatarComponent.createAvatar(22, photo);
-
+        // ── Avatar (gradient with initials) ──
+        StackPane avatar = AvatarFactory.create(friendName, 22);
         BorderPane.setAlignment(avatar, Pos.CENTER);
         BorderPane.setMargin(avatar, new Insets(0, 12, 0, 0));
 
-        // Center: name + last message
+        // ── Center: name + message preview ──
         VBox centerBox = new VBox(3);
         centerBox.setAlignment(Pos.CENTER_LEFT);
+        centerBox.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(centerBox, Priority.ALWAYS);
 
         Label nameLabel = new Label(friendName);
         nameLabel.getStyleClass().add("friend-name");
 
-        Label messageLabel = new Label(
-                lastMessage != null && !lastMessage.isEmpty() ? lastMessage : "No messages yet"
-        );
-        messageLabel.getStyleClass().add("friend-last-message");
+        boolean hasUnread = false;
+        try {
+            hasUnread = Integer.parseInt(notifCount) > 0;
+        } catch (NumberFormatException ignored) {}
+
+        String previewText = (lastMessage != null && !lastMessage.isEmpty())
+                ? lastMessage : "Start a conversation";
+        Label messageLabel = new Label(previewText);
+        messageLabel.getStyleClass().add(hasUnread ? "friend-last-message-unread" : "friend-last-message");
         messageLabel.setMaxWidth(180);
-        messageLabel.setEllipsisString("...");
+        messageLabel.setEllipsisString("…");
 
         centerBox.getChildren().addAll(nameLabel, messageLabel);
 
-        // Right: time + notification badge
+        // ── Right: time + badge ──
         VBox rightBox = new VBox(6);
         rightBox.setAlignment(Pos.CENTER_RIGHT);
         rightBox.setMinWidth(50);
 
-        Label timeLabel = new Label(lastDate != null ? lastDate : "");
-        timeLabel.getStyleClass().add("friend-time");
+        if (lastDate != null && !lastDate.isEmpty()) {
+            Label timeLabel = new Label(lastDate);
+            timeLabel.getStyleClass().add("friend-time");
+            rightBox.getChildren().add(timeLabel);
+        }
 
-        rightBox.getChildren().add(timeLabel);
+        // Unread badge
+        if (hasUnread) {
+            int count;
+            try {
+                count = Integer.parseInt(notifCount);
+            } catch (NumberFormatException e) {
+                count = 0;
+            }
 
-        // Notification badge
-        try {
-            int count = Integer.parseInt(notifCount);
             if (count > 0) {
                 StackPane badge = new StackPane();
                 badge.getStyleClass().add("notification-badge");
-                badge.setMaxSize(22, 22);
-                badge.setMinSize(22, 22);
 
                 Label badgeText = new Label(count > 99 ? "99+" : String.valueOf(count));
                 badgeText.getStyleClass().add("notification-badge-text");
-
                 badge.getChildren().add(badgeText);
 
-                HBox badgeContainer = new HBox();
-                badgeContainer.setAlignment(Pos.CENTER_RIGHT);
-                badgeContainer.getChildren().add(badge);
-
-                rightBox.getChildren().add(badgeContainer);
+                HBox badgeRow = new HBox();
+                badgeRow.setAlignment(Pos.CENTER_RIGHT);
+                badgeRow.getChildren().add(badge);
+                rightBox.getChildren().add(badgeRow);
             }
-        } catch (NumberFormatException ignored) {}
+        }
 
-        // Assemble
+        // ── Assemble ──
         container.setLeft(avatar);
         container.setCenter(centerBox);
         container.setRight(rightBox);

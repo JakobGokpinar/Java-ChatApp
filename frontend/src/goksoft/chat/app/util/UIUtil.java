@@ -26,46 +26,32 @@ public class UIUtil {
                                             VBox contentContainer, VBox friendListPanel,
                                             VBox otherSection, Stage stage) {
         if (!isOpen) {
-            Timeline timeline = new Timeline();
-
-            // Determine which section we're opening
-            boolean isMailbox = targetSection.getId() != null &&
-                    targetSection.getId().equals("notificationsPanel");
-            boolean isAddFriend = targetSection.getId() != null &&
-                    targetSection.getId().equals("addFriendListPanel");
-
-            // Reorganize sections
-            if (isMailbox && !contentContainer.getChildren().get(1).getId().equals("addFriendListPanel")) {
-                contentContainer.getChildren().remove(otherSection);
-                contentContainer.getChildren().add(1, otherSection);
-                timeline.setOnFinished(actionEvent -> {
-                    stage.setTitle("Mailbox");
-                    otherSection.setVisible(false);
-                    friendListPanel.setVisible(false);
-                });
-            } else if (isAddFriend && !contentContainer.getChildren().get(1).getId().equals("notificationsPanel")) {
-                contentContainer.getChildren().remove(otherSection);
-                contentContainer.getChildren().add(1, otherSection);
-                timeline.setOnFinished(actionEvent -> {
-                    stage.setTitle("Add Friend");
-                    otherSection.setVisible(false);
-                    friendListPanel.setVisible(false);
-                });
+            // Determine title
+            String title = "Chat";
+            if (targetSection.getId() != null) {
+                if (targetSection.getId().equals("notificationsPanel")) title = "Requests";
+                else if (targetSection.getId().equals("addFriendListPanel")) title = "Find People";
             }
+            final String finalTitle = title;
 
-            // Animate opening
+            // Hide other panels, show target
+            friendListPanel.setVisible(false);
             friendListPanel.setManaged(false);
+            otherSection.setVisible(false);
             otherSection.setManaged(false);
+
             targetSection.setManaged(true);
             targetSection.setVisible(true);
-            targetSection.translateYProperty().set(targetSection.getHeight());
+            targetSection.setTranslateY(targetSection.getHeight());
 
+            Timeline timeline = new Timeline();
             KeyValue kv = new KeyValue(targetSection.translateYProperty(), 0, Interpolator.EASE_IN);
-            KeyFrame kf = new KeyFrame(Duration.seconds(1), kv);
+            KeyFrame kf = new KeyFrame(Duration.seconds(0.3), kv);
             timeline.getKeyFrames().add(kf);
+            timeline.setOnFinished(e -> stage.setTitle(finalTitle));
             timeline.play();
         } else {
-            // Close section and return to friend list
+            // Close and return to friend list
             stage.setTitle("Chat");
             targetSection.setVisible(false);
             targetSection.setManaged(false);

@@ -45,36 +45,9 @@ public class ProfilePhotoLoader {
     }
 
     /**
-     * Load profile photo for a user.
-     * Returns cached photo if available, otherwise fetches from server.
-     * Falls back to default user icon on error.
-     *
-     * @param username The username to load photo for
-     * @return The profile photo Image, or default user icon if unavailable
+     * Load profile photo for a user
      */
     public static Image loadPhoto(String username) {
-        if (username == null || username.isBlank()) {
-            return getDefaultUserIcon();
-        }
-
-        // Check cache first
-        Image cachedPhoto = photoCache.get(username);
-        if (cachedPhoto != null) {
-            return cachedPhoto;
-        }
-
-        // Try to fetch from server
-        try {
-            Image photo = fetchPhotoFromServer(username);
-            if (photo != null && !photo.isError()) {
-                photoCache.put(username, photo);
-                return photo;
-            }
-        } catch (Exception e) {
-            logger.debug("Could not load photo for user '{}': {}", username, e.getMessage());
-        }
-
-        // Return default icon on failure
         return getDefaultUserIcon();
     }
 

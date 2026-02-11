@@ -8,43 +8,53 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.shape.Circle;
+import javafx.scene.layout.StackPane;
 
 /**
- * Signal-style user search result component.
- * Shows avatar, username, and an add-friend button.
+ * User search result item — shown in Find People panel.
+ *
+ * Layout:
+ *   [Gradient Avatar]  Username          [+ Add]
+ *
+ * - Card background with 1px border
+ * - "Add" button transitions to "Sent ✓" after click
+ *
+ * Signature preserved for controller compatibility.
  */
 public class UserBoxComponent {
 
-    /**
-     * Create a user search result item
-     *
-     * @param userName   Username of found user
-     * @param photo      Profile photo (nullable)
-     * @param onAddClick Callback when add button clicked
-     * @return HBox containing user info
-     */
     public static HBox create(String userName, Image photo,
                               EventHandler<MouseEvent> onAddClick) {
 
-        HBox container = new HBox(12);
+        HBox container = new HBox(14);
         container.getStyleClass().add("user-item");
         container.setAlignment(Pos.CENTER_LEFT);
-        container.setPrefHeight(56);
+        container.setPrefHeight(58);
 
-        Circle avatar = AvatarComponent.createAvatar(22, photo);
+        // ── Avatar ──
+        StackPane avatar = AvatarFactory.create(userName, 20);
 
-        // Username
+        // ── Name ──
         Label nameLabel = new Label(userName);
         nameLabel.getStyleClass().add("friend-name");
         nameLabel.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(nameLabel, Priority.ALWAYS);
 
-        // Add button
+        // ── Add button with state change ──
         Button addButton = new Button("Add");
         addButton.getStyleClass().add("btn-add-friend");
+
         if (onAddClick != null) {
-            addButton.setOnMouseClicked(onAddClick);
+            addButton.setOnMouseClicked(event -> {
+                // Fire the original handler (sends friend request)
+                onAddClick.handle(event);
+
+                // Transition to "Sent" state
+                addButton.setText("Sent ✓");
+                addButton.setDisable(true);
+                addButton.getStyleClass().remove("btn-add-friend");
+                addButton.getStyleClass().add("btn-add-friend-sent");
+            });
         }
 
         container.getChildren().addAll(avatar, nameLabel, addButton);

@@ -3,6 +3,7 @@ package goksoft.chat.app.service;
 import com.google.gson.reflect.TypeToken;
 import goksoft.chat.app.api.ApiClient;
 import goksoft.chat.app.config.Environment;
+import goksoft.chat.app.model.dto.ApiResponse;
 import goksoft.chat.app.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,25 +20,22 @@ public class UserService {
         this.apiClient = apiClient;
     }
 
-    /**
-     * Search users by username
-     * Backend returns: ["username1", "username2", ...]
-     */
     public CompletableFuture<List<String>> searchUsers(String username) {
         String url = "/users/search?username=" + username;
         return apiClient.post(url, "")
-                .thenApply(json -> JsonUtil.fromJson(json, new TypeToken<List<String>>() {
-                }))
+                .thenApply(json -> {
+                    ApiResponse<List<String>> response = JsonUtil.fromJson(
+                            json, new TypeToken<ApiResponse<List<String>>>() {}
+                    );
+                    if (response.isSuccess() && response.getData() != null) {
+                        return response.getData();
+                    }
+                    return List.<String>of();
+                })
                 .exceptionally(ex -> {
                     logger.error("Error searching users", ex);
                     return List.of();
                 });
     }
 
-    /**
-     * Get profile photo URL for a username
-     */
-    public String getProfilePhotoUrl(String username) {
-        return Environment.getBaseUrl() + "/users/photo/" + username;
-    }
 }

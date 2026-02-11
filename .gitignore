@@ -44,6 +44,7 @@ target/
 frontend/target/
 backend-springboot/target
 *.class
+/backend-springboot/data/
 
 # IDE
 .idea/workspace.xml

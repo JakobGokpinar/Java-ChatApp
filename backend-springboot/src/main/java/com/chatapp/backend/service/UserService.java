@@ -4,6 +4,7 @@ import com.chatapp.backend.dto.response.ApiResponse;
 import com.chatapp.backend.exception.ResourceNotFoundException;
 import com.chatapp.backend.exception.ValidationException;
 import com.chatapp.backend.model.User;
+import com.chatapp.backend.repository.FriendshipRepository;
 import com.chatapp.backend.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,10 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public ApiResponse<List<String>> searchUsers(String username) {
+    @Autowired
+    private FriendshipRepository friendshipRepository;
+
+    public ApiResponse<List<String>> searchUsers(String username, String currentUser) {
         if (username == null || username.isBlank()) {
             throw new ValidationException("Search term is required");
         }
@@ -36,8 +40,16 @@ public class UserService {
         List<String> matchingUsers = new ArrayList<>();
 
         for (User user : allUsers) {
-            if (user.getUsername().contains(username)) {
-                matchingUsers.add(user.getUsername());
+            String name = user.getUsername();
+
+            // Skip self
+            if (name.equals(currentUser)) continue;
+
+            // Skip existing friends and pending requests
+            if (friendshipRepository.findByUsers(currentUser, name).isPresent()) continue;
+
+            if (name.contains(username)) {
+                matchingUsers.add(name);
             }
         }
 
@@ -48,5 +60,4 @@ public class UserService {
         logger.info("Found {} users matching '{}'", matchingUsers.size(), username);
         return ApiResponse.success("Users found", matchingUsers);
     }
-
 }
