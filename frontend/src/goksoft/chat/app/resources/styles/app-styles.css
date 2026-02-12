@@ -569,11 +569,6 @@
     -fx-font-weight: bold;
 }
 
-.chat-status-online {
-    -fx-text-fill: -color-success;
-    -fx-font-size: 12px;
-}
-
 .chat-status-offline {
     -fx-text-fill: -color-text-muted;
     -fx-font-size: 12px;

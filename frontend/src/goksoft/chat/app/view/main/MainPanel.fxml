@@ -254,11 +254,8 @@
                     <HBox alignment="CENTER_LEFT" spacing="14"
                           styleClass="chat-header">
                         <StackPane fx:id="chatHeaderAvatar" />
-                        <VBox spacing="2">
-                            <Label fx:id="chatFriendName" text=""
-                                   styleClass="chat-friend-name" />
-                            <Label text="Online" styleClass="chat-status-online" />
-                        </VBox>
+                        <Label fx:id="chatFriendName" text=""
+                               styleClass="chat-friend-name" />
                     </HBox>
                 </top>
 
