@@ -2,7 +2,6 @@ package goksoft.chat.app.service;
 
 import com.google.gson.reflect.TypeToken;
 import goksoft.chat.app.api.ApiClient;
-import goksoft.chat.app.config.Environment;
 import goksoft.chat.app.model.dto.ApiResponse;
 import goksoft.chat.app.util.JsonUtil;
 import org.slf4j.Logger;
