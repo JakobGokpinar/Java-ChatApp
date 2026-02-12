@@ -323,18 +323,6 @@ public class MainPanelController {
     // ===== MESSAGING =====
 
     public void onFriendClicked(String friendName) {
-        // Highlight selected friend in sidebar
-        for (Node child : friendsVBox.getChildren()) {
-            child.getStyleClass().remove("friend-item-selected");
-            if (!child.getStyleClass().contains("friend-item")) {
-                child.getStyleClass().add("friend-item");
-            }
-        }
-        Node selected = friendsVBox.lookup("#" + friendName);
-        if (selected != null) {
-            selected.getStyleClass().remove("friend-item");
-            selected.getStyleClass().add("friend-item-selected");
-        }
 
         // Update chat header
         chatFriendName.setText(friendName);

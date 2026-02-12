@@ -110,7 +110,7 @@ public class LoginController {
                     if (response.isSuccess() && response.getData() != null) {
                         serviceManager.setCurrentUser(username);
                         SceneUtil.closeAndOpenNew(usernameField, "../../view/main/MainPanel.fxml",
-                                "Chat", getClass(), false, false);
+                                "Chat", getClass(), true, false);
                     } else {
                         signinbutton.setDisable(false);
                         String message = response.getMessage() != null ?

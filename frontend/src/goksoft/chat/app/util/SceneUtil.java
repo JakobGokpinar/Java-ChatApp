@@ -49,7 +49,7 @@ public class SceneUtil {
      * @param fullScreen   Whether to open in fullscreen
      */
     public static void openNewWindow(String fxmlPath, String title, Class<?> contextClass,
-                                      boolean resizable, boolean fullScreen) {
+                                     boolean resizable, boolean fullScreen) {
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(contextClass.getResource(fxmlPath)));
             Scene scene = new Scene(root);
@@ -58,6 +58,10 @@ public class SceneUtil {
             stage.setTitle(title);
             stage.setResizable(resizable);
             stage.setFullScreen(fullScreen);
+            if (resizable) {
+                stage.setMinWidth(800);
+                stage.setMinHeight(500);
+            }
             stage.show();
         } catch (IOException e) {
             logger.error("Failed to open new window: {}", fxmlPath, e);

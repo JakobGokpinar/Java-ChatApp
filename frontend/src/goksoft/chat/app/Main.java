@@ -23,7 +23,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         System.out.println("Chat app is active");
 
-        Parent loginRoot = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/goksoft/chat/app/view/auth/login3.fxml")));
+        Parent loginRoot = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/goksoft/chat/app/view/auth/login.fxml")));
         Scene loginScene = new Scene(loginRoot);
 
         primaryStage.setScene(loginScene);
