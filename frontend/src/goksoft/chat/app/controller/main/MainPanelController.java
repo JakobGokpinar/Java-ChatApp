@@ -485,7 +485,7 @@ public class MainPanelController {
             } catch (Exception e) {
                 logger.error("Unexpected error in friend stats polling", e);
             }
-        }, 0, Environment.MESSAGE_POLL_INTERVAL_MS, TimeUnit.MILLISECONDS);
+        }, 5000, Environment.MESSAGE_POLL_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
 
     private void startFriendRequestsPolling() {
