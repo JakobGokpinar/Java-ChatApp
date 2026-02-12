@@ -26,7 +26,7 @@ public class RegisterController {
 
     private final ServiceManager serviceManager = ServiceManager.getInstance();
 
-    public void changeSceneToLogin(ActionEvent event) {
+    public void changeSceneToLogin(MouseEvent event) {
         SceneUtil.switchScene(usernameField, "../../view/auth/login.fxml", "Login", getClass());
     }
 

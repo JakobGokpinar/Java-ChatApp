@@ -11,23 +11,22 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Custom cell factory for the chat ListView that renders messages as bubbles.
  *
- * Messages are expected in the format: "sender: message"
- * The current logged-in user's messages are right-aligned (sent),
- * others are left-aligned (received).
+ * Message format: "sender: message" or "sender|HH:mm: message" (with timestamp)
  *
- * Usage in MainPanelController.initialize():
- *   listView.setCellFactory(MessageBubbleFactory.create(loggedUser));
- *
- * Then add messages as before:
- *   listView.getItems().add("jakob: Hello!");
- *   listView.getItems().add("emma: Hey there!");
+ * Sent messages: right-aligned indigo gradient with white text
+ * Received messages: left-aligned dark card with border
+ * Both include a small timestamp in the bottom corner.
  */
 public class MessageBubbleFactory {
 
     private static final double MAX_BUBBLE_WIDTH = 420;
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     /**
      * Create a cell factory for the chat ListView.
@@ -51,30 +50,59 @@ public class MessageBubbleFactory {
                 setStyle("-fx-background-color: transparent; -fx-padding: 0;");
                 setText(null);
 
-                // Parse "sender: message" format
+                // Parse message — supports "sender: msg" and "sender|HH:mm: msg"
                 String sender;
                 String message;
+                String timestamp = null;
+
                 int colonIndex = item.indexOf(": ");
                 if (colonIndex > 0) {
-                    sender = item.substring(0, colonIndex);
+                    String prefix = item.substring(0, colonIndex);
                     message = item.substring(colonIndex + 2);
+
+                    // Check for embedded timestamp: "sender|HH:mm"
+                    int pipeIndex = prefix.indexOf('|');
+                    if (pipeIndex > 0) {
+                        sender = prefix.substring(0, pipeIndex);
+                        timestamp = prefix.substring(pipeIndex + 1);
+                    } else {
+                        sender = prefix;
+                    }
                 } else {
                     sender = "";
                     message = item;
                 }
 
                 boolean isSent = sender.equals(currentUser);
-
-                // Build bubble
-                setGraphic(createBubble(sender, message, isSent));
+                setGraphic(createBubble(message, isSent, timestamp));
             }
         };
     }
 
-    private static HBox createBubble(String sender, String message, boolean isSent) {
+    /**
+     * Format a message string with embedded timestamp for the ListView.
+     * Use this when adding messages to include the time.
+     *
+     * @param sender   The sender username
+     * @param message  The message text
+     * @return Formatted string: "sender|HH:mm: message"
+     */
+    public static String formatMessage(String sender, String message) {
+        String time = LocalTime.now().format(TIME_FORMAT);
+        return sender + "|" + time + ": " + message;
+    }
+
+    /**
+     * Format with explicit timestamp.
+     */
+    public static String formatMessage(String sender, String message, String time) {
+        return sender + "|" + time + ": " + message;
+    }
+
+    private static HBox createBubble(String message, boolean isSent, String timestamp) {
         // Outer row — controls alignment
         HBox row = new HBox();
-        row.setPadding(new Insets(2, 12, 2, 12));
+        row.setPadding(new Insets(3, 16, 3, 16));
         row.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(row, Priority.ALWAYS);
 
@@ -83,21 +111,14 @@ public class MessageBubbleFactory {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         // Bubble container
-        VBox bubble = new VBox(2);
+        VBox bubble = new VBox(4);
         bubble.setMaxWidth(MAX_BUBBLE_WIDTH);
-        bubble.setPadding(new Insets(10, 16, 10, 16));
+        bubble.setPadding(new Insets(10, 16, 8, 16));
 
         if (isSent) {
             bubble.getStyleClass().add("message-bubble-sent");
         } else {
             bubble.getStyleClass().add("message-bubble-received");
-
-            // Sender name label (received only)
-            if (sender != null && !sender.isEmpty()) {
-                Label senderLabel = new Label(sender);
-                senderLabel.getStyleClass().add("message-sender-label");
-                bubble.getChildren().add(senderLabel);
-            }
         }
 
         // Message text
@@ -105,13 +126,26 @@ public class MessageBubbleFactory {
         msgLabel.setWrapText(true);
         msgLabel.setMaxWidth(MAX_BUBBLE_WIDTH - 32);
         if (isSent) {
-            msgLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+            msgLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-line-spacing: 2px;");
         } else {
-            msgLabel.setStyle("-fx-text-fill: #EEEEF0; -fx-font-size: 14px;");
+            msgLabel.setStyle("-fx-text-fill: #EEEEF0; -fx-font-size: 14px; -fx-line-spacing: 2px;");
         }
         bubble.getChildren().add(msgLabel);
 
-        // Assemble row: sent = [spacer, bubble], received = [bubble, spacer]
+        // Timestamp
+        if (timestamp != null && !timestamp.isEmpty()) {
+            Label timeLabel = new Label(timestamp);
+            timeLabel.setStyle(isSent
+                    ? "-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 10px;"
+                    : "-fx-text-fill: #55556A; -fx-font-size: 10px;");
+            if (isSent) {
+                timeLabel.setAlignment(Pos.CENTER_RIGHT);
+                timeLabel.setMaxWidth(Double.MAX_VALUE);
+            }
+            bubble.getChildren().add(timeLabel);
+        }
+
+        // Assemble row
         if (isSent) {
             row.setAlignment(Pos.CENTER_RIGHT);
             row.getChildren().addAll(spacer, bubble);

@@ -26,8 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -35,10 +33,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
-public class MainPanelController {
+public class MainPanelController1 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MainPanelController.class);
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
+    private static final Logger logger = LoggerFactory.getLogger(MainPanelController1.class);
 
     // Layout structure
     @FXML private SplitPane splitPane;
@@ -143,6 +140,9 @@ public class MainPanelController {
         setActiveNav("chats");
     }
 
+    /**
+     * Populate a StackPane with a gradient avatar (circle + initials).
+     */
     private void initAvatar(StackPane container, String name, double radius) {
         if (container == null || name == null) return;
         container.getChildren().clear();
@@ -150,7 +150,11 @@ public class MainPanelController {
         container.getChildren().add(avatar);
     }
 
+    /**
+     * Highlight the active nav item and deactivate others.
+     */
     private void setActiveNav(String nav) {
+        // Reset all
         chatsNavItem.getStyleClass().removeAll("nav-btn", "nav-btn-active");
         requestsNavItem.getStyleClass().removeAll("nav-btn", "nav-btn-active");
         findPeopleNavItem.getStyleClass().removeAll("nav-btn", "nav-btn-active");
@@ -160,21 +164,31 @@ public class MainPanelController {
         findPeopleNavItem.getStyleClass().add("search".equals(nav) ? "nav-btn-active" : "nav-btn");
     }
 
+    /**
+     * Update the nav badge counts.
+     */
     private void updateChatsBadge(int count) {
-        chatsBadge.setVisible(count > 0);
-        chatsBadge.setManaged(count > 0);
         if (count > 0) {
+            chatsBadge.setVisible(true);
+            chatsBadge.setManaged(true);
             chatsBadgeLabel.setText(count > 99 ? "99+" : String.valueOf(count));
+        } else {
+            chatsBadge.setVisible(false);
+            chatsBadge.setManaged(false);
         }
     }
 
     private void updateRequestsBadge(int count) {
-        requestsBadge.setVisible(count > 0);
-        requestsBadge.setManaged(count > 0);
         if (count > 0) {
+            requestsBadge.setVisible(true);
+            requestsBadge.setManaged(true);
             requestsBadgeLabel.setText(count > 99 ? "99+" : String.valueOf(count));
+            requestsSectionLabel.setText("PENDING · " + count);
+        } else {
+            requestsBadge.setVisible(false);
+            requestsBadge.setManaged(false);
+            requestsSectionLabel.setText("PENDING · 0");
         }
-        requestsSectionLabel.setText("PENDING · " + count);
     }
 
     private void setupWindowCloseHandler() {
@@ -195,17 +209,6 @@ public class MainPanelController {
         divider.positionProperty().addListener(
                 (observableValue, number, t1) -> divider.setPosition(pos)
         );
-    }
-
-    // ===== SIDEBAR PANEL SWITCHING (instant, no animation) =====
-
-    private void switchSidebarPanel(VBox target) {
-        VBox[] panels = { friendListPanel, notificationsPanel, addFriendListPanel };
-        for (VBox panel : panels) {
-            boolean show = (panel == target);
-            panel.setVisible(show);
-            panel.setManaged(show);
-        }
     }
 
     // ===== FRIEND MANAGEMENT =====
@@ -239,6 +242,7 @@ public class MainPanelController {
                             friendsNameList.add(username);
                             friendsVBox.getChildren().add(friendBox);
 
+                            // Sum unread for badge
                             try {
                                 totalUnread += Integer.parseInt(friendData.get(1));
                             } catch (NumberFormatException ignored) {}
@@ -282,11 +286,20 @@ public class MainPanelController {
     }
 
     private void acceptFriendRequest(String requester) {
+        Node requestNode = notificationVBox.lookup("#" + requester);
+
         serviceManager.getFriendService().acceptFriendRequest(requester)
                 .thenAccept(response -> Platform.runLater(() -> {
                     if (response.isSuccess()) {
-                        loadFriendRequests();
-                        loadFriends();
+                        if (requestNode != null) {
+                            AnimationUtils.slideOutRight(requestNode, () -> {
+                                loadFriendRequests();
+                                loadFriends();
+                            });
+                        } else {
+                            loadFriendRequests();
+                            loadFriends();
+                        }
                         WarningWindowController.warningMessage("Friend added!");
                     } else {
                         WarningWindowController.warningMessage(
@@ -302,10 +315,16 @@ public class MainPanelController {
     }
 
     private void rejectFriendRequest(String requester) {
+        Node requestNode = notificationVBox.lookup("#" + requester);
+
         serviceManager.getFriendService().rejectFriendRequest(requester)
                 .thenAccept(response -> Platform.runLater(() -> {
                     if (response.isSuccess()) {
-                        loadFriendRequests();
+                        if (requestNode != null) {
+                            AnimationUtils.slideOutRight(requestNode, this::loadFriendRequests);
+                        } else {
+                            loadFriendRequests();
+                        }
                         WarningWindowController.warningMessage("Request declined");
                     } else {
                         WarningWindowController.warningMessage(
@@ -340,7 +359,7 @@ public class MainPanelController {
         chatFriendName.setText(friendName);
         initAvatar(chatHeaderAvatar, friendName, 20);
 
-        // Show chat, hide empty state and settings — instant, no animation
+        // Show chat, hide empty state and settings
         chatBorderPane.setVisible(true);
         if (chatEmptyState != null) chatEmptyState.setVisible(false);
         settingsBorderPane.setVisible(false);
@@ -361,16 +380,13 @@ public class MainPanelController {
                         if (msgData.size() >= 2) {
                             String sender = msgData.get(0);
                             String message = msgData.get(1);
-                            // Use timestamp from backend if available, otherwise generate one
-                            String time;
-                            if (msgData.size() >= 3 && msgData.get(2) != null
-                                    && !msgData.get(2).isBlank()) {
-                                time = msgData.get(2);
+                            // Use formatted message with timestamp if available
+                            if (msgData.size() >= 3 && msgData.get(2) != null) {
+                                listView.getItems().add(
+                                        MessageBubbleFactory.formatMessage(sender, message, msgData.get(2)));
                             } else {
-                                time = LocalTime.now().format(TIME_FORMAT);
+                                listView.getItems().add(sender + ": " + message);
                             }
-                            listView.getItems().add(
-                                    MessageBubbleFactory.formatMessage(sender, message, time));
                         }
                     }
                     if (!listView.getItems().isEmpty()) {
@@ -383,6 +399,7 @@ public class MainPanelController {
                 });
     }
 
+    /** Called by Enter key in messageField */
     public void sendMessage() {
         if (currentFriend == null || messageField.getText().trim().isEmpty()) return;
 
@@ -408,6 +425,7 @@ public class MainPanelController {
                 });
     }
 
+    /** Called by the send button in FXML */
     public void sendMessageButton(MouseEvent event) {
         sendMessage();
     }
@@ -525,6 +543,7 @@ public class MainPanelController {
 
         for (List<String> friendData : friendsList) {
             if (friendData.size() >= 4) {
+
                 BorderPane friendBox = createFriendBox(friendData);
                 String username = friendData.getFirst();
 
@@ -549,6 +568,7 @@ public class MainPanelController {
                 }
             }
         }
+
         updateChatsBadge(totalUnread);
     }
 
@@ -561,6 +581,7 @@ public class MainPanelController {
                         event -> acceptFriendRequest(username),
                         event -> rejectFriendRequest(username)
                 );
+
                 notificationVBox.getChildren().addFirst(requestBox);
                 friendRequestsNameList.add(username);
                 logger.info("New friend request from: {}", username);
@@ -585,19 +606,32 @@ public class MainPanelController {
     public void showChatsPanel(MouseEvent event) {
         setActiveNav("chats");
         switchSidebarPanel(friendListPanel);
-        getStage().setTitle("Chat");
     }
 
     public void showUserSearchPanel(MouseEvent event) {
         setActiveNav("search");
         switchSidebarPanel(addFriendListPanel);
-        getStage().setTitle("Find People");
     }
 
     public void showNotificationsPanel(MouseEvent event) {
         setActiveNav("requests");
         switchSidebarPanel(notificationsPanel);
-        getStage().setTitle("Requests");
+    }
+
+    private void switchSidebarPanel(VBox target) {
+        VBox[] panels = { friendListPanel, notificationsPanel, addFriendListPanel };
+        for (VBox panel : panels) {
+            boolean show = (panel == target);
+            panel.setVisible(show);
+            panel.setManaged(show);
+        }
+        if (target == friendListPanel) {
+            getStage().setTitle("Chat");
+        } else if (target == notificationsPanel) {
+            getStage().setTitle("Requests");
+        } else if (target == addFriendListPanel) {
+            getStage().setTitle("Find People");
+        }
     }
 
     public void toggleSettingsPanel(MouseEvent event) {
@@ -622,7 +656,7 @@ public class MainPanelController {
         serviceManager.clearCurrentUser();
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainPanelController.class.getResource("../../view/auth/login.fxml")
+                    MainPanelController1.class.getResource("../../view/auth/login.fxml")
             );
             Parent loginPanel = loader.load();
             Scene scene = new Scene(loginPanel);
@@ -630,7 +664,7 @@ public class MainPanelController {
             window.close();
             Stage newWindow = new Stage();
             newWindow.setScene(scene);
-            newWindow.setResizable(true);
+            newWindow.setResizable(false);
             newWindow.setFullScreen(false);
             newWindow.setTitle("Login");
             newWindow.show();

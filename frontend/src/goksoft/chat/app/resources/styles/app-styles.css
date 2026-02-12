@@ -319,11 +319,13 @@
 }
 
 .nav-btn-active {
-    -fx-background-color: derive(-color-accent, 80%);
-    -fx-text-fill: -color-accent;
+    -fx-background-color: rgba(91, 127, 255, 0.15);
+    -fx-text-fill: #5B7FFF;
     -fx-background-radius: 10;
+    -fx-border-color: transparent transparent transparent #5B7FFF;
+    -fx-border-width: 0 0 0 3;
     -fx-border-radius: 10;
-    -fx-padding: 10 16;
+    -fx-padding: 10 16 10 13;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
     -fx-cursor: hand;
@@ -855,4 +857,49 @@
     -fx-font-size: 12px;
     -fx-padding: 6 12;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
+}
+
+/* ══════════════════════════════════════════
+   STEP 5 CSS ADDITIONS
+   Append these to the end of app-styles.css
+   ══════════════════════════════════════════ */
+
+/* ── Nav label text ── */
+.nav-label {
+    -fx-text-fill: #8888A0;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.nav-btn-active .nav-label {
+    -fx-text-fill: #5B7FFF;
+}
+
+.nav-btn:hover .nav-label {
+    -fx-text-fill: #EEEEF0;
+}
+
+/* ── Nav badges (count pills) ── */
+.nav-badge {
+    -fx-background-color: #5B7FFF;
+    -fx-background-radius: 10;
+    -fx-min-width: 22;
+    -fx-min-height: 20;
+    -fx-max-height: 20;
+    -fx-padding: 0 6 0 6;
+    -fx-effect: dropshadow(gaussian, rgba(91,127,255,0.3), 6, 0, 0, 0);
+}
+
+.nav-badge-text {
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+/* ── Section count label (PENDING · 2) ── */
+.section-count-label {
+    -fx-text-fill: #55556A;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-letter-spacing: 0.08em;
 }

@@ -39,8 +39,10 @@ public class RequestBoxComponent {
         BorderPane.setMargin(avatar, new Insets(0, 12, 0, 0));
 
         // ── Center: name + subtitle ──
+        // ── Center: name + subtitle ──
         VBox centerBox = new VBox(3);
         centerBox.setAlignment(Pos.CENTER_LEFT);
+        centerBox.setMaxWidth(Double.MAX_VALUE);
 
         Label nameLabel = new Label(requesterName);
         nameLabel.getStyleClass().add("request-name");
@@ -53,13 +55,16 @@ public class RequestBoxComponent {
         // ── Right: action buttons ──
         HBox buttonBox = new HBox(8);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
+        buttonBox.setMinWidth(Region.USE_PREF_SIZE);
 
         Button rejectBtn = new Button("Decline");
         rejectBtn.getStyleClass().add("btn-reject");
+        rejectBtn.setMinWidth(Region.USE_PREF_SIZE);
         if (onReject != null) rejectBtn.setOnMouseClicked(onReject);
 
         Button acceptBtn = new Button("Accept");
         acceptBtn.getStyleClass().add("btn-accept");
+        acceptBtn.setMinWidth(Region.USE_PREF_SIZE);
         if (onAccept != null) acceptBtn.setOnMouseClicked(onAccept);
 
         buttonBox.getChildren().addAll(rejectBtn, acceptBtn);
@@ -69,6 +74,7 @@ public class RequestBoxComponent {
         container.setCenter(centerBox);
         container.setRight(buttonBox);
         BorderPane.setAlignment(buttonBox, Pos.CENTER);
+        BorderPane.setMargin(buttonBox, new Insets(0, 0, 0, 8));
 
         return container;
     }
