@@ -17,7 +17,7 @@
     login.fxml — Updated to match new indigo accent palette
 -->
 
-<StackPane prefHeight="520" prefWidth="420"
+<StackPane prefHeight="650" prefWidth="650"
            styleClass="auth-background"
            stylesheets="@../../resources/styles/app-styles.css"
            xmlns="http://javafx.com/javafx/21"
@@ -57,18 +57,21 @@
 
         <Region prefHeight="12" />
 
-        <!-- Password field (and hidden plain-text toggle) -->
-        <PasswordField fx:id="passwordField"
+        <!-- Password field (stacked with plain-text toggle) -->
+        <StackPane maxWidth="1.7976931348623157E308">
+            <PasswordField fx:id="passwordField"
+                           promptText="Password"
+                           styleClass="auth-input"
+                           visible="true"
+                           maxWidth="1.7976931348623157E308" />
+            <TextField fx:id="textField"
                        promptText="Password"
                        styleClass="auth-input"
+                       visible="false"
                        maxWidth="1.7976931348623157E308" />
+        </StackPane>
 
-        <TextField fx:id="textField"
-                   styleClass="auth-input"
-                   maxWidth="1.7976931348623157E308"
-                   visible="false" managed="false" />
-
-        <Region prefHeight="10" />
+        <Region prefHeight="20" />
 
         <!-- Options row -->
         <HBox alignment="CENTER_LEFT" spacing="0">
@@ -83,7 +86,7 @@
                       styleClass="auth-checkbox" />
         </HBox>
 
-        <Region prefHeight="24" />
+        <Region prefHeight="20" />
 
         <!-- Sign in button -->
         <Button fx:id="signinbutton"

@@ -16,7 +16,7 @@
     register.fxml — Updated to match new indigo accent palette
 -->
 
-<StackPane prefHeight="560" prefWidth="420"
+<StackPane prefHeight="650" prefWidth="650"
            styleClass="auth-background"
            stylesheets="@../../resources/styles/app-styles.css"
            xmlns="http://javafx.com/javafx/21"
@@ -57,29 +57,33 @@
         <Region prefHeight="12" />
 
         <!-- Password fields -->
-        <PasswordField fx:id="passwordField1"
+        <StackPane maxWidth="1.7976931348623157E308">
+            <PasswordField fx:id="passwordField1"
+                           promptText="Password"
+                           styleClass="auth-input"
+                           maxWidth="1.7976931348623157E308" />
+            <TextField fx:id="textField1"
                        promptText="Password"
                        styleClass="auth-input"
+                       visible="false"
                        maxWidth="1.7976931348623157E308" />
-
-        <TextField fx:id="textField1"
-                   styleClass="auth-input"
-                   maxWidth="1.7976931348623157E308"
-                   visible="false" managed="false" />
+        </StackPane>
 
         <Region prefHeight="12" />
 
-        <PasswordField fx:id="passwordField2"
+        <StackPane maxWidth="1.7976931348623157E308">
+            <PasswordField fx:id="passwordField2"
+                           promptText="Confirm password"
+                           styleClass="auth-input"
+                           maxWidth="1.7976931348623157E308" />
+            <TextField fx:id="textField2"
                        promptText="Confirm password"
                        styleClass="auth-input"
+                       visible="false"
                        maxWidth="1.7976931348623157E308" />
+        </StackPane>
 
-        <TextField fx:id="textField2"
-                   styleClass="auth-input"
-                   maxWidth="1.7976931348623157E308"
-                   visible="false" managed="false" />
-
-        <Region prefHeight="10" />
+        <Region prefHeight="20" />
 
         <!-- Show passwords -->
         <HBox alignment="CENTER_LEFT">
@@ -89,7 +93,7 @@
                       styleClass="auth-checkbox" />
         </HBox>
 
-        <Region prefHeight="24" />
+        <Region prefHeight="20" />
 
         <!-- Sign up button -->
         <Button text="Create Account"

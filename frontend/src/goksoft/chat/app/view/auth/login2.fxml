@@ -11,7 +11,7 @@
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
             prefHeight="447.0" prefWidth="600.0" styleClass="login-background"
-            stylesheets="@../../resources/styles/modern-design.css" xmlns="http://javafx.com/javafx/15.0.1"
+            stylesheets="@../../resources/styles/app-styles.css" xmlns="http://javafx.com/javafx/15.0.1"
             fx:controller="goksoft.chat.app.controller.auth.LoginController">
     <children>
         <AnchorPane layoutX="138.0" layoutY="40.0" prefHeight="370.0" prefWidth="323.0" styleClass="auth-panel"

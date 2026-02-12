@@ -29,8 +29,7 @@ public class Main extends Application {
         primaryStage.setScene(loginScene);
         primaryStage.setTitle("Login");
         primaryStage.setResizable(true);
-        primaryStage.setX(455);
-        primaryStage.setY(155);
+        primaryStage.centerOnScreen();
         primaryStage.show();
     }
 }
