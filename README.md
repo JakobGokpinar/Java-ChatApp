@@ -1,197 +1,119 @@
-# Java Chat Application
+# Java-ChatApp
 
-A desktop messenger built with **JavaFX** and **Spring Boot**, featuring JWT authentication, friend management, and real-time messaging. This project is a complete modernization of a chat app originally built in 2020, transforming a non-functional legacy system into a production-ready application with modern Java architecture.
+A modern desktop messaging application built with **Spring Boot** and **JavaFX**. Originally developed in 2020 with a PHP backend and MySQL database, this project has been completely modernized with a RESTful API architecture, JWT authentication, and a redesigned dark-theme UI.
 
-![Java 21](https://img.shields.io/badge/Java-21_LTS-orange)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-brightgreen)
-![JavaFX](https://img.shields.io/badge/JavaFX-21-blue)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791)
-![Railway](https://img.shields.io/badge/Deployed_on-Railway-blueviolet)
-
----
-
-## Features
-
-- **JWT Authentication** — Register and login with token-based security and BCrypt password hashing
-- **Real-Time Messaging** — Send and receive messages with automatic polling and unread notifications
-- **Friend System** — Send, accept, and reject friend requests using a unified friendship model
-- **User Search** — Find and connect with other users by username
-- **Profile Photos** — Upload and display profile pictures
-- **Notification Badges** — Visual indicators for unread messages and pending friend requests
-- **Remember Me** — Optional username persistence across sessions
-- **Dev/Prod Toggle** — Seamless switching between local development and Railway cloud deployment
+![Java](https://img.shields.io/badge/Java_21-ED8B00?style=flat&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot_3-6DB33F?style=flat&logo=springboot&logoColor=white)
+![JavaFX](https://img.shields.io/badge/JavaFX_21-007396?style=flat&logo=java&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=jsonwebtokens&logoColor=white)
+![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=flat&logo=railway&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat&logo=githubactions&logoColor=white)
 
 ---
 
-## Tech Stack
+## Download & Install
 
-### Backend
+Pre-built installers are available on the [**Releases**](https://github.com/JakobGokpinar/Java-ChatApp/releases) page. Download the latest version for your platform:
 
-| Technology | Purpose |
-|---|---|
-| Java 21 LTS | Language |
-| Spring Boot 3.x | REST API framework |
-| Spring Security | Authentication and authorization |
-| JWT (JJWT 0.12.6) | Stateless token-based auth |
-| BCrypt | Password hashing |
-| Spring Data JPA / Hibernate | ORM and data access |
-| PostgreSQL | Production database (Railway) |
-| H2 | Local development database |
+### macOS (.dmg)
 
-### Frontend
+1. Download the `.dmg` file from Releases
+2. Open the `.dmg` and drag the app to your **Applications** folder
+3. On first launch, macOS will block it — go to **System Settings → Privacy & Security**
+4. Scroll down and click **"Open Anyway"** next to the ChatApp warning
+5. The app will launch — register an account and start chatting
 
-| Technology | Purpose |
-|---|---|
-| Java 21 LTS | Language |
-| JavaFX 21.0.5 | Desktop UI framework |
-| Java HttpClient | HTTP communication (built-in, Java 11+) |
-| Gson 2.11.0 | JSON serialization/deserialization |
-| SLF4J + Logback | Logging |
-| CompletableFuture | Async operations |
+### Windows (.msi)
 
-### Development and Deployment
+1. Download the `.msi` file from Releases
+2. Run the installer — if Windows Defender shows a warning, click **"More info" → "Run anyway"**
+3. Follow the installation wizard
+4. Launch ChatApp from the Start Menu or Desktop shortcut
+5. Register an account and start chatting
 
-| Tool | Purpose |
-|---|---|
-| Maven | Build and dependency management |
-| IntelliJ IDEA | IDE |
-| Railway | Cloud hosting (backend + PostgreSQL) |
-| Git / GitHub | Version control |
+### Usage
+
+1. **Register** — Create an account with a username and password
+2. **Login** — Sign in with your credentials (check "Remember me" to save your username)
+3. **Find People** — Search for other users by username and send friend requests
+4. **Chat** — Once a friend request is accepted, select them from the sidebar to start messaging
+
+> **Note:** The app connects to a live backend — you'll need an internet connection. To chat with someone, both users need to have accounts and be friends.
+
+---
+
+## UI Redesign
+
+The application went through a complete visual overhaul — from the original 2020 design to a modern dark theme inspired by Signal and Discord.
+
+### Login
+
+| Before | After |
+|--------|-------|
+| ![Old Login](frontend/src/goksoft/chat/app/resources/images/screenshots/login.png) | ![New Login](frontend/src/goksoft/chat/app/resources/images/screenshots/login1.png) |
+
+### Main Chat
+
+| Before | After |
+|--------|-------|
+| ![Old Main](frontend/src/goksoft/chat/app/resources/images/screenshots/mainpanel.png) | ![New Main](frontend/src/goksoft/chat/app/resources/images/screenshots/mainpanel1.png) |
+
+### Settings
+
+| Before | After |
+|--------|-------|
+| ![Old Settings](frontend/src/goksoft/chat/app/resources/images/screenshots/settings.png) | ![New Settings](frontend/src/goksoft/chat/app/resources/images/screenshots/settings1.png) |
+
+### New Screens
+
+| Register | Chat View |
+|----------|-----------|
+| ![Register](frontend/src/goksoft/chat/app/resources/images/screenshots/register1.png) | ![Chat](frontend/src/goksoft/chat/app/resources/images/screenshots/chat1.png) |
 
 ---
 
 ## Architecture
 
-### Backend — Layered REST API
-
 ```
-Client Request
-    │
-    ▼
-┌──────────────────────┐
-│   Security Filter    │  JWT validation, extract username from token
-├──────────────────────┤
-│   Controller Layer   │  REST endpoints, request/response handling
-├──────────────────────┤
-│   Service Layer      │  Business logic, validation, transactions
-├──────────────────────┤
-│   Repository Layer   │  Spring Data JPA, JPQL queries
-├──────────────────────┤
-│   Entity Layer       │  JPA entities (User, Friendship, Message)
-├──────────────────────┤
-│   PostgreSQL / H2    │  3 tables: users, friendships, messages
-└──────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                    JavaFX Frontend                       │
+│  FXML Views → Controllers → Services → ApiClient (HTTP) │
+└──────────────────────────┬──────────────────────────────┘
+                           │ REST + JWT
+┌──────────────────────────▼──────────────────────────────┐
+│                 Spring Boot Backend                      │
+│  Controllers → Services → Repositories → PostgreSQL      │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### Frontend — MVC with Service Layer
+**Backend** — Spring Boot REST API with JWT authentication, BCrypt password hashing, and Spring Data JPA. Deployed on Railway with PostgreSQL.
 
-```
-┌──────────────────────┐
-│   FXML Views         │  UI layout definitions (login, register, main panel)
-├──────────────────────┤
-│   Controllers        │  JavaFX controllers, UI event handling
-├──────────────────────┤
-│   UI Components      │  Reusable components (FriendBox, RequestBox, UserBox)
-├──────────────────────┤
-│   Service Layer      │  AuthService, FriendService, MessageService, UserService
-├──────────────────────┤
-│   ApiClient          │  HttpClient with JWT token management
-├──────────────────────┤
-│   Environment Config │  Dev/Prod URL switching, timeouts, polling intervals
-└──────────────────────┘
-```
+**Frontend** — JavaFX desktop client with a component-based UI, async HTTP services, and native installers (.dmg / .msi) built via GitHub Actions.
 
-### Authentication Flow
-
-```
-1. User submits credentials
-2. Backend validates and returns JWT token
-3. Frontend stores token in ApiClient
-4. All subsequent requests include Authorization: Bearer <token>
-5. Backend extracts username from token (no impersonation possible)
-6. Logout clears the token client-side
-```
+**Database** — 3 tables: `users`, `friendships` (with PENDING/ACCEPTED/REJECTED status enum), and `messages` (with `is_read` flag replacing the old notifications table).
 
 ---
 
-## Database Schema
+## Tech Stack
 
-The database uses 3 normalized tables, simplified from the original 5-table design.
-
-```
-┌─────────────────┐       ┌──────────────────┐       ┌─────────────────┐
-│     USERS       │       │   FRIENDSHIPS    │       │    MESSAGES     │
-│─────────────────│       │──────────────────│       │─────────────────│
-│ username (PK)   │◄──────│ user1 (FK)       │       │ id (PK)         │
-│ password        │◄──────│ user2 (FK)       │       │ sender (FK)  ───│──► users
-│ photo           │◄──────│ initiated_by (FK)│       │ receiver (FK) ──│──► users
-│ created_at      │       │ status (ENUM)    │       │ content         │
-│ updated_at      │       │ created_at       │       │ is_read         │
-└─────────────────┘       │ updated_at       │       │ created_at      │
-                          └──────────────────┘       └─────────────────┘
-
-Friendship Status: PENDING → ACCEPTED / REJECTED
-```
-
-Passwords are stored as BCrypt hashes (never plain text). The `is_read` boolean on messages replaced a separate notifications table. The unified `friendships` table with a status enum replaced the old `friends` + `requeststable` pair, making queries simpler and preventing inconsistent state.
+| Layer | Technologies |
+|-------|-------------|
+| **Backend** | Java 21, Spring Boot 3, Spring Data JPA, PostgreSQL, JWT, BCrypt |
+| **Frontend** | Java 21, JavaFX 21, Maven, CSS |
+| **Deployment** | Railway (backend + DB), GitHub Actions (CI/CD), jpackage (native builds) |
 
 ---
 
-## Project Structure
+## Features
 
-```
-Java-ChatApp/
-├── backend-springboot/
-│   └── src/main/java/com/chatapp/backend/
-│       ├── config/                    # Security, JWT, filters
-│       │   ├── SecurityConfig.java
-│       │   ├── JwtAuthenticationFilter.java
-│       │   ├── JwtUtil.java
-│       │   └── SecurityUtils.java
-│       ├── controller/                # REST endpoints
-│       │   ├── AuthController.java
-│       │   ├── FriendController.java
-│       │   ├── MessageController.java
-│       │   └── UserController.java
-│       ├── dto/
-│       │   ├── request/               # LoginRequest, RegisterRequest
-│       │   └── response/              # ApiResponse, FriendDetailsResponse, etc.
-│       ├── exception/                 # Global error handling
-│       │   ├── GlobalExceptionHandler.java
-│       │   └── ...                    # Custom exceptions
-│       ├── model/                     # JPA entities
-│       │   ├── User.java
-│       │   ├── Friendship.java
-│       │   └── Message.java
-│       ├── repository/                # Spring Data JPA interfaces
-│       └── service/                   # Business logic
-│       └── docs/                      # Backend documentation
-│
-├── frontend/
-│   └── src/goksoft/chat/app/
-│       ├── api/
-│       │   └── ApiClient.java         # HttpClient with JWT token management
-│       ├── config/
-│       │   └── Environment.java       # Dev/Prod URLs, timeouts, polling
-│       ├── controller/
-│       │   ├── LoginController.java
-│       │   ├── RegisterController.java
-│       │   └── MainPanelController.java
-│       ├── model/dto/                 # ApiResponse, User, Message, LoginResponse, etc.
-│       ├── service/
-│       │   ├── ServiceManager.java    # Singleton — single access point for all services
-│       │   ├── AuthService.java
-│       │   ├── FriendService.java
-│       │   ├── MessageService.java
-│       │   └── UserService.java
-│       ├── ui/components/             # Reusable UI components
-│       ├── util/
-│       │   └── JsonUtil.java          # Gson wrapper with TypeToken support
-│       └── resources/
-│           └── userinterfaces/        # FXML layouts
-│
-└── README.md
-```
+- **Authentication** — Register, login, JWT token-based sessions, remember me
+- **Friend System** — Send/accept/decline friend requests with real-time polling
+- **Messaging** — One-to-one chat with timestamps and read tracking
+- **User Search** — Find and add new friends by username
+- **Modern UI** — Dark theme with indigo accent, gradient avatars, Signal-style message bubbles
+- **Native Builds** — macOS `.dmg` and Windows `.msi` installers via GitHub Actions
+- **Dev/Prod Environments** — Separate configurations for local development and production
 
 ---
 
@@ -199,205 +121,99 @@ Java-ChatApp/
 
 ### Prerequisites
 
-- **Java 21 LTS** — [Download](https://jdk.java.net/21/)
-- **Maven 3.9+** — [Download](https://maven.apache.org/download.cgi)
-- **IntelliJ IDEA** recommended (Community or Ultimate)
+- Java 21+
+- Maven
+- PostgreSQL (for local development)
 
-For local development, H2 runs in-memory automatically — no separate database install needed.
-
-### Clone the Repository
+### Backend
 
 ```bash
-git clone https://github.com/JakobGokpinar/Java-ChatApp.git
-cd Java-ChatApp
+cd backend
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-### Backend Setup
-
-```bash
-cd backend-springboot
-mvn spring-boot:run
-```
-
-The API starts at `http://localhost:8080`. H2 is used by default for local development. For production, the backend connects to a PostgreSQL instance on Railway via environment variables.
-
-To run with a local PostgreSQL instead of H2, configure `application.properties`:
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/chat_app
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-```
-
-### Frontend Setup
+### Frontend
 
 ```bash
 cd frontend
-mvn javafx:run -Dapp.env=dev
+mvn javafx:run
 ```
 
-Or in IntelliJ: add VM option `-Dapp.env=dev` to your run configuration to connect to the local backend.
+The frontend defaults to the production backend. To connect to a local backend, run with `-Dapp.env=dev` (see `Environment.java` for configuration).
 
-Without the flag, the frontend defaults to production mode and connects to the Railway deployment.
+### Download
 
-### Environment Configuration
-
-The app uses a single VM argument to switch environments:
-
-| Mode | VM Argument | Backend URL |
-|---|---|---|
-| Development | `-Dapp.env=dev` | `http://localhost:8080/api` |
-| Production | *(none, default)* | `https://java-chatapp-production.up.railway.app/api` |
-
-All timeouts and polling intervals are centralized in `Environment.java`:
-
-| Setting | Value |
-|---|---|
-| Connect timeout | 10 seconds |
-| Request timeout | 30 seconds |
-| Message polling | Every 2 seconds |
-| Friend request polling | Every 20 seconds |
+Pre-built installers for macOS and Windows are available on the [Releases](https://github.com/JakobGokpinar/Java-ChatApp/releases) page.
 
 ---
 
-## API Endpoints
+## Project Structure
 
-All endpoints except `/api/auth/*` require a JWT token in the `Authorization: Bearer <token>` header.
-
-### Authentication
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/auth/register` | Register a new user |
-| POST | `/api/auth/login` | Login, returns JWT token |
-
-### Friends
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/friends/get` | Get accepted friends list |
-| POST | `/api/friends/get-details` | Get friends with last message, unread count, timestamps |
-| POST | `/api/friends/requests` | Get pending friend requests |
-| POST | `/api/friends/send-request?receiver=X` | Send a friend request |
-| POST | `/api/friends/accept?requester=X` | Accept a friend request |
-| POST | `/api/friends/reject?requester=X` | Reject a friend request |
-
-### Messages
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/messages/send?receiver=X&message=Y` | Send a message |
-| POST | `/api/messages/get?receiver=X` | Get conversation (marks messages as read) |
-| POST | `/api/messages/check-notif?chatter=X` | Get unread message count |
-
-### Users
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/users/search?username=X` | Search users by username (max 20 results) |
-| GET | `/api/users/photo/{username}` | Get profile photo |
-| POST | `/api/users/photo` | Upload profile photo (multipart) |
-
-All responses use a standard wrapper:
-
-```json
-{
-  "success": true,
-  "message": "Login successful",
-  "data": { "token": "eyJhbG...", "user": { "id": 1, "username": "alice" } },
-  "timestamp": "2026-01-27T10:30:00"
-}
+```
+Java-ChatApp/
+├── backend/                          # Spring Boot REST API
+│   └── src/main/java/com/chatapp/backend/
+│       ├── controller/               # REST endpoints
+│       ├── service/                  # Business logic
+│       ├── repository/               # Spring Data JPA
+│       ├── model/                    # JPA entities
+│       ├── security/                 # JWT filter & config
+│       └── config/                   # CORS, security config
+│
+├── frontend/                         # JavaFX desktop client
+│   └── src/goksoft/chat/app/
+│       ├── controller/               # FXML controllers
+│       │   ├── auth/                 # Login, Register
+│       │   ├── main/                 # Main panel
+│       │   └── dialog/               # Warning dialogs
+│       ├── service/                  # HTTP service layer
+│       ├── ui/components/            # Reusable UI components
+│       ├── config/                   # Environment config
+│       ├── util/                     # Scene switching utils
+│       └── view/                     # FXML layouts
+│           ├── auth/                 # Login & register screens
+│           ├── main/                 # Main panel layout
+│           └── legacy/               # Original 2020 login design
+│
+└── .github/workflows/                # CI/CD pipeline
 ```
 
 ---
 
-## Security
+## Modernization Journey
 
-- **JWT Authentication** — Stateless tokens with 24-hour expiry, validated on every request via `JwtAuthenticationFilter`
-- **BCrypt Password Hashing** — Passwords are never stored in plain text
-- **Identity from Token** — The backend extracts the username from the JWT on every request; users cannot impersonate others by passing a different username as a parameter
-- **Spring Security** — All endpoints except `/api/auth/login` and `/api/auth/register` are protected
-- **CORS** — Configured for cross-origin requests from the desktop client
+This project started as a university exercise in 2020 and has been incrementally modernized:
 
----
-
-## Testing
-
-The project has comprehensive test coverage across both backend and frontend.
-
-### Backend — 56 tests, ~90% coverage
-
-```bash
-cd backend-springboot
-mvn test
-```
-
-Covers all service layer logic, JWT utilities, authentication flows, and global exception handling.
-
-### Frontend — ~100 tests, ~85% coverage
-
-```bash
-cd frontend
-mvn test
-```
-
-Covers the service layer (AuthService, FriendService, MessageService, UserService), ApiClient token management, JSON serialization/deserialization, and environment configuration. Service tests mock the `ApiClient` and use `CompletableFuture.completedFuture()` / `failedFuture()` to test async patterns without needing a running backend or JavaFX thread.
-
-### Generate Coverage Reports
-
-```bash
-mvn test jacoco:report
-# Report at target/site/jacoco/index.html
-```
-
----
-
-## The Modernization Story
-
-This project started as one of my first coding projects in 2020. It stopped working when Heroku discontinued its free tier and my new M4 MacBook couldn't run the old JavaFX build. Rather than abandoning it, I chose to rebuild it from scratch using everything I've learned since then.
-
-| Aspect | Original (2020) | Modernized (2026) |
-|---|---|---|
-| Backend | PHP | Java 21 + Spring Boot |
-| Database | MySQL on Heroku ClearDB | PostgreSQL on Railway |
-| Authentication | Session cookies | JWT tokens + BCrypt |
-| API style | Individual PHP files | Layered REST API with DTOs |
-| Frontend HTTP | Manual `HttpURLConnection` | Java 11+ `HttpClient` |
-| JSON parsing | Manual / json-simple | Gson with generics and TypeToken |
-| Async pattern | Daemon threads + `Thread.sleep()` | `CompletableFuture` |
-| Error handling | `try-catch` with `printStackTrace()` | Global exception handler + SLF4J |
-| Database schema | 5 tables with redundancy | 3 normalized tables |
-| Code structure | 700-line God class | Focused classes, 50–150 lines each |
-| Hosting | Heroku (defunct free tier) | Railway |
-
-### Refactoring highlights
-
-- **93% reduction in the God class** — `Function.java` went from 700+ lines mixing UI, networking, and business logic down to focused, single-responsibility services and utilities
-- **Eliminated global static state** — Replaced mutable `GlobalVariables` with a `ServiceManager` singleton and proper instance-scoped state
-- **Unified friendship model** — Consolidated separate `friends` and `requeststable` tables into a single `friendships` table with a status enum (`PENDING → ACCEPTED / REJECTED`)
-- **Modern async patterns** — Replaced manual daemon threads with `CompletableFuture` chains and `Platform.runLater()` for JavaFX thread safety
-- **Proper security** — JWT tokens prevent the impersonation attacks that were possible with the old cookie-based system
+| Phase | What Changed |
+|-------|-------------|
+| **Original (2020)** | PHP backend, MySQL, raw SQL, basic JavaFX UI |
+| **Backend Migration** | Spring Boot, PostgreSQL, JPA, RESTful API |
+| **Authentication** | JWT tokens replacing session-based auth, BCrypt passwords |
+| **Database Redesign** | 5 tables → 3 tables, unified friendships with status enum |
+| **Code Architecture** | Service layer, async HTTP client, dependency injection |
+| **UI Redesign** | Modern dark theme, component-based UI, gradient avatars |
+| **Deployment** | Railway hosting, GitHub Actions CI/CD, native installers |
 
 ---
 
 ## Legacy Repositories
 
-The original codebases are preserved as archived references:
+The original codebase is preserved for reference:
 
-- [Chat-App-Backend](https://github.com/JakobGokpinar/Chat-App-Backend) — Original PHP backend
-- [Chat-App-Frontend](https://github.com/JakobGokpinar/Chat-App-Frontend) — Original JavaFX frontend
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+- [Chat-App-Backend](https://github.com/JakobGokpinar/Chat-App-Backend) — Original PHP backend (archived)
+- [Chat-App-Frontend](https://github.com/JakobGokpinar/Chat-App-Frontend) — Original JavaFX frontend with PHP integration (archived)
 
 ---
 
 ## Author
 
-**Jakob Gökpınar**
+**Jakob Gökpınar** — BSc Informatics, University of Oslo
 
-- GitHub: [@JakobGokpinar](https://github.com/JakobGokpinar)
-- University of Oslo — Programming and System Architecture
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jakob-gokpinar-646851238/)
+[![Portfolio](https://img.shields.io/badge/Portfolio-000000?style=flat&logo=vercel&logoColor=white)](https://jakobg-tech.vercel.app)
+
+---
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
