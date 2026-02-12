@@ -24,7 +24,7 @@ import javafx.scene.layout.*;
  */
 public class RequestBoxComponent {
 
-    public static BorderPane create(String requesterName, Image photo,
+    public static BorderPane create(String requesterName,
                                     EventHandler<MouseEvent> onAccept,
                                     EventHandler<MouseEvent> onReject) {
 

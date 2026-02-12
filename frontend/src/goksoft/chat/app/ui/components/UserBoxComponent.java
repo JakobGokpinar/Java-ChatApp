@@ -23,7 +23,7 @@ import javafx.scene.layout.StackPane;
  */
 public class UserBoxComponent {
 
-    public static HBox create(String userName, Image photo,
+    public static HBox create(String userName,
                               EventHandler<MouseEvent> onAddClick) {
 
         HBox container = new HBox(14);

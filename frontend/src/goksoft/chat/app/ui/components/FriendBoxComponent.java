@@ -24,7 +24,7 @@ public class FriendBoxComponent {
 
     public static BorderPane create(String friendName, String lastMessage,
                                     String notifCount, String lastDate,
-                                    Image photo, Runnable onClickCallback) {
+                                    Runnable onClickCallback) {
 
         BorderPane container = new BorderPane();
         container.getStyleClass().add("friend-item");

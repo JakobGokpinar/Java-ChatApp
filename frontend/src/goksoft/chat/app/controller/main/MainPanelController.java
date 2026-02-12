@@ -215,10 +215,9 @@ public class MainPanelController {
         String notifCount = friendData.get(1);
         String lastMsg = friendData.get(2);
         String passedTime = friendData.get(3);
-        Image photo = ProfilePhotoLoader.loadPhoto(username);
 
         return FriendBoxComponent.create(
-                username, lastMsg, notifCount, passedTime, photo,
+                username, lastMsg, notifCount, passedTime,
                 () -> onFriendClicked(username)
         );
     }
@@ -261,9 +260,8 @@ public class MainPanelController {
                     friendRequestsNameList.clear();
 
                     for (String username : requests) {
-                        Image photo = ProfilePhotoLoader.loadPhoto(username);
                         BorderPane requestBox = RequestBoxComponent.create(
-                                username, photo,
+                                username,
                                 event -> acceptFriendRequest(username),
                                 event -> rejectFriendRequest(username)
                         );
@@ -440,9 +438,8 @@ public class MainPanelController {
                 .thenAccept(users -> Platform.runLater(() -> {
                     usersVBox.getChildren().clear();
                     for (String username : users) {
-                        Image photo = ProfilePhotoLoader.loadPhoto(username);
                         HBox userBox = UserBoxComponent.create(
-                                username, photo,
+                                username,
                                 event2 -> sendFriendRequest(username)
                         );
                         usersVBox.getChildren().addFirst(userBox);
@@ -543,9 +540,8 @@ public class MainPanelController {
     private void updateFriendRequestsUI(List<String> requests) {
         for (String username : requests) {
             if (!friendRequestsNameList.contains(username)) {
-                Image photo = ProfilePhotoLoader.loadPhoto(username);
                 BorderPane requestBox = RequestBoxComponent.create(
-                        username, photo,
+                        username,
                         event -> acceptFriendRequest(username),
                         event -> rejectFriendRequest(username)
                 );
