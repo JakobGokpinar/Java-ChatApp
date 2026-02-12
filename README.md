@@ -207,10 +207,10 @@ The original codebase is preserved for reference:
 
 ## Author
 
-**Jakob Gökpınar** — BSc Informatics, University of Oslo
+**Jakob Gokpınar** — BSc Informatics, University of Oslo
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jakob-gokpinar-646851238/)
-[![Portfolio](https://img.shields.io/badge/Portfolio-000000?style=flat&logo=vercel&logoColor=white)](https://jakobg-tech.vercel.app)
+[![Portfolio](https://img.shields.io/badge/Portfolio-000000?style=flat&logo=vercel&logoColor=white)](https://jakobg.tech)
 
 ---
 
