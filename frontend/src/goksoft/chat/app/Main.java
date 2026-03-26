@@ -1,6 +1,7 @@
 package goksoft.chat.app;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -31,5 +32,12 @@ public class Main extends Application {
         primaryStage.setResizable(true);
         primaryStage.centerOnScreen();
         primaryStage.show();
+    }
+
+    @Override
+    public void stop() {
+        // Ensure JVM exits even if daemon threads aren't enough
+        Platform.exit();
+        System.exit(0);
     }
 }

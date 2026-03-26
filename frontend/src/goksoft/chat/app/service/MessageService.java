@@ -40,9 +40,12 @@ public class MessageService {
                         List<List<String>> result = new ArrayList<>();
                         for (JsonElement elem : dataArray) {
                             JsonObject msgObj = elem.getAsJsonObject();
+                            String timestamp = msgObj.has("timestamp") && !msgObj.get("timestamp").isJsonNull()
+                                    ? msgObj.get("timestamp").getAsString() : "";
                             result.add(List.of(
                                     msgObj.get("sender").getAsString(),
-                                    msgObj.get("message").getAsString()
+                                    msgObj.get("message").getAsString(),
+                                    timestamp
                             ));
                         }
                         return result;

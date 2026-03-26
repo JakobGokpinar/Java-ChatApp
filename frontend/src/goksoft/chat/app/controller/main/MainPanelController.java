@@ -130,8 +130,12 @@ public class MainPanelController {
         listView.setCellFactory(MessageBubbleFactory.create(
                 currentUser != null ? currentUser : ""));
 
-        // Initialize scheduler for polling
-        scheduler = Executors.newScheduledThreadPool(2);
+        // Initialize scheduler for polling (daemon threads so JVM can exit)
+        scheduler = Executors.newScheduledThreadPool(2, r -> {
+            Thread t = new Thread(r, "friend-poll");
+            t.setDaemon(true);
+            return t;
+        });
         startFriendStatsPolling();
         startFriendRequestsPolling();
 
@@ -408,7 +412,11 @@ public class MainPanelController {
         currentTimer = (int) (Math.random() * 1000);
         final int timerSnapshot = currentTimer;
 
-        messagePollingScheduler = Executors.newSingleThreadScheduledExecutor();
+        messagePollingScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "msg-poll");
+            t.setDaemon(true);
+            return t;
+        });
         messagePollingScheduler.scheduleAtFixedRate(() -> {
             if (timerSnapshot != currentTimer || currentFriend == null) return;
 

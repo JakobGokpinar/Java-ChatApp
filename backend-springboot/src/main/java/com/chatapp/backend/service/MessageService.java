@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,8 +61,11 @@ public class MessageService {
         List<Message> messages = messageRepository.findMessagesBetweenUsers(user1, receiver);
         List<MessageResponse> messageResponses = new ArrayList<>();
 
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
         for (Message msg : messages) {
-            messageResponses.add(new MessageResponse(msg.getSender(), msg.getContent()));
+            String timestamp = msg.getCreatedAt() != null
+                    ? msg.getCreatedAt().format(fmt) : "";
+            messageResponses.add(new MessageResponse(msg.getSender(), msg.getContent(), timestamp));
         }
 
         // Mark all messages from receiver to user1 as read
